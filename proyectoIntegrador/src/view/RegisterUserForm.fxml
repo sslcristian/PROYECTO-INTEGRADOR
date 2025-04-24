@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controller.RegisterUserController"
+      alignment="CENTER"
+      spacing="10"
+      style="-fx-background-color: #E3F2FD;"
+      prefWidth="400"
+      prefHeight="500">
+
+    <VBox.margin>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </VBox.margin>
+
+    <Label text="Registro de Usuario" styleClass="header-label"/>
+
+    <TextField fx:id="txtCedula" promptText="Cédula" styleClass="text-field"/>
+    <TextField fx:id="txtNombre" promptText="Nombre completo" styleClass="text-field"/>
+    <TextField fx:id="txtCorreo" promptText="Correo institucional" styleClass="text-field"/>
+    <TextField fx:id="txtTelefono" promptText="Teléfono" styleClass="text-field"/>
+    <TextField fx:id="txtTipoUsuario" promptText="Tipo de usuario" styleClass="text-field"/>
+    <TextField fx:id="txtDepartamento" promptText="Departamento" styleClass="text-field"/>
+    <PasswordField fx:id="txtContrasena" promptText="Contraseña" styleClass="password-field"/>
+
+    <Button text="Registrar" onAction="#registrarUsuario" styleClass="button"/>
+</VBox>

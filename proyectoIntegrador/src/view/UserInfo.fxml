@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="controller.UserInfoController"
+            prefWidth="600" prefHeight="400" styleClass="root">
+    <VBox spacing="15" alignment="CENTER" layoutX="100" layoutY="30" prefWidth="400">
+        <Label text="Mi Información" styleClass="header-label"/>
+        
+        <HBox spacing="10">
+            <Label text="Nombre:" styleClass="label"/>
+            <Label fx:id="lblNombre" styleClass="info-label"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Cédula:" styleClass="label"/>
+            <Label fx:id="lblCedula" styleClass="info-label"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Correo:" styleClass="label"/>
+            <Label fx:id="lblCorreo" styleClass="info-label"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Teléfono:" styleClass="label"/>
+            <Label fx:id="lblTelefono" styleClass="info-label"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Departamento:" styleClass="label"/>
+            <Label fx:id="lblDepartamento" styleClass="info-label"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Tipo de Usuario:" styleClass="label"/>
+            <Label fx:id="lblTipoUsuario" styleClass="info-label"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

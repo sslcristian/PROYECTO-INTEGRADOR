@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controller.LoginUserController"
+      alignment="CENTER"
+      spacing="10"
+      style="-fx-background-color: #E3F2FD;"
+      prefWidth="400"
+      prefHeight="400">
+
+    <Label text="Inicio de Sesión Usuario" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <TextField fx:id="txtCedula" promptText="Cédula"/>
+    <PasswordField fx:id="txtContrasena" promptText="Contraseña"/>
+
+    <Button text="Iniciar Sesión" onAction="#iniciarSesion"/>
+</VBox>

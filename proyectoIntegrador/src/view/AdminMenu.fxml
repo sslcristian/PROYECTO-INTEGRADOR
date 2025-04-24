@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AdminMenuController">
+
+    <left>
+        <VBox alignment="TOP_CENTER" prefWidth="212.0" spacing="20" style="-fx-background-color: #0D47A1;">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="30" />
+            </padding>
+
+            <Label style="-fx-text-fill: white; -fx-font-size: 20;" text="🛠️ Administrador" />
+
+            <Button fx:id="btnGestionarSalas" onAction="#gestionarSalas" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="GESTIONAR SALAS" />
+            <Button fx:id="btnGestionarEquipos" onAction="#gestionarEquipos" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="GESTIONAR EQUIPOS" />
+            <Button fx:id="btnControlMantenimiento" onAction="#controlMantenimiento" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="CONTROL MANTENIMIENTO" />
+            <Button fx:id="btnDevolucion" onAction="#controlDevolucion" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="DEVOLUCIONES" />
+            <Button fx:id="btnGenerarSancion" onAction="#generarSancion" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="GENERAR SANCIÓN" />
+            <Button fx:id="btnCerrarSesion" onAction="#cerrarSesion" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="CERRAR SESIÓN" />
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane fx:id="adminContentPane" style="-fx-background-color: #E3F2FD;">
+            <Label style="-fx-font-size: 24; -fx-text-fill: #0D47A1;" text="Bienvenido al menú de administrador" />
+        </StackPane>
+    </center>
+
+</BorderPane>
