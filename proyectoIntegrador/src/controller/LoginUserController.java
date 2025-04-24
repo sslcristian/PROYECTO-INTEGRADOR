@@ -44,6 +44,7 @@ public class LoginUserController {
                 Session.setUsuarioActual(usuario); 
 
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/UserMenu.fxml"));
+
                 Parent userMenu = loader.load();
 
                 Stage stage = (Stage) txtCedula.getScene().getWindow();

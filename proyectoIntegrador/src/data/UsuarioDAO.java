@@ -124,6 +124,7 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
             stmt.setLong(1, cedula);
             stmt.setString(2, contrasena);
             ResultSet rs = stmt.executeQuery();
+
             if (rs.next()) {
                 return new Usuario(
                     rs.getLong("cedula"),
@@ -161,5 +162,30 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
         }
         return null;
     }
+    public Usuario obtenerUsuarioPorCedula(long cedula) {
+        Usuario usuario = null;
+        String query = "SELECT * FROM usuarios WHERE cedula = ?";
 
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setLong(1, cedula);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+              
+                usuario = new Usuario(
+                    rs.getLong("cedula"),
+                    rs.getString("nombre"),
+                    rs.getString("correo"),
+                    rs.getString("telefono"),
+                    rs.getString("tipoUsuario"),
+                    rs.getString("departamento"),
+                    rs.getString("contraseña")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return usuario;
+    }
 }

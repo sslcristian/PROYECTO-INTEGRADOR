@@ -9,7 +9,6 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.UserMenuController">
 
-   
     <left>
         <VBox alignment="TOP_CENTER" prefWidth="212.0" spacing="20" style="-fx-background-color: #0D47A1;">
             <padding>
@@ -19,19 +18,15 @@
             <Label style="-fx-text-fill: white; -fx-font-size: 20;" text="👤 Usuario" />
 
             <Button fx:id="btnVerInfo" onAction="#verInformacion" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="DATOS PERSONALES" />
-
             <Button fx:id="btnReservarSala" onAction="#reservarSala" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="RESERVAR SALA" />
-
             <Button fx:id="btnReservarEquipo" onAction="#reservarEquipo" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="RESERVAR EQUIPO" />
-
             <Button fx:id="btnCerrarSesion" onAction="#cerrarSesion" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="CERRAR SESION" />
         </VBox>
     </left>
 
-    
     <center>
-        <StackPane fx:id="contentPane" style="-fx-background-color: #E3F2FD;">
-            <Label style="-fx-font-size: 24; -fx-text-fill: #0D47A1;" text="Bienvenido al menú de usuario" />
+        <StackPane fx:id="stackPaneContenido" style="-fx-background-color: #E3F2FD;">
+            <Label fx:id="lblNombreUsuario" style="-fx-font-size: 24; -fx-text-fill: #0D47A1;" text="Bienvenido al menú de usuario" />
         </StackPane>
     </center>
 
