@@ -8,32 +8,28 @@ import java.util.ArrayList;
 public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equipo, Integer> {
     private Connection connection;
 
-    
     public Mantenimiento_EquipoDAO(Connection connection) {
         this.connection = connection;
     }
 
     @Override
     public void save(Mantenimiento_Equipo mantenimientoEquipo) {
-        String query = "INSERT INTO mantenimiento_equipo (id_equipo, fecha_mantenimiento, detalle, tecnico_responsable) " +
-                       "VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO TBL_MANTENIMIENTO_E (id_mantenimiento, id_equipo, fecha_mantenimiento, detalle, técnico_responsable) " +
+                       "VALUES (SEQ_MANTENIMIENTO_E.NEXTVAL, ?, ?, ?, ?)";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            
+        String[] returnCols = { "id_mantenimiento" };
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query, returnCols)) {
             pstmt.setInt(1, mantenimientoEquipo.getIdEquipo());
             pstmt.setDate(2, mantenimientoEquipo.getFechaMantenimiento());
             pstmt.setString(3, mantenimientoEquipo.getDetalle());
             pstmt.setString(4, mantenimientoEquipo.getTecnicoResponsable());
 
-          
             int rowsAffected = pstmt.executeUpdate();
 
-            
             if (rowsAffected > 0) {
-              
                 try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        
                         mantenimientoEquipo.setIdMantenimiento(generatedKeys.getInt(1));
                     }
                 }
@@ -47,21 +43,19 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
     @Override
     public ArrayList<Mantenimiento_Equipo> fetch() {
         ArrayList<Mantenimiento_Equipo> mantenimientos = new ArrayList<>();
-        String query = "SELECT * FROM mantenimiento_equipo";
+        String query = "SELECT * FROM TBL_MANTENIMIENTO_E";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-               
                 Mantenimiento_Equipo mantenimiento = new Mantenimiento_Equipo(
                         rs.getInt("id_mantenimiento"),
                         rs.getInt("id_equipo"),
                         rs.getDate("fecha_mantenimiento"),
                         rs.getString("detalle"),
-                        rs.getString("tecnico_responsable")
+                        rs.getString("técnico_responsable")
                 );
-             
                 mantenimientos.add(mantenimiento);
             }
         } catch (SQLException e) {
@@ -73,7 +67,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void update(Mantenimiento_Equipo mantenimientoEquipo) {
-        String query = "UPDATE mantenimiento_equipo SET id_equipo=?, fecha_mantenimiento=?, detalle=?, tecnico_responsable=? " +
+        String query = "UPDATE TBL_MANTENIMIENTO_E SET id_equipo=?, fecha_mantenimiento=?, detalle=?, técnico_responsable=? " +
                        "WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -94,7 +88,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM mantenimiento_equipo WHERE id_mantenimiento=?";
+        String query = "DELETE FROM TBL_MANTENIMIENTO_E WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -112,7 +106,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_mantenimiento FROM mantenimiento_equipo WHERE id_mantenimiento=?";
+        String query = "SELECT id_mantenimiento FROM TBL_MANTENIMIENTO_E WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);

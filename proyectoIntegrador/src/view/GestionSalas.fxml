@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="20" style="-fx-background-color: #E3F2FD;" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SalaController">
+    <padding>
+        <Insets bottom="40" left="40" right="40" top="40" />
+    </padding>
+
+    <Label style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #0D47A1;" text="Gestionar Salas">
+        <font>
+            <Font name="Arial" size="24" />
+        </font>
+        <effect>
+            <DropShadow color="#90CAF9" radius="3" />
+        </effect>
+    </Label>
+
+    <TextField fx:id="nombreField" prefWidth="300" promptText="Nombre de la Sala" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    <TextField fx:id="capacidadField" prefWidth="300" promptText="Capacidad" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    <TextField fx:id="softwareField" prefWidth="300" promptText="Software Disponible" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    <TextField fx:id="hardwareField" prefWidth="300" promptText="Hardware Especial" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    <TextField fx:id="ubicacionField" prefWidth="300" promptText="Ubicación" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    <TextField fx:id="estadoField" prefWidth="300" promptText="Estado (Disponible / Ocupada / Reservada)" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+
+    <TableView fx:id="salaTable" prefHeight="200" prefWidth="600" style="-fx-background-color: white; -fx-border-color: #BBDEFB;">
+        <columns>
+            <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
+            <TableColumn fx:id="nombreColumn" prefWidth="120" text="Nombre" />
+            <TableColumn fx:id="capacidadColumn" prefWidth="80" text="Capacidad" />
+            <TableColumn fx:id="softwareColumn" prefWidth="120" text="Software" />
+            <TableColumn fx:id="hardwareColumn" prefWidth="120" text="Hardware" />
+            <TableColumn fx:id="ubicacionColumn" prefWidth="100" text="Ubicación" />
+            <TableColumn fx:id="estadoColumn" prefWidth="100" text="Estado" />
+        </columns>
+    </TableView>
+
+    <Button fx:id="btnAdd" onAction="#addSala" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #90CAF9; -fx-text-fill: white;" text="Agregar Sala" />
+    <Button fx:id="btnUpdate" onAction="#updateSala" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #64B5F6; -fx-text-fill: white;" text="Actualizar Sala" />
+    <Button fx:id="btnDelete" onAction="#deleteSala" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Eliminar Sala" />
+    <Button fx:id="btnFetch" onAction="#fetchSalas" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #BBDEFB; -fx-text-fill: white;" text="Mostrar Todas las Salas" />
+</VBox>

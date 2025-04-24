@@ -5,9 +5,9 @@ public class Admin {
     private String nombre;
     private String correo;
     private String telefono;
-    private String contraseñaAdmin;
+    private String contraseñaAdmin;  // para validar en el registro (C12282025)
     private String departamento;
-    private String contraseñaAdministrativo;
+    private String contraseñaAdministrativo; // la contraseña real del admin
 
     public Admin(long cedula, String nombre, String correo, String telefono, String contraseñaAdmin, String departamento, String contraseñaAdministrativo) {
         this.cedula = cedula;

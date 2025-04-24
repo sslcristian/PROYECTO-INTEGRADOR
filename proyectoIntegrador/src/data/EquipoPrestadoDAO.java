@@ -14,7 +14,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public void save(EquipoPrestado equipoPrestado) {
-        String query = "INSERT INTO equipo_prestado (id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones) " +
+        String query = "INSERT INTO TBL_EQUIPO_PRESTADO (id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones) " +
                        "VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -37,7 +37,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
     @Override
     public ArrayList<EquipoPrestado> fetch() {
         ArrayList<EquipoPrestado> equipoPrestados = new ArrayList<>();
-        String query = "SELECT id_prestamo_e, id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones FROM equipo_prestado";
+        String query = "SELECT id_prestamo_e, id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones FROM TBL_EQUIPO_PRESTADO";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -65,7 +65,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public void update(EquipoPrestado equipoPrestado) {
-        String query = "UPDATE equipo_prestado SET id_solicitud_e=?, id_equipo=?, fecha_inicio=?, fecha_fin=?, observaciones=? " +
+        String query = "UPDATE TBL_EQUIPO_PRESTADO SET id_solicitud_e=?, id_equipo=?, fecha_inicio=?, fecha_fin=?, observaciones=? " +
                        "WHERE id_prestamo_e=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -90,7 +90,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM equipo_prestado WHERE id_prestamo_e=?";
+        String query = "DELETE FROM TBL_EQUIPO_PRESTADO WHERE id_prestamo_e=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -108,7 +108,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_prestamo_e FROM equipo_prestado WHERE id_prestamo_e=?";
+        String query = "SELECT id_prestamo_e FROM TBL_EQUIPO_PRESTADO WHERE id_prestamo_e=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);

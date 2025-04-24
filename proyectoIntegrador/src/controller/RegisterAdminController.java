@@ -25,6 +25,7 @@ public class RegisterAdminController {
     @FXML
     private void registrarAdmin() {
         try {
+         
             if (txtCedula.getText().isEmpty() || txtNombre.getText().isEmpty() || txtCorreo.getText().isEmpty()
                     || txtTelefono.getText().isEmpty() || txtContrasenaAdmin.getText().isEmpty()
                     || txtDepartamento.getText().isEmpty() || txtContrasenaAdministrativo.getText().isEmpty()) {
@@ -32,6 +33,7 @@ public class RegisterAdminController {
                 return;
             }
 
+         
             long cedula;
             try {
                 cedula = Long.parseLong(txtCedula.getText());
@@ -40,18 +42,21 @@ public class RegisterAdminController {
                 return;
             }
 
+     
             String telefono = txtTelefono.getText();
             if (!telefono.matches("\\d{7,15}")) {
                 showAlert("Teléfono inválido", "El número de teléfono debe contener entre 7 y 15 dígitos.");
                 return;
             }
 
+     
             String correo = txtCorreo.getText();
             if (!correo.matches("^[\\w-.]+@udi\\.edu\\.co$")) {
                 showAlert("Correo inválido", "El correo debe ser institucional y terminar en @udi.edu.co.");
                 return;
             }
 
+         
             String contrasenaAdmin = txtContrasenaAdmin.getText();
             if (!CONTRASENA_ADMIN_VALIDA.equals(contrasenaAdmin)) {
                 showAlert("Error", "Contraseña de administradores incorrecta.");
@@ -60,12 +65,12 @@ public class RegisterAdminController {
 
             String nombre = txtNombre.getText();
             String departamento = txtDepartamento.getText();
-            String contrasenaAdministrativo = txtContrasenaAdministrativo.getText();
+            String contrasenaAdministrativo = txtContrasenaAdministrativo.getText(); // sin hash
 
             Connection conn = DBConnection.getInstance().getConnection();
             AdminDAO dao = new AdminDAO(conn);
 
-           
+       
             if (dao.exists(cedula)) {
                 showAlert("Error", "La cédula ya está registrada.");
                 return;
@@ -76,8 +81,10 @@ public class RegisterAdminController {
                 return;
             }
 
+       
             Admin admin = new Admin(cedula, nombre, correo, telefono, contrasenaAdmin, departamento, contrasenaAdministrativo);
             dao.save(admin);
+
             showAlert("Registro exitoso", "Administrador registrado correctamente.");
             limpiarCampos();
 

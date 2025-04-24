@@ -40,16 +40,19 @@ public class LoginAdminController {
             AdminDAO dao = new AdminDAO(conn);
 
             Admin admin = dao.findByCedula(cedula);
-            if (admin != null && admin.getContraseñaAdmin().equals(contrasena)) {
-             
+
+            if (admin == null) {
+                mostrarAlerta("Cédula no encontrada", "La cédula no está registrada en el sistema.");
+            } else if (!admin.getContraseñaAdministrativo().equals(contrasena)) {
+                mostrarAlerta("Contraseña incorrecta", "La contraseña ingresada no es correcta.");
+            } else {
+              
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
                 Parent adminMenu = loader.load();
 
                 Stage stage = (Stage) txtCedula.getScene().getWindow();
                 stage.setScene(new Scene(adminMenu));
                 stage.show();
-            } else {
-                mostrarAlerta("Error", "Cédula o contraseña incorrecta.");
             }
 
         } catch (NumberFormatException e) {

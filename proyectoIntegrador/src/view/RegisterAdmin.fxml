@@ -7,7 +7,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="15" styleClass="root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.RegisterAdminController">
+<VBox alignment="CENTER" spacing="15" styleClass="root" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.RegisterAdminController">
 
     <padding>
         <Insets bottom="30" left="50" right="50" top="30" />
@@ -19,9 +19,9 @@
     <TextField fx:id="txtCedula" promptText="Cédula" styleClass="text-field" />
     <TextField fx:id="txtCorreo" promptText="Correo electrónico" styleClass="text-field" />
     <TextField fx:id="txtTelefono" promptText="Teléfono" styleClass="text-field" />
-    <PasswordField fx:id="txtContrasena" promptText="Contraseña" styleClass="password-field" />
+    <PasswordField fx:id="txtContrasena" promptText="Contraseña Secreta Admin" styleClass="password-field" />
     <TextField fx:id="txtDepartamento" promptText="Departamento" styleClass="text-field" />
-    <PasswordField fx:id="txtContrasenaAdmin" promptText="Contraseña del administrativo" styleClass="password-field" />
+    <PasswordField fx:id="txtContrasenaAdmin" promptText="Contraseña Para El Login" styleClass="password-field" />
 
     <Button onAction="#registrarAdmin" styleClass="button" text="Registrar" />
 </VBox>

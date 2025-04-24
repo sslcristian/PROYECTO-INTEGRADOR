@@ -13,7 +13,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
     @Override
     public void save(EquipoAudiovisual equipo) {
-        String query = "INSERT INTO equipo_audiovisual (nombre, tipo, estado, ubicacion, marca, modelo, fecha_adquisicion) " +
+        String query = "INSERT INTO TBL_EQUIPO (nombre, tipo, estado, ubicación, marca, modelo, fecha_adquisición) " +
                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -37,22 +37,21 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
     @Override
     public ArrayList<EquipoAudiovisual> fetch() {
         ArrayList<EquipoAudiovisual> equipos = new ArrayList<>();
-        String query = "SELECT * FROM equipo_audiovisual";
+        String query = "SELECT * FROM TBL_EQUIPO";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                
                 EquipoAudiovisual equipo = new EquipoAudiovisual(
                         rs.getInt("id_equipo"),
                         rs.getString("nombre"),
                         rs.getString("tipo"),
                         rs.getString("estado"),
-                        rs.getString("ubicacion"),
+                        rs.getString("ubicación"),
                         rs.getString("marca"),
                         rs.getString("modelo"),
-                        rs.getDate("fecha_adquisicion")
+                        rs.getDate("fecha_adquisición")
                 );
                 equipos.add(equipo);
             }
@@ -65,7 +64,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
     @Override
     public void update(EquipoAudiovisual equipo) {
-        String sql = "UPDATE equipo_audiovisual SET nombre=?, tipo=?, estado=?, ubicacion=?, marca=?, modelo=?, fecha_adquisicion=? WHERE id_equipo=?";
+        String sql = "UPDATE TBL_EQUIPO SET nombre=?, tipo=?, estado=?, ubicación=?, marca=?, modelo=?, fecha_adquisición=? WHERE id_equipo=?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, equipo.getNombre());
@@ -84,7 +83,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
     @Override
     public void delete(Integer id) {
-        String sql = "DELETE FROM equipo_audiovisual WHERE id_equipo=?";
+        String sql = "DELETE FROM TBL_EQUIPO WHERE id_equipo=?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -101,8 +100,8 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
     @Override
     public boolean authenticate(Integer id) {
-        String sql = "SELECT id_equipo FROM equipo_audiovisual WHERE id_equipo=?";
-        
+        String sql = "SELECT id_equipo FROM TBL_EQUIPO WHERE id_equipo=?";
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();

@@ -27,7 +27,7 @@ public class Session {
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/mi_base_de_datos", "usuario", "contraseña");
 
           
-            String query = "SELECT * FROM usuarios WHERE cedula = ?";
+            String query = "SELECT * FROM TBL_USUARIO WHERE cedula = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setLong(1, cedula);
             ResultSet resultSet = statement.executeQuery();

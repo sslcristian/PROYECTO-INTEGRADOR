@@ -8,33 +8,27 @@ import java.util.ArrayList;
 public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
     private Connection connection;
 
-   
     public SancionDAO(Connection connection) {
         this.connection = connection;
     }
 
     @Override
     public void save(Sancion sancion) {
-        String query = "INSERT INTO sancion (cedula_usuario, monto, motivo, fecha, estado) " +
+        String query = "INSERT INTO TBL_SANCION (cedula_usuario, monto, motivo, fecha, estado) " +
                        "VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-         
             pstmt.setLong(1, sancion.getCedulaUsuario());
             pstmt.setDouble(2, sancion.getMonto());
             pstmt.setString(3, sancion.getMotivo());
             pstmt.setDate(4, sancion.getFecha());
             pstmt.setString(5, sancion.getEstado());
 
-            
             int rowsAffected = pstmt.executeUpdate();
 
-            
             if (rowsAffected > 0) {
-               
                 try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                       
                         sancion.setIdSancion(generatedKeys.getInt(1));
                     }
                 }
@@ -48,15 +42,14 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
     @Override
     public ArrayList<Sancion> fetch() {
         ArrayList<Sancion> sanciones = new ArrayList<>();
-        String query = "SELECT * FROM sancion";
+        String query = "SELECT * FROM TBL_SANCION";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                
                 Sancion sancion = new Sancion(
-                        rs.getInt("id_sancion"),
+                        rs.getInt("id_sanción"),
                         rs.getLong("cedula_usuario"),
                         rs.getDouble("monto"),
                         rs.getString("motivo"),
@@ -74,8 +67,8 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
     @Override
     public void update(Sancion sancion) {
-        String query = "UPDATE sancion SET cedula_usuario=?, monto=?, motivo=?, fecha=?, estado=? " +
-                       "WHERE id_sancion=?";
+        String query = "UPDATE TBL_SANCION SET cedula_usuario=?, monto=?, motivo=?, fecha=?, estado=? " +
+                       "WHERE id_sanción=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setLong(1, sancion.getCedulaUsuario());
@@ -96,7 +89,7 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM sancion WHERE id_sancion=?";
+        String query = "DELETE FROM TBL_SANCION WHERE id_sanción=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -114,7 +107,7 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_sancion FROM sancion WHERE id_sancion=?";
+        String query = "SELECT id_sanción FROM TBL_SANCION WHERE id_sanción=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);

@@ -10,19 +10,19 @@
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AdminMenuController">
 
     <left>
-        <VBox alignment="TOP_CENTER" prefWidth="212.0" spacing="20" style="-fx-background-color: #0D47A1;">
+        <VBox alignment="TOP_CENTER" prefHeight="490.0" prefWidth="256.0" spacing="20" style="-fx-background-color: #0D47A1;" stylesheets="@Style.css">
             <padding>
                 <Insets bottom="10" left="10" right="10" top="30" />
             </padding>
 
             <Label style="-fx-text-fill: white; -fx-font-size: 20;" text="🛠️ Administrador" />
 
-            <Button fx:id="btnGestionarSalas" onAction="#gestionarSalas" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="GESTIONAR SALAS" />
-            <Button fx:id="btnGestionarEquipos" onAction="#gestionarEquipos" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="GESTIONAR EQUIPOS" />
-            <Button fx:id="btnControlMantenimiento" onAction="#controlMantenimiento" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="CONTROL MANTENIMIENTO" />
-            <Button fx:id="btnDevolucion" onAction="#controlDevolucion" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="DEVOLUCIONES" />
-            <Button fx:id="btnGenerarSancion" onAction="#generarSancion" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="GENERAR SANCIÓN" />
-            <Button fx:id="btnCerrarSesion" onAction="#cerrarSesion" prefHeight="32.0" prefWidth="197.0" styleClass="sidebar-button" text="CERRAR SESIÓN" />
+            <Button fx:id="btnGestionarSalas" onAction="#gestionarSalas" prefHeight="32.0" prefWidth="300.0" styleClass="sidebar-button" text="GESTIONAR SALAS" />
+            <Button fx:id="btnGestionarEquipos" onAction="#gestionarEquipos" prefHeight="32.0" prefWidth="300.0" styleClass="sidebar-button" text="GESTIONAR EQUIPOS" />
+            <Button fx:id="btnControlMantenimiento" onAction="#controlMantenimiento" prefHeight="32.0" prefWidth="300.0" styleClass="sidebar-button" text="CONTROL MANTENIMIENTO" />
+            <Button fx:id="btnDevolucion" onAction="#controlDevolucion" prefHeight="32.0" prefWidth="300.0" styleClass="sidebar-button" text="DEVOLUCIONES" />
+            <Button fx:id="btnGenerarSancion" onAction="#generarSancion" prefHeight="32.0" prefWidth="300.0" styleClass="sidebar-button" text="GENERAR SANCIÓN" />
+            <Button fx:id="btnCerrarSesion" onAction="#cerrarSesion" prefHeight="32.0" prefWidth="300.0" styleClass="sidebar-button" text="CERRAR SESIÓN" />
         </VBox>
     </left>
 

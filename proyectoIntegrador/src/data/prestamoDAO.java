@@ -13,30 +13,33 @@ public class prestamoDAO implements CRUD_Operation<EquipoPrestado, Integer> {
 
     @Override
     public void save(EquipoPrestado equipoPrestado) {
-        String query = "INSERT INTO equipo_prestado (id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones) " +
-                       "VALUES (?, ?, ?, ?, ?)";
+        String getIdQuery = "SELECT SEQ_PRESTAMO_EQUIPO.NEXTVAL FROM dual";
+        String insertQuery = "INSERT INTO equipo_prestado (id_prestamo_e, id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones) " +
+                             "VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setInt(1, equipoPrestado.getIdSolicitudE());
-            pstmt.setInt(2, equipoPrestado.getIdEquipo());
-            pstmt.setTimestamp(3, equipoPrestado.getFechaInicio());
-            pstmt.setTimestamp(4, equipoPrestado.getFechaFin());
-            pstmt.setString(5, equipoPrestado.getObservaciones());
+        try (
+            PreparedStatement getIdStmt = connection.prepareStatement(getIdQuery);
+            PreparedStatement insertStmt = connection.prepareStatement(insertQuery)
+        ) {
+            ResultSet rs = getIdStmt.executeQuery();
+            if (rs.next()) {
+                int nextId = rs.getInt(1);
+                equipoPrestado.setIdPrestamoE(nextId);
 
-            int rowsAffected = pstmt.executeUpdate();
+                insertStmt.setInt(1, nextId);
+                insertStmt.setInt(2, equipoPrestado.getIdSolicitudE());
+                insertStmt.setInt(3, equipoPrestado.getIdEquipo());
+                insertStmt.setTimestamp(4, equipoPrestado.getFechaInicio());
+                insertStmt.setTimestamp(5, equipoPrestado.getFechaFin());
+                insertStmt.setString(6, equipoPrestado.getObservaciones());
 
-            if (rowsAffected > 0) {
-               
-                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int generatedId = generatedKeys.getInt(1); 
-                        equipoPrestado.setIdPrestamoE(generatedId);  
-                        System.out.println("Equipo prestado registrado correctamente con ID: " + generatedId);
-                    }
+                int rows = insertStmt.executeUpdate();
+                if (rows > 0) {
+                    System.out.println("✅ Equipo prestado registrado correctamente con ID: " + nextId);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error al insertar el equipo prestado.");
+            System.err.println("❌ Error al insertar el equipo prestado.");
             e.printStackTrace();
         }
     }
@@ -85,12 +88,12 @@ public class prestamoDAO implements CRUD_Operation<EquipoPrestado, Integer> {
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                System.out.println("Equipo prestado actualizado correctamente.");
+                System.out.println("✅ Equipo prestado actualizado correctamente.");
             } else {
-                System.out.println("No se encontró un equipo prestado con el ID: " + equipoPrestado.getIdPrestamoE());
+                System.out.println("⚠️ No se encontró un equipo prestado con el ID: " + equipoPrestado.getIdPrestamoE());
             }
         } catch (SQLException e) {
-            System.err.println("Error al actualizar el equipo prestado.");
+            System.err.println("❌ Error al actualizar el equipo prestado.");
             e.printStackTrace();
         }
     }
@@ -103,12 +106,12 @@ public class prestamoDAO implements CRUD_Operation<EquipoPrestado, Integer> {
             pstmt.setInt(1, id);
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
-                System.out.println("Equipo prestado con ID " + id + " eliminado correctamente.");
+                System.out.println("✅ Equipo prestado con ID " + id + " eliminado correctamente.");
             } else {
-                System.out.println("No se encontró un equipo prestado con el ID: " + id);
+                System.out.println("⚠️ No se encontró un equipo prestado con el ID: " + id);
             }
         } catch (SQLException e) {
-            System.err.println("Error al eliminar el equipo prestado.");
+            System.err.println("❌ Error al eliminar el equipo prestado.");
             e.printStackTrace();
         }
     }
@@ -122,7 +125,7 @@ public class prestamoDAO implements CRUD_Operation<EquipoPrestado, Integer> {
             ResultSet rs = pstmt.executeQuery();
             return rs.next();
         } catch (SQLException e) {
-            System.err.println("Error al autenticar el equipo prestado.");
+            System.err.println("❌ Error al autenticar el equipo prestado.");
             e.printStackTrace();
         }
         return false;

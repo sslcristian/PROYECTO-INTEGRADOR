@@ -1,6 +1,5 @@
 package data;
 
-
 import model.EncuestaSatisfaccion;
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ public class EncuestaSatisfaccionDAO implements CRUD_Operation<EncuestaSatisfacc
 
     @Override
     public void save(EncuestaSatisfaccion encuesta) {
-        String query = "INSERT INTO encuesta_satisfaccion (id_usuario, id_solicitud, calificacion, comentarios, fecha_respuesta) " +
+        String query = "INSERT INTO TBL_ENCUESTA_SATISFACCION (id_usuario, id_solicitud, calificacion, comentarios, fecha_respuesta) " +
                        "VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -36,13 +35,12 @@ public class EncuestaSatisfaccionDAO implements CRUD_Operation<EncuestaSatisfacc
     @Override
     public ArrayList<EncuestaSatisfaccion> fetch() {
         ArrayList<EncuestaSatisfaccion> encuestas = new ArrayList<>();
-        String query = "SELECT * FROM encuesta_satisfaccion";
+        String query = "SELECT * FROM TBL_ENCUESTA_SATISFACCION";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-               
                 EncuestaSatisfaccion encuesta = new EncuestaSatisfaccion(
                         rs.getInt("id_encuesta"),
                         rs.getLong("id_usuario"),
@@ -62,8 +60,8 @@ public class EncuestaSatisfaccionDAO implements CRUD_Operation<EncuestaSatisfacc
 
     @Override
     public void update(EncuestaSatisfaccion encuesta) {
-        String sql = "UPDATE encuesta_satisfaccion SET id_usuario=?, id_solicitud=?, calificacion=?, comentarios=?, fecha_respuesta=? WHERE id_encuesta=?";
-        
+        String sql = "UPDATE TBL_ENCUESTA_SATISFACCION SET id_usuario=?, id_solicitud=?, calificacion=?, comentarios=?, fecha_respuesta=? WHERE id_encuesta=?";
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, encuesta.getIdUsuario());
             stmt.setInt(2, encuesta.getIdSolicitud());
@@ -79,8 +77,8 @@ public class EncuestaSatisfaccionDAO implements CRUD_Operation<EncuestaSatisfacc
 
     @Override
     public void delete(Integer id) {
-        String sql = "DELETE FROM encuesta_satisfaccion WHERE id_encuesta=?";
-        
+        String sql = "DELETE FROM TBL_ENCUESTA_SATISFACCION WHERE id_encuesta=?";
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             int rowsAffected = stmt.executeUpdate();
@@ -96,8 +94,8 @@ public class EncuestaSatisfaccionDAO implements CRUD_Operation<EncuestaSatisfacc
 
     @Override
     public boolean authenticate(Integer id) {
-        String sql = "SELECT id_encuesta FROM encuesta_satisfaccion WHERE id_encuesta=?";
-        
+        String sql = "SELECT id_encuesta FROM TBL_ENCUESTA_SATISFACCION WHERE id_encuesta=?";
+
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
