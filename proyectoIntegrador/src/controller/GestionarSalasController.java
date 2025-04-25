@@ -16,11 +16,11 @@ import model.FXUtils;
 
 import java.sql.Connection;
 
-public class SalasController {
+public class GestionarSalasController {
 
     @FXML private TableView<SalaInformatica> salaTable;
-    @FXML private TableColumn<SalaInformatica, Integer> idSalaColumn;
-    @FXML private TableColumn<SalaInformatica, String> nombreSalaColumn;
+    @FXML private TableColumn<SalaInformatica, Integer> idColumn;
+    @FXML private TableColumn<SalaInformatica, String> nombreColumn;
     @FXML private TableColumn<SalaInformatica, Integer> capacidadColumn;
     @FXML private TableColumn<SalaInformatica, String> softwareColumn;
     @FXML private TableColumn<SalaInformatica, String> hardwareColumn;
@@ -28,18 +28,19 @@ public class SalasController {
     @FXML private TableColumn<SalaInformatica, String> estadoColumn;
 
     @FXML private TextField idSalaField;
-    @FXML private TextField nombreSalaField;
+    @FXML private TextField nombreField;
     @FXML private TextField capacidadField;
     @FXML private TextField softwareField;
     @FXML private TextField hardwareField;
     @FXML private TextField ubicacionField;
     @FXML private TextField estadoField;
+    
 
     @FXML private Button btnAdd;
     @FXML private Button btnUpdate;
     @FXML private Button btnDelete;
     @FXML private Button btnFetch;
-    @FXML private Button btnBackToMenu;
+    @FXML private Button btnBack;
 
     private final Connection connection = DBConnection.getInstance().getConnection();
     private final SalaInformaticaDAO salaDAO = new SalaInformaticaDAO(connection);
@@ -47,8 +48,8 @@ public class SalasController {
 
     @FXML
     public void initialize() {
-        idSalaColumn.setCellValueFactory(new PropertyValueFactory<>("idSala"));
-        nombreSalaColumn.setCellValueFactory(new PropertyValueFactory<>("nombreSala"));
+    	idColumn.setCellValueFactory(new PropertyValueFactory<>("idSala"));
+    	nombreColumn.setCellValueFactory(new PropertyValueFactory<>("nombreSala"));
         capacidadColumn.setCellValueFactory(new PropertyValueFactory<>("capacidad"));
         softwareColumn.setCellValueFactory(new PropertyValueFactory<>("softwareDisponible"));
         hardwareColumn.setCellValueFactory(new PropertyValueFactory<>("hardwareEspecial"));
@@ -60,7 +61,7 @@ public class SalasController {
         salaTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
                 idSalaField.setText(String.valueOf(newSel.getIdSala()));
-                nombreSalaField.setText(newSel.getNombreSala());
+                nombreField.setText(newSel.getNombreSala());
                 capacidadField.setText(String.valueOf(newSel.getCapacidad()));
                 softwareField.setText(newSel.getSoftwareDisponible());
                 hardwareField.setText(newSel.getHardwareEspecial());
@@ -74,7 +75,7 @@ public class SalasController {
             TableRow<SalaInformatica> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getClickCount() == 2) {
-                    FXUtils.clearSelectionAndFieldsS(salaTable, idSalaField, nombreSalaField, capacidadField, softwareField, hardwareField, ubicacionField, estadoField);
+                    FXUtils.clearSelectionAndFieldsS(salaTable, idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionField, estadoField);
                 }
             });
             return row;
@@ -82,7 +83,7 @@ public class SalasController {
 
         salaTable.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
-                FXUtils.clearSelectionAndFieldsS(salaTable, idSalaField, nombreSalaField, capacidadField, softwareField, hardwareField, ubicacionField, estadoField);
+                FXUtils.clearSelectionAndFieldsS(salaTable, idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionField, estadoField);
             }
         });
     }
@@ -90,7 +91,7 @@ public class SalasController {
     @FXML
     public void addSala(ActionEvent event) {
         String idText = idSalaField.getText().trim();
-        String nombre = nombreSalaField.getText().trim();
+        String nombre = nombreField.getText().trim();
         String capacidadText = capacidadField.getText().trim();
         String software = softwareField.getText().trim();
         String hardware = hardwareField.getText().trim();
@@ -129,7 +130,7 @@ public class SalasController {
             return;
         }
 
-        String nombre = nombreSalaField.getText().trim();
+        String nombre = nombreField.getText().trim();
         String capacidadText = capacidadField.getText().trim();
         String software = softwareField.getText().trim();
         String hardware = hardwareField.getText().trim();
@@ -178,7 +179,7 @@ public class SalasController {
 
     private void clearFields() {
         idSalaField.clear();
-        nombreSalaField.clear();
+        nombreField.clear();
         capacidadField.clear();
         softwareField.clear();
         hardwareField.clear();
@@ -200,8 +201,8 @@ public class SalasController {
     public void goBackToMenu(ActionEvent event) {
         Main.loadScene("/view/AdminMenu.fxml");
     }
-}
-
-public class GestionarSalasController {
+        
 
 }
+
+

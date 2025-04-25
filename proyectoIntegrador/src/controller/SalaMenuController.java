@@ -9,40 +9,32 @@ import java.io.IOException;
 
 public class SalaMenuController {
 
+    @FXML
     private StackPane contentPane;
 
-    public void setContentPane(StackPane contentPane) {
-        this.contentPane = contentPane;
+    @FXML
+    private void abrirGestionSalas() {
+        cargarVista("/views/GestionarSalas.fxml");
     }
 
     @FXML
-    private void abrirGestionSalas() throws IOException {
-        cargarVista("views/GestionarSalas.fxml");
+    private void abrirSalasReservadas() {
+        cargarVista("/views/VerSalasReservadas.fxml");
     }
 
     @FXML
-    private void abrirSalasReservadas() throws IOException {
-        cargarVista("views/VerSalasReservadas.fxml");
+    private void abrirReservasSalas() {
+        cargarVista("/views/VerReservasSalas.fxml");
     }
 
-    @FXML
-    private void abrirReservasSalas() throws IOException {
-        cargarVista("views/VerReservasSalas.fxml");
-    }
-
-    private void cargarVista(String fxmlPath) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/" + fxmlPath));
-        Parent root = loader.load();
-
-        Object controller = loader.getController();
-        if (controller instanceof GestionarSalasController c1) {
-            c1.setContentPane(contentPane);
-        } else if (controller instanceof VerSalasReservadasController c2) {
-            c2.setContentPane(contentPane);
-        } else if (controller instanceof VerReservasSalasController c3) {
-            c3.setContentPane(contentPane);
+    private void cargarVista(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent vista = loader.load();
+            contentPane.getChildren().setAll(vista);
+        } catch (IOException e) {
+            System.err.println("No se pudo cargar la vista: " + fxmlPath);
+            e.printStackTrace();
         }
-
-        contentPane.getChildren().setAll(root);
     }
 }

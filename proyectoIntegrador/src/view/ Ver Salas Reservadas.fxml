@@ -21,4 +21,9 @@
     </TableView>
 
     <Button fx:id="btnActualizar" onAction="#actualizarTabla" styleClass="button" text="Actualizar" />
+
+    <!-- Botón para volver al menú -->
+    <Button fx:id="btnVolver" onAction="#volverAlMenu"
+            styleClass="button button-blue"
+            text="🔙 Volver al Menú" />
 </VBox>

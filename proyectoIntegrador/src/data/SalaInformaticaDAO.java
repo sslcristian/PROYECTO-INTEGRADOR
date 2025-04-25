@@ -131,4 +131,19 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
         return false;
     }
+    public boolean exists(Integer idSala) {
+        String query = "SELECT 1 FROM TBL_SALA_INFORMATICA WHERE id_sala = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, idSala);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            System.err.println("❌ Error al verificar existencia de la sala.");
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
 }
