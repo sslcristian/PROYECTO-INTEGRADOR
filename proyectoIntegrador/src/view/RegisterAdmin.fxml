@@ -7,21 +7,37 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="15" styleClass="root" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.RegisterAdminController">
+<VBox alignment="CENTER" spacing="15" styleClass="root" stylesheets="@Style.css" 
+      xmlns="http://javafx.com/javafx/21" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="controller.RegisterAdminController">
 
     <padding>
-        <Insets bottom="30" left="50" right="50" top="30" />
+        <Insets top="30" right="50" bottom="30" left="50" />
     </padding>
 
     <Label styleClass="header-label" text="REGISTRO DEL ADMINISTRADOR" />
 
-    <TextField fx:id="txtNombre" promptText="Nombre completo" styleClass="text-field" />
-    <TextField fx:id="txtCedula" promptText="Cédula" styleClass="text-field" />
-    <TextField fx:id="txtCorreo" promptText="Correo electrónico" styleClass="text-field" />
-    <TextField fx:id="txtTelefono" promptText="Teléfono" styleClass="text-field" />
-    <PasswordField fx:id="txtContrasena" promptText="Contraseña Secreta Admin" styleClass="password-field" />
-    <TextField fx:id="txtDepartamento" promptText="Departamento" styleClass="text-field" />
-    <PasswordField fx:id="txtContrasenaAdmin" promptText="Contraseña Para El Login" styleClass="password-field" />
+    <Label text="Nombre completo" />
+    <TextField fx:id="txtNombre" promptText="Ej. Juan Pérez" styleClass="text-field" />
 
-    <Button onAction="#registrarAdmin" styleClass="button" text="Registrar" />
+    <Label text="Cédula" />
+    <TextField fx:id="txtCedula" promptText="Ej. 123456789" styleClass="text-field" />
+
+    <Label text="Correo electrónico (UDI)" />
+    <TextField fx:id="txtCorreo" promptText="Ej. juan.perez@udi.edu.co" styleClass="text-field" />
+
+    <Label text="Teléfono" />
+    <TextField fx:id="txtTelefono" promptText="Ej. 3001234567" styleClass="text-field" />
+
+    <Label text="Departamento" />
+    <TextField fx:id="txtDepartamento" promptText="Ej. Sistemas" styleClass="text-field" />
+
+    <Label text="Contraseña de inicio de sesión (para el nuevo administrador)" />
+    <PasswordField fx:id="txtContrasenaAdministrativo" promptText="Contraseña de login" styleClass="password-field" />
+
+    <Label text="Contraseña secreta de administradores (para registrar)" />
+    <PasswordField fx:id="txtContrasenaAdmin" promptText="" styleClass="password-field" />
+
+    <Button text="Registrar" onAction="#registrarAdmin" styleClass="button" />
 </VBox>

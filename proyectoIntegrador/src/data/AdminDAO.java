@@ -22,7 +22,29 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
     @Override
     public void save(Admin admin) {
         String query = "INSERT INTO TBL_ADMIN (cedula, nombre, correo, telefono, contraseña_admin, departamento, contraseña_del_administrativo) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
+        // Comprobamos si los parámetros son correctos antes de intentar insertar
+        if (admin == null) {
+            System.out.println("El objeto Admin es nulo. No se puede guardar.");
+            return;
+        }
+        
+        // Agregamos log para los datos antes de intentar la inserción
+        System.out.println("Intentando insertar Admin con datos: ");
+        System.out.println("Cedula: " + admin.getCedula());
+        System.out.println("Nombre: " + admin.getNombre());
+        System.out.println("Correo: " + admin.getCorreo());
+        System.out.println("Telefono: " + admin.getTelefono());
+        System.out.println("Contraseña Admin: " + admin.getContraseñaAdmin());
+        System.out.println("Departamento: " + admin.getDepartamento());
+        System.out.println("Contraseña Administrativo: " + admin.getContraseñaAdministrativo());
 
+        // Verificar si la cédula ya existe en la base de datos
+        if (exists(admin.getCedula())) {
+            System.out.println("La cédula ya está registrada en la base de datos.");
+            return;
+        }
+        
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setLong(1, admin.getCedula());
             pstmt.setString(2, admin.getNombre());
@@ -32,16 +54,22 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
             pstmt.setString(6, admin.getDepartamento());
             pstmt.setString(7, admin.getContraseñaAdministrativo());
 
+            // Intentamos ejecutar la inserción
             int rowsAffected = pstmt.executeUpdate();
+            
+            // Verificamos si la inserción fue exitosa
             if (rowsAffected > 0) {
                 System.out.println("Admin inserted successfully.");
+            } else {
+                System.out.println("No rows affected. La inserción no fue exitosa.");
             }
         } catch (SQLException e) {
+            System.out.println("Error al insertar el admin: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    @Override
+
     public ArrayList<Admin> fetch() {
         ArrayList<Admin> admins = new ArrayList<>();
         String query = "SELECT * FROM TBL_ADMIN";
@@ -68,6 +96,7 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
 
         return admins;
     }
+
 
     @Override
     public void update(Admin admin) {
@@ -169,10 +198,10 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
                     rs.getLong("cedula"),
                     rs.getString("nombre"),
                     rs.getString("correo"),
-                    rs.getString("teléfono"),
-                    rs.getString("contraseña"),
+                    rs.getString("telefono"),
+                    rs.getString("contraseña_admin"), 
                     rs.getString("departamento"),
-                    rs.getString("contraseña_administrativo") 
+                    rs.getString("contraseña_del_administrativo") 
                 );
             }
         } catch (SQLException e) {
@@ -180,5 +209,6 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
         }
         return null;
     }
+
 
 }
