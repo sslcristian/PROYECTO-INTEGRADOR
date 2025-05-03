@@ -54,25 +54,31 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                int idPrestamoS = rs.getInt("id_prestamo_s");
-                int idSolicitudS = rs.getInt("id_solicitud_s");
-                int idSala = rs.getInt("id_sala");
-                Timestamp fechaInicio = rs.getTimestamp("fecha_inicio");
-                Timestamp fechaFin = rs.getTimestamp("fecha_fin");
-                String observaciones = rs.getString("observaciones");
+                try {
+                    int idPrestamoS = rs.getInt("id_prestamo_s");
+                    int idSolicitudS = rs.getInt("id_solicitud_s");
+                    int idSala = rs.getInt("id_sala");
+                    Timestamp fechaInicio = rs.getTimestamp("fecha_inicio");
+                    Timestamp fechaFin = rs.getTimestamp("fecha_fin");
+                    String observaciones = rs.getString("observaciones");
 
-                SalaPrestada salaPrestada = new SalaPrestada(
-                        idPrestamoS, idSolicitudS, idSala, fechaInicio, fechaFin, observaciones
-                );
+                    SalaPrestada salaPrestada = new SalaPrestada(
+                            idPrestamoS, idSolicitudS, idSala, fechaInicio, fechaFin, observaciones
+                    );
 
-                salasPrestadas.add(salaPrestada);
+                    salasPrestadas.add(salaPrestada);
+                } catch (SQLException e) {
+                    System.err.println("Error al leer una sala prestada desde el ResultSet: " + e.getMessage());
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener salas prestadas: " + e.getMessage());
+            e.printStackTrace(); 
         }
 
         return salasPrestadas;
     }
+
 
     @Override
     public void update(SalaPrestada salaPrestada) {

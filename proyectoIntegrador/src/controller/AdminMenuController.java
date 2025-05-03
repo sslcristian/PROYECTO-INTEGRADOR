@@ -1,32 +1,58 @@
 package controller;
 
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.layout.StackPane;
-import model.Session;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-
 import java.io.IOException;
 
 import application.Main;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+
+import model.Session;
+import model.Usuario;
+import javafx.scene.control.ButtonBar;
 
 public class AdminMenuController {
 
-    @FXML private StackPane adminContentPane;
+    @FXML
+    private StackPane adminContentPane;
+    
+    @FXML
+    private Label lblNombreAdmin;  // Label para mostrar el nombre del administrador
+    
+    @FXML 
+    private javafx.scene.control.Button btnGestionarSalas;
+    
+    @FXML 
+    private javafx.scene.control.Button btnGestionarEquipos;
+    
+    @FXML 
+    private javafx.scene.control.Button btnControlMantenimiento;
+    
+    @FXML 
+    private javafx.scene.control.Button btnDevolucion;
+    
+    @FXML 
+    private javafx.scene.control.Button btnGenerarSancion;
+    
+    @FXML 
+    private javafx.scene.control.Button btnCerrarSesion;
 
+    @FXML
+    private void initialize() {
+        // Al iniciar el menú, obtenemos el usuario actual desde la sesión
+        Usuario admin = Session.getUsuarioActual();
+        if (admin != null) {
+            lblNombreAdmin.setText("Bienvenido, " + admin.getNombre());
+        } else {
+            lblNombreAdmin.setText("No hay usuario logueado.");
+        }
+    }
 
-    @FXML private Button btnGestionarSalas;
-    @FXML private Button btnGestionarEquipos;
-    @FXML private Button btnControlMantenimiento;
-    @FXML private Button btnDevolucion;
-    @FXML private Button btnGenerarSancion;
-    @FXML private Button btnCerrarSesion;
-
-  
     @FXML
     private void gestionarSalas() {
         cargarVista("/view/SalaMenu.fxml");
@@ -65,10 +91,8 @@ public class AdminMenuController {
 
         alerta.showAndWait().ifPresent(respuesta -> {
             if (respuesta == confirmar) {
-               
+                // Cerrar la sesión y redirigir al menú principal
                 Session.cerrarSesion();
-
-              
                 Main.loadScene("/view/MainMenu.fxml");
             }
         });

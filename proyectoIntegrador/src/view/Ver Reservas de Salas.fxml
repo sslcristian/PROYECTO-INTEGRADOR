@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -16,7 +17,7 @@
       prefWidth="800.0"
       prefHeight="600.0"
       stylesheets="@Style.css">
-    
+
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
@@ -34,7 +35,12 @@
         </columns>
     </TableView>
 
-    <HBox spacing="15.0" alignment="CENTER">
+    <!-- NUEVO: HBox para los filtros de fechas -->
+    <HBox spacing="10.0" alignment="CENTER">
+        <Label text="Desde:"/>
+        <DatePicker fx:id="datePickerDesde"/>
+        <Label text="Hasta:"/>
+        <DatePicker fx:id="datePickerHasta"/>
         <Button text="Filtrar por Fecha" fx:id="btnFiltrar" onAction="#filtrarPorFecha" styleClass="button"/>
         <Button text="Mostrar Todo" fx:id="btnMostrarTodo" onAction="#mostrarTodo" styleClass="button"/>
     </HBox>
