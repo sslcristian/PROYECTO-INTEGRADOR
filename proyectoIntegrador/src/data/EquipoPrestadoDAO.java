@@ -3,6 +3,7 @@ package data;
 import model.EquipoPrestado;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer> {
     private Connection connection;
@@ -120,4 +121,61 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
         }
         return false;
     }
+    public List<EquipoPrestado> obtenerHistorialEquipos() throws SQLException {
+        String query = "SELECT * FROM TBL_EQUIPO_PRESTADO";
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+
+        List<EquipoPrestado> historial = new ArrayList<>();
+        while (rs.next()) {
+            EquipoPrestado equipo = new EquipoPrestado(
+                rs.getInt("id_prestamo_e"),
+                rs.getInt("id_solicitud_e"),
+                rs.getInt("id_equipo"),
+                rs.getTimestamp("fecha_inicio"),
+                rs.getTimestamp("fecha_fin"),
+                rs.getString("observaciones")
+            );
+            historial.add(equipo);
+        }
+        return historial;
+    }
+
+
+    public List<EquipoPrestado> obtenerHistorialEquiposPorFecha(Timestamp fechaInicio, Timestamp fechaFin) throws SQLException {
+        String query = "SELECT * FROM TBL_EQUIPO_PRESTADO WHERE fecha_inicio BETWEEN ? AND ?";
+        
+        // Usamos try-with-resources para PreparedStatement y ResultSet
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            
+            // Establecer los parámetros en el PreparedStatement
+            stmt.setTimestamp(1, fechaInicio);
+            stmt.setTimestamp(2, fechaFin);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<EquipoPrestado> historial = new ArrayList<>();
+                
+                // Procesar cada fila del ResultSet
+                while (rs.next()) {
+                    EquipoPrestado equipo = new EquipoPrestado(
+                        rs.getInt("id_prestamo_e"),
+                        rs.getInt("id_solicitud_e"),
+                        rs.getInt("id_equipo"),
+                        rs.getTimestamp("fecha_inicio"),
+                        rs.getTimestamp("fecha_fin"),
+                        rs.getString("observaciones")
+                    );
+                    historial.add(equipo);
+                }
+                return historial; // Retornar la lista filtrada de equipos prestados
+            } catch (SQLException e) {
+                throw new SQLException("Error al ejecutar la consulta de historial por fecha", e);
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Error al preparar la consulta para obtener historial de equipos por fecha", e);
+        }
+    }
+
+
+
 }

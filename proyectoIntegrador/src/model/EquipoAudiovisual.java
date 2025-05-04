@@ -12,9 +12,22 @@ public class EquipoAudiovisual {
     private String modelo;
     private Date fechaAdquisicion;
 
+    // Constructor con ID (para actualizaciones y lecturas desde BD)
     public EquipoAudiovisual(int idEquipo, String nombre, String tipo, String estado, String ubicacion,
                              String marca, String modelo, Date fechaAdquisicion) {
         this.idEquipo = idEquipo;
+        this.nombre = nombre;
+        this.tipo = tipo;
+        this.estado = estado;
+        this.ubicacion = ubicacion;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.fechaAdquisicion = fechaAdquisicion;
+    }
+
+    // Constructor sin ID (para inserciones nuevas, donde el ID lo genera la BD)
+    public EquipoAudiovisual(String nombre, String tipo, String estado, String ubicacion,
+                             String marca, String modelo, Date fechaAdquisicion) {
         this.nombre = nombre;
         this.tipo = tipo;
         this.estado = estado;

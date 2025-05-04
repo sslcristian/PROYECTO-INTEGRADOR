@@ -28,6 +28,36 @@ public class FXUtils {
 		    creditsField.clear(); 
 		    codeField.setDisable(false);  
 		}
+	// Limpiar los campos de texto y desmarcar la selección de la tabla
+	    public static void clearSelectionAndFieldsE(TableView<?> table, TextField nombreField, TextField tipoField, TextField estadoField, TextField ubicacionField, TextField marcaField, TextField modeloField, DatePicker fechaAdquisicionPicker) {
+	        // Limpiar campos de texto
+	        nombreField.clear();
+	        tipoField.clear();
+	        estadoField.clear();
+	        ubicacionField.clear();
+	        marcaField.clear();
+	        modeloField.clear();
+	        fechaAdquisicionPicker.setValue(null); // Limpiar la fecha
+
+	        // Limpiar la selección de la tabla
+	        table.getSelectionModel().clearSelection();
+	    }
+
+	    // Limpiar los campos de texto y desmarcar la selección de la tabla (para el caso de Salas)
+	    public static void clearSelectionAndFieldsSA(TableView<?> table, TextField idSalaField, TextField nombreField, TextField capacidadField, TextField softwareField, TextField hardwareField, TextField ubicacionField, TextField estadoField) {
+	        // Limpiar campos de texto
+	        idSalaField.clear();
+	        nombreField.clear();
+	        capacidadField.clear();
+	        softwareField.clear();
+	        hardwareField.clear();
+	        ubicacionField.clear();
+	        estadoField.clear();
+
+	        // Limpiar la selección de la tabla
+	        table.getSelectionModel().clearSelection();
+	    }
+	
 	 public static <T> void clearSelectionAndFieldsS(
 			    TableView<T> table,
 			    TextField idSalaField,
