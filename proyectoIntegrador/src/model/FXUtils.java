@@ -2,6 +2,7 @@ package model;
 
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class FXUtils {
@@ -79,6 +80,22 @@ public class FXUtils {
 
 			    idSalaField.setDisable(false); // Habilita el campo de ID por si se desactiva al seleccionar
 			}
+	 public static <T> void clearSelectionAndFieldsM(
+		        TableView<T> table,
+		        TextField idEquipoField,
+		        DatePicker fechaField,
+		        TextArea detalleField,
+		        TextField tecnicoField
+		) {
+		    table.getSelectionModel().clearSelection();  // Limpia selección
+		    idEquipoField.clear();
+		    fechaField.setValue(null);                   // Limpia el DatePicker
+		    detalleField.clear();                        // Limpia el TextArea
+		    tecnicoField.clear();
+		    idEquipoField.setDisable(false);             // Vuelve a habilitar el ID si fue deshabilitado
+		}
+
+
 
 
 }

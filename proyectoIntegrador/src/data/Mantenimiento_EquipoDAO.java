@@ -14,10 +14,12 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void save(Mantenimiento_Equipo mantenimientoEquipo) {
-        String query = "INSERT INTO TBL_MANTENIMIENTO_E (id_mantenimiento, id_equipo, fecha_mantenimiento, detalle, técnico_responsable) " +
-                       "VALUES (SEQ_MANTENIMIENTO_E.NEXTVAL, ?, ?, ?, ?)";
-
+        String query = "INSERT INTO TBL_MANTENIMIENTO_E (id_equipo, fecha_mantenimiento, detalle, tecnico_responsable) " +
+                       "VALUES (?, ?, ?, ?)";
         String[] returnCols = { "id_mantenimiento" };
+
+        // Actualización del estado del equipo a 'mantenimiento'
+        String updateEquipoEstado = "UPDATE TBL_EQUIPO SET estado = 'mantenimiento' WHERE id_equipo = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query, returnCols)) {
             pstmt.setInt(1, mantenimientoEquipo.getIdEquipo());
@@ -30,15 +32,22 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
             if (rowsAffected > 0) {
                 try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        mantenimientoEquipo.setIdMantenimiento(generatedKeys.getInt(1));
+                        mantenimientoEquipo.setIdMantenimiento(generatedKeys.getInt(1)); // Recupera ID asignado por el trigger
                     }
                 }
                 System.out.println("Mantenimiento de equipo registrado correctamente.");
+
+                try (PreparedStatement updateStmt = connection.prepareStatement(updateEquipoEstado)) {
+                    updateStmt.setInt(1, mantenimientoEquipo.getIdEquipo());
+                    updateStmt.executeUpdate();
+                    System.out.println("Estado del equipo actualizado a 'mantenimiento'.");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     @Override
     public ArrayList<Mantenimiento_Equipo> fetch() {
@@ -54,7 +63,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
                         rs.getInt("id_equipo"),
                         rs.getDate("fecha_mantenimiento"),
                         rs.getString("detalle"),
-                        rs.getString("técnico_responsable")
+                        rs.getString("tecnico_responsable")
                 );
                 mantenimientos.add(mantenimiento);
             }
@@ -67,7 +76,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void update(Mantenimiento_Equipo mantenimientoEquipo) {
-        String query = "UPDATE TBL_MANTENIMIENTO_E SET id_equipo=?, fecha_mantenimiento=?, detalle=?, técnico_responsable=? " +
+        String query = "UPDATE TBL_MANTENIMIENTO_E SET id_equipo=?, fecha_mantenimiento=?, detalle=?, tecnico_responsable=? " +
                        "WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -117,4 +126,26 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
         }
         return false;
     }
+    // Método para eliminar el mantenimiento por ID de equipo
+    public void deleteByEquipoId(int idEquipo) {
+        String sql = "DELETE FROM TBL_MANTENIMIENTO_E WHERE id_equipo = ?";
+        
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            // Establecer el ID del equipo que queremos eliminar
+            statement.setInt(1, idEquipo);
+            
+            // Ejecutar la consulta de eliminación
+            int rowsAffected = statement.executeUpdate();
+            
+            if (rowsAffected > 0) {
+                System.out.println("Mantenimiento(s) del equipo con ID " + idEquipo + " eliminado(s) correctamente.");
+            } else {
+                System.out.println("No se encontraron mantenimientos para el equipo con ID " + idEquipo + ".");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al eliminar el mantenimiento del equipo: " + e.getMessage());
+        }
+    }
 }
+

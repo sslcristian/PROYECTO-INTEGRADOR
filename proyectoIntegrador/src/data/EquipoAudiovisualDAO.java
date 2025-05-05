@@ -111,4 +111,21 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
         }
         return false;
     }
+    public ArrayList<Integer> obtenerEquiposDisponibles() {
+        ArrayList<Integer> disponibles = new ArrayList<>();
+        String query = "SELECT id_equipo FROM TBL_EQUIPO WHERE estado = 'Disponible'";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                disponibles.add(rs.getInt("id_equipo"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return disponibles;
+    }
+
 }

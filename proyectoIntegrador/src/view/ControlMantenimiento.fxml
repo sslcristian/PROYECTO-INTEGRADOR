@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="362.0" prefWidth="575.0" spacing="30" style="-fx-background-color: #E3F2FD;" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SeleccionMantenimientoController">
+    <padding>
+        <Insets bottom="40" left="40" right="40" top="40" />
+    </padding>
+
+    <Label style="-fx-font-size: 26px; -fx-text-fill: #0D47A1; -fx-font-weight: bold;" text="Seleccionar Mantenimiento">
+        <effect>
+            <DropShadow color="#90CAF9" radius="3" />
+        </effect>
+        <font>
+            <Font name="Arial" size="26" />
+        </font>
+    </Label>
+
+    <Button onAction="#irMantenimientoSala" prefHeight="60" prefWidth="500" styleClass="button button-blue" stylesheets="@Style.css" text="🛠️ Mantenimiento de Sala" wrapText="true" />
+
+    <Button onAction="#irMantenimientoEquipo" prefHeight="60" prefWidth="500" styleClass="button button-light-blue" text="🖥️ Mantenimiento de Equipo" wrapText="true" />
+</VBox>
