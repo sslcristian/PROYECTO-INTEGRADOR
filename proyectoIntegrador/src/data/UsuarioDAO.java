@@ -23,7 +23,7 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
             pstmt.setString(4, usuario.getTelefono());
             pstmt.setString(5, usuario.getTipoUsuario());
             pstmt.setString(6, usuario.getDepartamento());
-            pstmt.setString(7, usuario.getContraseña());
+            pstmt.setString(7, usuario.getContrasena());
 
             pstmt.executeUpdate();
             System.out.println("Usuario guardado exitosamente.");
@@ -68,7 +68,7 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
             pstmt.setString(3, usuario.getTelefono());
             pstmt.setString(4, usuario.getTipoUsuario());
             pstmt.setString(5, usuario.getDepartamento());
-            pstmt.setString(6, usuario.getContraseña());
+            pstmt.setString(6, usuario.getContrasena());
             pstmt.setLong(7, usuario.getCedula());
 
             pstmt.executeUpdate();
