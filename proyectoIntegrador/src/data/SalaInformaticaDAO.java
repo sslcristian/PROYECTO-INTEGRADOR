@@ -6,7 +6,7 @@ import model.SalaInformatica;
 
 public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integer> {
 
-    private Connection connection;
+    private final Connection connection;
 
     public SalaInformaticaDAO(Connection connection) {
         this.connection = connection;
@@ -14,32 +14,32 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
     @Override
     public void save(SalaInformatica sala) {
-        String getIdQuery = "SELECT SEQ_SALA_ID.NEXTVAL FROM dual";
-        String insertQuery = "INSERT INTO TBL_SALA_INFORMATICA (id_sala, nombre_sala, capacidad, software_disponible, hardware_especial, ubicación, estado) " +
+        String insertQuery = "INSERT INTO TBL_SALA_INFORMATICA (id_sala, nombre_sala, capacidad, software_disponible, hardware_especial, ubicacion, estado) " +
                              "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (
-            PreparedStatement getIdStmt = connection.prepareStatement(getIdQuery);
-            PreparedStatement pstmt = connection.prepareStatement(insertQuery)
-        ) {
-            ResultSet rs = getIdStmt.executeQuery();
-            if (rs.next()) {
-                int newId = rs.getInt(1);
-                sala.setIdSala(newId);
+        try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
+            System.out.println("Intentando insertar sala: ID=" + sala.getIdSala() +
+                               ", Nombre=" + sala.getNombreSala() +
+                               ", Capacidad=" + sala.getCapacidad() +
+                               ", Software=" + sala.getSoftwareDisponible() +
+                               ", Hardware=" + sala.getHardwareEspecial() +
+                               ", Ubicación=" + sala.getUbicacion() +
+                               ", Estado=" + sala.getEstado()); // Depuración antes de insertar
 
-                pstmt.setInt(1, newId);
-                pstmt.setString(2, sala.getNombreSala());
-                pstmt.setInt(3, sala.getCapacidad());
-                pstmt.setString(4, sala.getSoftwareDisponible());
-                pstmt.setString(5, sala.getHardwareEspecial());
-                pstmt.setString(6, sala.getUbicacion());
-                pstmt.setString(7, sala.getEstado());
+            pstmt.setInt(1, sala.getIdSala());
+            pstmt.setString(2, sala.getNombreSala());
+            pstmt.setInt(3, sala.getCapacidad());
+            pstmt.setString(4, sala.getSoftwareDisponible());
+            pstmt.setString(5, sala.getHardwareEspecial());
+            pstmt.setString(6, sala.getUbicacion());
+            pstmt.setString(7, sala.getEstado());
 
-                pstmt.executeUpdate();
-                System.out.println("✅ Sala insertada correctamente con ID: " + newId);
-            }
+            pstmt.executeUpdate();
+            System.out.println("✅ Sala insertada correctamente.");
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.err.println("❌ Error: Violación de restricción al insertar sala. Verifica que la ID no esté duplicada.");
         } catch (SQLException e) {
-            System.err.println("❌ Error al insertar sala informática.");
+            System.err.println("❌ Error al insertar sala: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -49,33 +49,31 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         ArrayList<SalaInformatica> salas = new ArrayList<>();
         String query = "SELECT * FROM TBL_SALA_INFORMATICA";
 
-        try (
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery(query)
-        ) {
-            while (rs.next()) {
-                int id = rs.getInt("id_sala");
-                String nombre = rs.getString("nombre_sala");
-                int capacidad = rs.getInt("capacidad");
-                String software = rs.getString("software_disponible");
-                String hardware = rs.getString("hardware_especial");
-                String ubicacion = rs.getString("ubicación");
-                String estado = rs.getString("estado");
+        try (PreparedStatement pstmt = connection.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
 
-                SalaInformatica sala = new SalaInformatica(id, nombre, capacidad, software, hardware, ubicacion, estado);
-                salas.add(sala);
+            while (rs.next()) {
+                salas.add(new SalaInformatica(
+                        rs.getInt("id_sala"),
+                        rs.getString("nombre_sala"),
+                        rs.getInt("capacidad"),
+                        rs.getString("software_disponible"),
+                        rs.getString("hardware_especial"),
+                        rs.getString("ubicacion"), 
+                        rs.getString("estado")
+                ));
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error al obtener salas informáticas.");
+            System.err.println("❌ Error al obtener salas informáticas: " + e.getMessage());
             e.printStackTrace();
         }
-
         return salas;
     }
 
+
     @Override
     public void update(SalaInformatica sala) {
-        String query = "UPDATE TBL_SALA_INFORMATICA SET nombre_sala=?, capacidad=?, software_disponible=?, hardware_especial=?, ubicación=?, estado=? WHERE id_sala=?";
+        String query = "UPDATE TBL_SALA_INFORMATICA SET nombre_sala=?, capacidad=?, software_disponible=?, hardware_especial=?, ubicacion=?, estado=? WHERE id_sala=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, sala.getNombreSala());
@@ -87,13 +85,9 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
             pstmt.setInt(7, sala.getIdSala());
 
             int rows = pstmt.executeUpdate();
-            if (rows > 0) {
-                System.out.println("✅ Sala actualizada correctamente.");
-            } else {
-                System.out.println("⚠️ No se encontró una sala con ID: " + sala.getIdSala());
-            }
+            System.out.println(rows > 0 ? "✅ Sala actualizada correctamente." : "⚠️ No se encontró una sala con ID: " + sala.getIdSala());
         } catch (SQLException e) {
-            System.err.println("❌ Error al actualizar la sala.");
+            System.err.println("❌ Error al actualizar la sala: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -105,13 +99,9 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, idSala);
             int rows = pstmt.executeUpdate();
-            if (rows > 0) {
-                System.out.println("✅ Sala eliminada correctamente.");
-            } else {
-                System.out.println("⚠️ No se encontró una sala con ID: " + idSala);
-            }
+            System.out.println(rows > 0 ? "✅ Sala eliminada correctamente." : "⚠️ No se encontró una sala con ID: " + idSala);
         } catch (SQLException e) {
-            System.err.println("❌ Error al eliminar la sala.");
+            System.err.println("❌ Error al eliminar la sala: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -122,28 +112,28 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, idSala);
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();
+            }
         } catch (SQLException e) {
-            System.err.println("❌ Error al autenticar la sala.");
+            System.err.println("❌ Error al autenticar la sala: " + e.getMessage());
             e.printStackTrace();
         }
-
         return false;
     }
+
     public boolean exists(Integer idSala) {
         String query = "SELECT 1 FROM TBL_SALA_INFORMATICA WHERE id_sala = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, idSala);
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();
+            }
         } catch (SQLException e) {
-            System.err.println("❌ Error al verificar existencia de la sala.");
+            System.err.println("❌ Error al verificar existencia de la sala: " + e.getMessage());
             e.printStackTrace();
         }
-
         return false;
     }
-
 }

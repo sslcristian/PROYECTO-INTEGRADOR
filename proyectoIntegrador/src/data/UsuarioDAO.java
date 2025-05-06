@@ -14,7 +14,7 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
 
     @Override
     public void save(Usuario usuario) {
-        String query = "INSERT INTO TBL_USUARIO (cedula, nombre, correo, teléfono, tipo_usuario, departamento, contraseña) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO TBL_USUARIO (cedula, nombre, correo, telefono, tipo_usuario, departamento, contraseña) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setLong(1, usuario.getCedula());
@@ -44,7 +44,7 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
                     rs.getLong("cedula"),
                     rs.getString("nombre"),
                     rs.getString("correo"),
-                    rs.getString("teléfono"),
+                    rs.getString("telefono"),
                     rs.getString("tipo_usuario"),
                     rs.getString("departamento"),
                     rs.getString("contraseña")
@@ -60,7 +60,7 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
 
     @Override
     public void update(Usuario usuario) {
-        String query = "UPDATE TBL_USUARIO SET nombre=?, correo=?, teléfono=?, tipo_usuario=?, departamento=?, contraseña=? WHERE cedula=?";
+        String query = "UPDATE TBL_USUARIO SET nombre=?, correo=?, telefono=?, tipo_usuario=?, departamento=?, contraseña=? WHERE cedula=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, usuario.getNombre());
@@ -130,7 +130,7 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
                     rs.getLong("cedula"),
                     rs.getString("nombre"),
                     rs.getString("correo"),
-                    rs.getString("teléfono"),
+                    rs.getString("telefono"),
                     rs.getString("tipo_usuario"),
                     rs.getString("departamento"),
                     rs.getString("contraseña")
@@ -151,7 +151,7 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
                     rs.getLong("cedula"),
                     rs.getString("nombre"),
                     rs.getString("correo"),
-                    rs.getString("teléfono"),
+                    rs.getString("telefono"),
                     rs.getString("tipo_usuario"),
                     rs.getString("departamento"),
                     rs.getString("contraseña")

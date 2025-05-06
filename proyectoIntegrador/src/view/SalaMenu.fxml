@@ -21,7 +21,8 @@
         </font>
     </Label>
 
-    <Button onAction="#abrirGestionSalas" prefHeight="60" prefWidth="500" styleClass="button button-blue" stylesheets="@Style.css" text="➕ Gestionar Salas Informáticas" wrapText="true" />
+    <Button fx:id="btnGestionSalas" onAction="#abrirGestionSalas" text=" 🧑‍💻 Gestionar Salas"/>
+
 
     <Button onAction="#abrirSalasReservadas" prefHeight="60" prefWidth="500" styleClass="button button-light-blue" text="📋 Ver Salas Reservadas" wrapText="true" />
 
