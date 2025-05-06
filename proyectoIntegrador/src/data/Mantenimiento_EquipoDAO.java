@@ -97,21 +97,33 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM TBL_MANTENIMIENTO_E WHERE id_mantenimiento=?";
+        String getEquipoQuery = "SELECT id_equipo FROM TBL_MANTENIMIENTO_E WHERE id_mantenimiento=?";
+        String deleteQuery = "DELETE FROM TBL_MANTENIMIENTO_E WHERE id_mantenimiento=?";
+        String updateEquipoQuery = "UPDATE TBL_EQUIPO SET estado = 'disponible' WHERE id_equipo = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
+        try (PreparedStatement getEquipoStmt = connection.prepareStatement(getEquipoQuery)) {
+            getEquipoStmt.setInt(1, id);
+            ResultSet rs = getEquipoStmt.executeQuery();
+            if (rs.next()) {
+                int idEquipo = rs.getInt("id_equipo");
 
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Mantenimiento de equipo con ID " + id + " eliminado correctamente.");
-            } else {
-                System.out.println("No se encontró mantenimiento con el ID: " + id);
+                try (PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery)) {
+                    deleteStmt.setInt(1, id);
+                    int rowsAffected = deleteStmt.executeUpdate();
+                    if (rowsAffected > 0) {
+                        System.out.println("Mantenimiento de equipo eliminado correctamente.");
+
+                        try (PreparedStatement updateStmt = connection.prepareStatement(updateEquipoQuery)) {
+                            updateStmt.setInt(1, idEquipo);
+                            updateStmt.executeUpdate();
+                            System.out.println("Estado del equipo restaurado a 'disponible'.");
+                        }
+                    }
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();}
         }
-    }
 
     @Override
     public boolean authenticate(Integer id) {
@@ -126,26 +138,42 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
         }
         return false;
     }
-    // Método para eliminar el mantenimiento por ID de equipo
-    public void deleteByEquipoId(int idEquipo) {
-        String sql = "DELETE FROM TBL_MANTENIMIENTO_E WHERE id_equipo = ?";
-        
-        try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            // Establecer el ID del equipo que queremos eliminar
-            statement.setInt(1, idEquipo);
-            
-            // Ejecutar la consulta de eliminación
-            int rowsAffected = statement.executeUpdate();
-            
-            if (rowsAffected > 0) {
-                System.out.println("Mantenimiento(s) del equipo con ID " + idEquipo + " eliminado(s) correctamente.");
-            } else {
-                System.out.println("No se encontraron mantenimientos para el equipo con ID " + idEquipo + ".");
+ // Método para obtener los equipos disponibles
+    public ArrayList<Integer> obtenerEquiposDisponibles() {
+        ArrayList<Integer> equiposDisponibles = new ArrayList<>();
+        String query = "SELECT id_equipo FROM TBL_EQUIPO WHERE estado = 'disponible'";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                equiposDisponibles.add(rs.getInt("id_equipo"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("Error al eliminar el mantenimiento del equipo: " + e.getMessage());
+        }
+
+        return equiposDisponibles;
+    }
+
+    // Método para actualizar el estado de un equipo
+    public void actualizarEstadoEquipo(int idEquipo, String nuevoEstado) {
+        String query = "UPDATE TBL_EQUIPO SET estado = ? WHERE id_equipo = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, nuevoEstado);
+            pstmt.setInt(2, idEquipo);
+
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas > 0) {
+                System.out.println("Estado del equipo actualizado a '" + nuevoEstado + "'.");
+            } else {
+                System.out.println("No se encontró un equipo con el ID " + idEquipo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
+
+
 }
 

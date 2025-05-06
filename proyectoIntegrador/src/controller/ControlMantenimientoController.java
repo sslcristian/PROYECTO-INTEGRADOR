@@ -1,43 +1,36 @@
 package controller;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.layout.StackPane;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.stage.Stage;
+import javafx.scene.layout.BorderPane;
+import java.io.IOException;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 
 public class ControlMantenimientoController {
 
-    // Acción para abrir la vista de Mantenimiento de Sala
+    @FXML
+    private BorderPane rootLayout; // Debe estar en tu FXML principal
+
+    // Ir a Mantenimiento de Sala sin afectar el menú lateral
     @FXML
     private void irMantenimientoSala(ActionEvent event) {
-        try {
-            // Cargar la interfaz MantenimientoSala.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MantenimientoSala.fxml"));
-            Parent root = loader.load();
-
-            // Obtener la escena actual y establecer la nueva interfaz en el StackPane
-            Stage stage = (Stage) ((StackPane) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        cambiarVista("/views/MantenimientoSala.fxml");
     }
 
-   
+    // Ir a Mantenimiento de Equipo sin afectar el menú lateral
     @FXML
     private void irMantenimientoEquipo(ActionEvent event) {
-        try {
-            // Cargar la interfaz MantenimientoEquipo.fxml
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MantenimientoEquipo.fxml"));
-            Parent root = loader.load();
+        cambiarVista("/views/MantenimientoEquipo.fxml");
+    }
 
-            // Obtener la escena actual y establecer la nueva interfaz en el StackPane
-            Stage stage = (Stage) ((StackPane) event.getSource()).getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (Exception e) {
+    private void cambiarVista(String rutaFXML) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFXML));
+            Parent nuevaVista = loader.load();
+            
+            rootLayout.setCenter(nuevaVista); // Cambia solo la parte central, dejando AdminMenu intacto
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

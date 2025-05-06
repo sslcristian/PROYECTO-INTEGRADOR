@@ -12,7 +12,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="600" prefWidth="800" spacing="20" style="-fx-background-color: #E3F2FD;" stylesheets="@Style.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/21" fx:controller="controller.MantenimientoEquipoController">
+<VBox prefHeight="600" prefWidth="800" spacing="20" style="-fx-background-color: #E3F2FD;" stylesheets="@Style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MantenimientoEquipoController">
+    
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />
     </padding>
@@ -20,41 +22,30 @@
     <!-- Título -->
     <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0D47A1;" text="Mantenimiento de Equipo" />
 
-    <!-- Contenedor para los controles de mantenimiento -->
     <VBox spacing="15">
-        <!-- Selección de Equipo -->
         <ComboBox fx:id="comboEquipo" prefWidth="300" promptText="Selecciona un Equipo" />
-
-        <!-- Fecha de Mantenimiento -->
         <DatePicker fx:id="fechaMantenimiento" prefWidth="300" promptText="Fecha de Mantenimiento" />
-
-        <!-- Detalles del Mantenimiento -->
         <TextArea fx:id="detalleMantenimiento" prefHeight="150" prefWidth="300" promptText="Detalles del Mantenimiento" wrapText="true" />
-
-        <!-- Técnico Responsable -->
         <TextField fx:id="tecnicoResponsable" prefWidth="300" promptText="Técnico Responsable" />
     </VBox>
 
-    <!-- Botones de acciones para agregar, actualizar y borrar -->
     <HBox alignment="CENTER" spacing="20">
-        <Button onAction="#guardarMantenimientoEquipo" prefWidth="300" style="-fx-background-color: #0D47A1; -fx-text-fill: white;" text="➕ Agregar Mantenimiento" />
-        <Button onAction="#actualizarMantenimientoEquipo" prefWidth="300" style="-fx-background-color: #8BC34A; -fx-text-fill: white;" text="✏️ Actualizar Mantenimiento" />
-        <Button onAction="#borrarMantenimientoEquipo" prefWidth="300" style="-fx-background-color: #F44336; -fx-text-fill: white;" text="❌ Borrar Mantenimiento" />
+        <Button onAction="#guardarMantenimientoEquipo" prefWidth="300" styleClass="button-blue" text="➕ Agregar Mantenimiento" />
+        <Button onAction="#actualizarMantenimientoEquipo" prefWidth="300" styleClass="button-light-blue" text="✏️ Actualizar Mantenimiento" />
+        <Button onAction="#borrarMantenimientoEquipo" prefWidth="300" styleClass="button-light-blue" text="❌ Borrar Mantenimiento" />
     </HBox>
 
-    <!-- TableView para ver y gestionar mantenimiento de equipos -->
     <TableView fx:id="tablaMantenimientoEquipo" prefHeight="200" prefWidth="700" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="colIdEquipo" prefWidth="100" text="ID" />
-            <TableColumn fx:id="colNombreEquipo" prefWidth="200" text="Nombre Equipo" />
             <TableColumn fx:id="colFechaMantenimiento" prefWidth="200" text="Fecha Mantenimiento" />
             <TableColumn fx:id="colDetalles" prefWidth="200" text="Detalles" />
             <TableColumn fx:id="colTecnicoResponsable" prefWidth="200" text="Técnico Responsable" />
         </columns>
     </TableView>
 
-    <!-- Botón Volver al Menú -->
     <HBox alignment="CENTER" spacing="20">
-        <Button onAction="#volverAlMenu" prefWidth="300" style="-fx-background-color: #FF7043; -fx-text-fill: white;" text="Volver al Menú" />
+        <Button onAction="#volverAlMenu" prefWidth="300" styleClass="button-light-blue" text="🔙 Volver al Menú" />
     </HBox>
 </VBox>
+
