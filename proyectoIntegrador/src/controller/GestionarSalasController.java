@@ -4,14 +4,19 @@ import data.DBConnection;
 import data.SalaInformaticaDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import model.SalaInformatica;
+import model.FXUtils;
+
 import java.io.IOException;
 import java.sql.Connection;
 
@@ -26,20 +31,13 @@ public class GestionarSalasController {
     @FXML private TableColumn<SalaInformatica, String> ubicacionColumn;
     @FXML private TableColumn<SalaInformatica, String> estadoColumn;
 
-    @FXML private TextField nombreField, capacidadField, softwareField, hardwareField, ubicacionField, estadoField;
+    @FXML private TextField idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionField;
+    @FXML private ComboBox<String> estadoComboBox; // Cambio de TextField a ComboBox
     @FXML private Button btnAdd, btnUpdate, btnDelete, btnFetch, btnBack;
 
-    private final Connection connection;
-    private final SalaInformaticaDAO salaDAO;
+    private final Connection connection = DBConnection.getInstance().getConnection();
+    private final SalaInformaticaDAO salaDAO = new SalaInformaticaDAO(connection);
     private final ObservableList<SalaInformatica> salaList = FXCollections.observableArrayList();
-
-    public GestionarSalasController() {
-        this.connection = DBConnection.getInstance().getConnection();
-        if (connection == null) {
-            throw new IllegalStateException("❌ Error: No se pudo establecer la conexión con la base de datos.");
-        }
-        this.salaDAO = new SalaInformaticaDAO(connection);
-    }
 
     @FXML
     public void initialize() {
@@ -51,93 +49,158 @@ public class GestionarSalasController {
         ubicacionColumn.setCellValueFactory(new PropertyValueFactory<>("ubicacion"));
         estadoColumn.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
+        salaTable.setItems(salaList);
         fetchSalas();
+
+        // Configuración del ComboBox para el estado
+        estadoComboBox.setItems(FXCollections.observableArrayList("Disponible", "Ocupada", "Mantenimiento"));
+        estadoComboBox.getSelectionModel().selectFirst();  // Seleccionar "Disponible" por defecto
+
+        // Mostrar los datos de la sala seleccionada en los campos de texto
+        salaTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null) {
+                idSalaField.setText(String.valueOf(newSel.getIdSala()));
+                nombreField.setText(newSel.getNombreSala());
+                capacidadField.setText(String.valueOf(newSel.getCapacidad()));
+                softwareField.setText(newSel.getSoftwareDisponible());
+                hardwareField.setText(newSel.getHardwareEspecial());
+                ubicacionField.setText(newSel.getUbicacion());
+                estadoComboBox.setValue(newSel.getEstado());  // Asignar el estado desde la sala seleccionada
+             
+            }
+        });
+
+        // Doble clic para deseleccionar fila
+        salaTable.setRowFactory(tv -> {
+            TableRow<SalaInformatica> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                    FXUtils.clearSelectionAndFields(salaTable, idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionField, estadoComboBox);
+                }
+            });
+            return row;
+        });
+
+        // Permitir deselección con la tecla ESC
+        salaTable.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                FXUtils.clearSelectionAndFields(salaTable, idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionField, estadoComboBox);
+            }
+        });
     }
 
     @FXML
     public void fetchSalas() {
         try {
             salaList.setAll(salaDAO.fetch());
-            salaTable.setItems(salaList);
         } catch (Exception e) {
-            System.err.println("❌ Error al cargar la tabla de salas: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Error al cargar datos", "No se pudieron cargar las salas.");
         }
     }
 
     @FXML
-    public void addSala() {
+    public void addSala(ActionEvent event) {
         try {
-            String nombre = nombreField.getText();
+            int idSala = Integer.parseInt(idSalaField.getText());
+            String nombre = nombreField.getText().trim();
             int capacidad = Integer.parseInt(capacidadField.getText());
-            String software = softwareField.getText();
-            String hardware = hardwareField.getText();
-            String ubicacion = ubicacionField.getText();
-            String estado = estadoField.getText();
+            String software = softwareField.getText().trim();
+            String hardware = hardwareField.getText().trim();
+            String ubicacion = ubicacionField.getText().trim();
+            String estado = estadoComboBox.getValue();  // Obtener el valor seleccionado del ComboBox
 
-            if (nombre.isEmpty() || estado.isEmpty()) {
-                System.err.println("⚠️ Error: Los campos requeridos están vacíos.");
+            // Validar que el estado sea uno de los valores permitidos
+            if (estado == null || estado.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Estado inválido", "El estado debe ser 'Disponible', 'Ocupada' o 'Mantenimiento'.");
                 return;
             }
 
-            SalaInformatica nuevaSala = new SalaInformatica(0, nombre, capacidad, software, hardware, ubicacion, estado);
+            if (nombre.isEmpty() || estado.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Campos vacíos", "Nombre y estado son obligatorios.");
+                return;
+            }
+
+            if (salaDAO.exists(idSala)) {
+                showAlert(Alert.AlertType.WARNING, "ID duplicado", "Ya existe una sala con ese ID.");
+                return;
+            }
+
+            SalaInformatica nuevaSala = new SalaInformatica(idSala, nombre, capacidad, software, hardware, ubicacion, estado);
             salaDAO.save(nuevaSala);
             fetchSalas();
+            clearFields();
         } catch (NumberFormatException e) {
-            System.err.println("❌ Error: Capacidad debe ser un número entero válido.");
+            showAlert(Alert.AlertType.ERROR, "Error de formato", "ID y Capacidad deben ser números enteros válidos.");
         }
     }
 
     @FXML
-    public void updateSala() {
+    public void updateSala(ActionEvent event) {
         SalaInformatica salaSeleccionada = salaTable.getSelectionModel().getSelectedItem();
         if (salaSeleccionada == null) {
-            System.err.println("⚠️ Error: No se ha seleccionado ninguna sala.");
+            showAlert(Alert.AlertType.WARNING, "Ninguna sala seleccionada", "Debes seleccionar una sala para actualizar.");
             return;
         }
 
         try {
-            salaSeleccionada.setNombreSala(nombreField.getText());
+            salaSeleccionada.setNombreSala(nombreField.getText().trim());
             salaSeleccionada.setCapacidad(Integer.parseInt(capacidadField.getText()));
-            salaSeleccionada.setSoftwareDisponible(softwareField.getText());
-            salaSeleccionada.setHardwareEspecial(hardwareField.getText());
-            salaSeleccionada.setUbicacion(ubicacionField.getText());
-            salaSeleccionada.setEstado(estadoField.getText());
+            salaSeleccionada.setSoftwareDisponible(softwareField.getText().trim());
+            salaSeleccionada.setHardwareEspecial(hardwareField.getText().trim());
+            salaSeleccionada.setUbicacion(ubicacionField.getText().trim());
+            salaSeleccionada.setEstado(estadoComboBox.getValue());  // Actualizar estado con el valor del ComboBox
 
             salaDAO.update(salaSeleccionada);
             fetchSalas();
+            clearFields();
         } catch (NumberFormatException e) {
-            System.err.println("❌ Error: Capacidad debe ser un número entero válido.");
+            showAlert(Alert.AlertType.ERROR, "Error de formato", "Capacidad debe ser un número entero válido.");
         }
     }
 
     @FXML
-    public void deleteSala() {
+    public void deleteSala(ActionEvent event) {
         SalaInformatica salaSeleccionada = salaTable.getSelectionModel().getSelectedItem();
         if (salaSeleccionada == null) {
-            System.err.println("⚠️ Error: No se ha seleccionado ninguna sala.");
+            showAlert(Alert.AlertType.WARNING, "Ninguna sala seleccionada", "Selecciona una sala para eliminar.");
             return;
         }
 
         salaDAO.delete(salaSeleccionada.getIdSala());
         fetchSalas();
+        clearFields();
     }
 
     @FXML
-    public void goBackToMenu() {
+    public void goBackToMenu(ActionEvent event) {
         try {
-            if (btnBack == null) {
-                System.err.println("❌ Error: btnBack es NULL. Verifica su `fx:id` en el FXML.");
-                return;
-            }
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) btnBack.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
-            System.err.println("❌ Error al regresar al menú: " + e.getMessage());
-            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "No se pudo regresar al menú.");
         }
+    }
+
+    private void clearFields() {
+        idSalaField.clear();
+        nombreField.clear();
+        capacidadField.clear();
+        softwareField.clear();
+        hardwareField.clear();
+        ubicacionField.clear();
+        estadoComboBox.getSelectionModel().selectFirst();  // Restablecer a "Disponible"
+        idSalaField.setDisable(false);  // Habilitar el campo ID para nuevas salas
+        salaTable.getSelectionModel().clearSelection();  // Limpiar la selección de la tabla
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

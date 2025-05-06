@@ -10,7 +10,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/8.0.171"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controller.ReservasSalasController"
+    fx:controller="controller.VerSalasReservadasController"
+
       alignment="CENTER"
       spacing="20.0"
       prefWidth="800.0"

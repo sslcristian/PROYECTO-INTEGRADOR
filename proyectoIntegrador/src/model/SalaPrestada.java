@@ -1,64 +1,57 @@
 package model;
 
-import java.sql.Timestamp;
+import javafx.beans.property.*;
+import java.sql.Date;
 
 public class SalaPrestada {
-    private int idPrestamoS;
-    private int idSolicitudS;
-    private int idSala;
-    private Timestamp fechaInicio; 
-    private Timestamp fechaFin;     
-    private String observaciones;
+    private final IntegerProperty idPrestamoS;
+    private final IntegerProperty idSolicitudS;
+    private final IntegerProperty idSala;
+    private final ObjectProperty<Date> fechaInicio;
+    private final ObjectProperty<Date> fechaFin;
+    private final StringProperty observaciones;
 
-    public SalaPrestada(int idPrestamoS, int idSolicitudS, int idSala, Timestamp fechaInicio, Timestamp fechaFin, String observaciones) {
-        this.idPrestamoS = idPrestamoS;
-        this.idSolicitudS = idSolicitudS;
-        this.idSala = idSala;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.observaciones = observaciones;
-    }
-
-    // Getters y Setters
-    public int getIdPrestamoS() {
-        return idPrestamoS;
-    }
-    public void setIdPrestamoS(int idPrestamoS) {
-        this.idPrestamoS = idPrestamoS;
+    // Constructor principal con todos los campos
+    public SalaPrestada(int idPrestamoS, int idSolicitudS, int idSala, Date fechaInicio, Date fechaFin, String observaciones) {
+        this.idPrestamoS = new SimpleIntegerProperty(idPrestamoS);
+        this.idSolicitudS = new SimpleIntegerProperty(idSolicitudS);
+        this.idSala = new SimpleIntegerProperty(idSala);
+        this.fechaInicio = new SimpleObjectProperty<>(fechaInicio);
+        this.fechaFin = new SimpleObjectProperty<>(fechaFin);
+        this.observaciones = new SimpleStringProperty(observaciones);
     }
 
-    public int getIdSolicitudS() {
-        return idSolicitudS;
-    }
-    public void setIdSolicitudS(int idSolicitudS) {
-        this.idSolicitudS = idSolicitudS;
-    }
-
-    public int getIdSala() {
-        return idSala;
-    }
-    public void setIdSala(int idSala) {
-        this.idSala = idSala;
+    // Constructor sin `idPrestamoS` (útil para inserciones en la BD)
+    public SalaPrestada(int idSolicitudS, int idSala, Date fechaInicio, Date fechaFin, String observaciones) {
+        this.idPrestamoS = new SimpleIntegerProperty(0); // Se asignará en BD
+        this.idSolicitudS = new SimpleIntegerProperty(idSolicitudS);
+        this.idSala = new SimpleIntegerProperty(idSala);
+        this.fechaInicio = new SimpleObjectProperty<>(fechaInicio);
+        this.fechaFin = new SimpleObjectProperty<>(fechaFin);
+        this.observaciones = new SimpleStringProperty(observaciones);
     }
 
-    public Timestamp getFechaInicio() {
-        return fechaInicio;
-    }
-    public void setFechaInicio(Timestamp fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
+    // Getters como `Property` para JavaFX
+    public IntegerProperty idPrestamoSProperty() { return idPrestamoS; }
+    public IntegerProperty idSolicitudSProperty() { return idSolicitudS; }
+    public IntegerProperty idSalaProperty() { return idSala; }
+    public ObjectProperty<Date> fechaInicioProperty() { return fechaInicio; }
+    public ObjectProperty<Date> fechaFinProperty() { return fechaFin; }
+    public StringProperty observacionesProperty() { return observaciones; }
 
-    public Timestamp getFechaFin() {
-        return fechaFin;
-    }
-    public void setFechaFin(Timestamp fechaFin) {
-        this.fechaFin = fechaFin;
-    }
+    // Métodos getter estándar
+    public int getIdPrestamoS() { return idPrestamoS.get(); }
+    public int getIdSolicitudS() { return idSolicitudS.get(); }
+    public int getIdSala() { return idSala.get(); }
+    public Date getFechaInicio() { return fechaInicio.get(); }
+    public Date getFechaFin() { return fechaFin.get(); }
+    public String getObservaciones() { return observaciones.get(); }
 
-    public String getObservaciones() {
-        return observaciones;
-    }
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
+    // Métodos setter estándar
+    public void setIdPrestamoS(int idPrestamoS) { this.idPrestamoS.set(idPrestamoS); }
+    public void setIdSolicitudS(int idSolicitudS) { this.idSolicitudS.set(idSolicitudS); }
+    public void setIdSala(int idSala) { this.idSala.set(idSala); }
+    public void setFechaInicio(Date fechaInicio) { this.fechaInicio.set(fechaInicio); }
+    public void setFechaFin(Date fechaFin) { this.fechaFin.set(fechaFin); }
+    public void setObservaciones(String observaciones) { this.observaciones.set(observaciones); }
 }

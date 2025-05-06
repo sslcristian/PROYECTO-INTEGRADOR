@@ -24,7 +24,8 @@
     <Button fx:id="btnGestionSalas" onAction="#abrirGestionSalas" text=" 🧑‍💻 Gestionar Salas"/>
 
 
-    <Button onAction="#abrirSalasReservadas" prefHeight="60" prefWidth="500" styleClass="button button-light-blue" text="📋 Ver Salas Reservadas" wrapText="true" />
+   <Button fx:id="btnSalasReservadas" onAction="#abrirSalasReservadas" prefHeight="60" prefWidth="500" styleClass="button button-light-blue" text="📋 Ver Salas Reservadas" wrapText="true" />
 
-    <Button onAction="#abrirReservasSalas" prefHeight="60" prefWidth="500" styleClass="button button-blue" text="📆 Ver Reservas de Salas" wrapText="true" />
+<Button fx:id="btnReservasSalas" onAction="#abrirReservasSalas" prefHeight="60" prefWidth="500" styleClass="button button-blue" text="📆 Ver Reservas de Salas" wrapText="true" />
+
 </VBox>

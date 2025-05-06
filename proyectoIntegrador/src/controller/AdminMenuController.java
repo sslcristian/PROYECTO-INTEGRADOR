@@ -34,7 +34,7 @@ public class AdminMenuController {
 
     @FXML
     private void gestionarEquipos() {
-        cargarVista("/view/GestionEquipos.fxml");
+        cargarVista("/view/GestionEquiposMenu.fxml");
     }
 
     @FXML

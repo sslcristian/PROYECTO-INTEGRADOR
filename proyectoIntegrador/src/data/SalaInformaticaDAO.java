@@ -1,8 +1,9 @@
 package data;
 
+import model.SalaInformatica;
+
 import java.sql.*;
 import java.util.ArrayList;
-import model.SalaInformatica;
 
 public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integer> {
 
@@ -14,18 +15,16 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
     @Override
     public void save(SalaInformatica sala) {
-        String insertQuery = "INSERT INTO TBL_SALA_INFORMATICA (id_sala, nombre_sala, capacidad, software_disponible, hardware_especial, ubicacion, estado) " +
-                             "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        if (exists(sala.getIdSala())) {
+            System.err.println("⚠️ No se pudo guardar: ya existe una sala con ID " + sala.getIdSala());
+            return;
+        }
+
+        String insertQuery = "INSERT INTO TBL_SALA_INFORMATICA " +
+                "(id_sala, nombre_sala, capacidad, software_disponible, hardware_especial, ubicacion, estado) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
-            System.out.println("Intentando insertar sala: ID=" + sala.getIdSala() +
-                               ", Nombre=" + sala.getNombreSala() +
-                               ", Capacidad=" + sala.getCapacidad() +
-                               ", Software=" + sala.getSoftwareDisponible() +
-                               ", Hardware=" + sala.getHardwareEspecial() +
-                               ", Ubicación=" + sala.getUbicacion() +
-                               ", Estado=" + sala.getEstado()); // Depuración antes de insertar
-
             pstmt.setInt(1, sala.getIdSala());
             pstmt.setString(2, sala.getNombreSala());
             pstmt.setInt(3, sala.getCapacidad());
@@ -36,8 +35,6 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
             pstmt.executeUpdate();
             System.out.println("✅ Sala insertada correctamente.");
-        } catch (SQLIntegrityConstraintViolationException e) {
-            System.err.println("❌ Error: Violación de restricción al insertar sala. Verifica que la ID no esté duplicada.");
         } catch (SQLException e) {
             System.err.println("❌ Error al insertar sala: " + e.getMessage());
             e.printStackTrace();
@@ -59,17 +56,17 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
                         rs.getInt("capacidad"),
                         rs.getString("software_disponible"),
                         rs.getString("hardware_especial"),
-                        rs.getString("ubicacion"), 
+                        rs.getString("ubicacion"),
                         rs.getString("estado")
                 ));
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error al obtener salas informáticas: " + e.getMessage());
+            System.err.println("❌ Error al obtener salas: " + e.getMessage());
             e.printStackTrace();
         }
+
         return salas;
     }
-
 
     @Override
     public void update(SalaInformatica sala) {
@@ -85,9 +82,11 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
             pstmt.setInt(7, sala.getIdSala());
 
             int rows = pstmt.executeUpdate();
-            System.out.println(rows > 0 ? "✅ Sala actualizada correctamente." : "⚠️ No se encontró una sala con ID: " + sala.getIdSala());
+            System.out.println(rows > 0
+                    ? "✅ Sala actualizada correctamente."
+                    : "⚠️ No se encontró una sala con ID: " + sala.getIdSala());
         } catch (SQLException e) {
-            System.err.println("❌ Error al actualizar la sala: " + e.getMessage());
+            System.err.println("❌ Error al actualizar sala: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -99,27 +98,19 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, idSala);
             int rows = pstmt.executeUpdate();
-            System.out.println(rows > 0 ? "✅ Sala eliminada correctamente." : "⚠️ No se encontró una sala con ID: " + idSala);
+            System.out.println(rows > 0
+                    ? "✅ Sala eliminada correctamente."
+                    : "⚠️ No se encontró una sala con ID: " + idSala);
         } catch (SQLException e) {
-            System.err.println("❌ Error al eliminar la sala: " + e.getMessage());
+            System.err.println("❌ Error al eliminar sala: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     @Override
     public boolean authenticate(Integer idSala) {
-        String query = "SELECT id_sala FROM TBL_SALA_INFORMATICA WHERE id_sala = ?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, idSala);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            System.err.println("❌ Error al autenticar la sala: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return false;
+        // Este método no aplica realmente para este DAO; se deja por requerimientos del CRUD_Operation genérico.
+        return exists(idSala);
     }
 
     public boolean exists(Integer idSala) {
@@ -128,12 +119,12 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, idSala);
             try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next();
+                return rs.next(); // Retorna true si hay algún registro
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error al verificar existencia de la sala: " + e.getMessage());
+            System.err.println("❌ Error al verificar existencia de sala: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 }

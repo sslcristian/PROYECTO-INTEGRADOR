@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="20" style="-fx-background-color: #E3F2FD;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.GestionarEquiposController">
+
+    <padding>
+        <Insets bottom="40" left="40" right="40" top="40" />
+    </padding>
+
+    <Label style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #0D47A1;" text="Gestionar Equipos">
+        <font>
+            <Font name="Arial" size="24" />
+        </font>
+        <effect>
+            <DropShadow color="#90CAF9" radius="3" />
+        </effect>
+    </Label>
+
+    <!-- NUEVO CAMPO PARA ID -->
+    <TextField fx:id="idField" prefWidth="300" promptText="ID del Equipo" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+
+    <TextField fx:id="nombreField" prefWidth="300" promptText="Nombre del Equipo" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    <TextField fx:id="tipoField" prefWidth="300" promptText="Tipo de Equipo" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+
+    <!-- CAMBIADO A COMBOBOX -->
+    <ComboBox fx:id="estadoComboBox" prefWidth="300" promptText="Estado " style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+
+    <TextField fx:id="ubicacionField" prefWidth="300" promptText="Ubicación" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    <TextField fx:id="marcaField" prefWidth="300" promptText="Marca" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    <TextField fx:id="modeloField" prefWidth="300" promptText="Modelo" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    <DatePicker fx:id="fechaAdquisicionPicker" prefWidth="300" promptText="Fecha de Adquisición" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+
+    <TableView fx:id="equipoTable" prefHeight="200" prefWidth="700" style="-fx-background-color: white; -fx-border-color: #BBDEFB;">
+        <columns>
+            <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
+            <TableColumn fx:id="nombreColumn" prefWidth="100" text="Nombre" />
+            <TableColumn fx:id="tipoColumn" prefWidth="100" text="Tipo" />
+            <TableColumn fx:id="estadoColumn" prefWidth="100" text="Estado" />
+            <TableColumn fx:id="ubicacionColumn" prefWidth="100" text="Ubicación" />
+            <TableColumn fx:id="marcaColumn" prefWidth="100" text="Marca" />
+            <TableColumn fx:id="modeloColumn" prefWidth="100" text="Modelo" />
+            <TableColumn fx:id="fechaAdquisicionColumn" prefWidth="120" text="Fecha Adquisición" />
+        </columns>
+    </TableView>
+
+    <Button fx:id="btnAdd" onAction="#addEquipo" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #90CAF9; -fx-text-fill: white;" text="Agregar Equipo" />
+    <Button fx:id="btnUpdate" onAction="#updateEquipo" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #64B5F6; -fx-text-fill: white;" text="Actualizar Equipo" />
+    <Button fx:id="btnDelete" onAction="#deleteEquipo" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Eliminar Equipo" />
+    <Button fx:id="btnFetch" onAction="#fetchEquipos" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #BBDEFB; -fx-text-fill: white;" text="Mostrar Todos los Equipos" />
+    <Button fx:id="btnBack" onAction="#goBackToMenu" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #1976D2; -fx-text-fill: white;" text="Volver al Menú" />
+
+    <stylesheets>
+        <URL value="@Style.css" />
+        <URL value="@Style.css" />
+    </stylesheets>
+</VBox>

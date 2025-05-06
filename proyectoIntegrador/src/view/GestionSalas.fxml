@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -24,12 +25,15 @@
         </effect>
     </Label>
 
+    <TextField fx:id="idSalaField" prefWidth="300" promptText="ID de la Sala" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     <TextField fx:id="nombreField" prefWidth="300" promptText="Nombre de la Sala" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     <TextField fx:id="capacidadField" prefWidth="300" promptText="Capacidad" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     <TextField fx:id="softwareField" prefWidth="300" promptText="Software Disponible" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     <TextField fx:id="hardwareField" prefWidth="300" promptText="Hardware Especial" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     <TextField fx:id="ubicacionField" prefWidth="300" promptText="Ubicación" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
-    <TextField fx:id="estadoField" prefWidth="300" promptText="Estado (Disponible / Ocupada / Reservada)" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+    
+    <!-- Aquí está el ComboBox para el estado -->
+    <ComboBox fx:id="estadoComboBox" prefWidth="300" promptText="Estado" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
 
     <TableView fx:id="salaTable" prefHeight="200" prefWidth="600" style="-fx-background-color: white; -fx-border-color: #BBDEFB;">
         <columns>
@@ -48,7 +52,6 @@
     <Button fx:id="btnDelete" onAction="#deleteSala" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Eliminar Sala" />
     <Button fx:id="btnFetch" onAction="#fetchSalas" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #BBDEFB; -fx-text-fill: white;" text="Mostrar Todas las Salas" />
 
-   
     <Button fx:id="btnBack" onAction="#goBackToMenu" prefWidth="300"
             style="-fx-font-size: 16; -fx-background-color: #1976D2; -fx-text-fill: white;"
             text="Volver al Menú" />
