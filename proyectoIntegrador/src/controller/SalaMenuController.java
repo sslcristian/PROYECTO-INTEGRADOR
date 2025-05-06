@@ -14,7 +14,7 @@ public class SalaMenuController {
 
     @FXML
     private void abrirGestionSalas() {
-        cargarVista("/views/GestionarSalas.fxml");
+        cargarVista("/views/GestionSalas.fxml");
     }
 
     @FXML
