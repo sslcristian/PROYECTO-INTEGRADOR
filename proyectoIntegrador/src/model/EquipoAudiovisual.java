@@ -12,9 +12,23 @@ public class EquipoAudiovisual {
     private String modelo;
     private Date fechaAdquisicion;
 
+    // Constructor con idEquipo, utilizado cuando el id es conocido (por ejemplo, después de obtenerlo de la base de datos)
     public EquipoAudiovisual(int idEquipo, String nombre, String tipo, String estado, String ubicacion,
                              String marca, String modelo, Date fechaAdquisicion) {
         this.idEquipo = idEquipo;
+        this.nombre = nombre;
+        this.tipo = tipo;
+        this.estado = estado;
+        this.ubicacion = ubicacion;
+        this.marca = marca;
+        this.modelo = modelo;
+        this.fechaAdquisicion = fechaAdquisicion;
+    }
+
+    // Constructor sin idEquipo (para insertar nuevos equipos donde el id es generado por la base de datos)
+    public EquipoAudiovisual(String nombre, String tipo, String estado, String ubicacion, 
+                             String marca, String modelo, Date fechaAdquisicion) {
+        this.idEquipo = 0;  // Deja el id como 0, que se actualizará automáticamente por la base de datos
         this.nombre = nombre;
         this.tipo = tipo;
         this.estado = estado;

@@ -32,10 +32,12 @@
     <TextField fx:id="idField" prefWidth="300" promptText="ID del Equipo" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
 
     <TextField fx:id="nombreField" prefWidth="300" promptText="Nombre del Equipo" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
-    <TextField fx:id="tipoField" prefWidth="300" promptText="Tipo de Equipo" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+   
+    <ComboBox fx:id="tipoComboBox" prefWidth="300" promptText="Tipo de Equipo" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6"/>
 
-    <!-- CAMBIADO A COMBOBOX -->
-    <ComboBox fx:id="estadoComboBox" prefWidth="300" promptText="Estado " style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+
+    <!-- COMBOBOX PARA ESTADO -->
+    <ComboBox fx:id="estadoComboBox" prefWidth="300" promptText="Estado" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
 
     <TextField fx:id="ubicacionField" prefWidth="300" promptText="Ubicación" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     <TextField fx:id="marcaField" prefWidth="300" promptText="Marca" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />

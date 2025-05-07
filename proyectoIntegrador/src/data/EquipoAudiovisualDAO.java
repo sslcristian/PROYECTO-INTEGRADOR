@@ -18,7 +18,8 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, equipo.getIdEquipo());
+            // Asegúrate de que estás pasando el id correctamente, ya que no es autoincremental
+            pstmt.setInt(1, equipo.getIdEquipo());  // Aquí es donde el id debe ser proporcionado
             pstmt.setString(2, equipo.getNombre());
             pstmt.setString(3, equipo.getTipo());
             pstmt.setString(4, equipo.getEstado());
@@ -36,6 +37,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
             e.printStackTrace();
         }
     }
+
 
     @Override
     public ArrayList<EquipoAudiovisual> fetch() {

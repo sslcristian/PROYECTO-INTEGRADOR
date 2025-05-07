@@ -43,14 +43,23 @@ public class GestionEquiposMenuController {
         }
 
         try {
+            Stage stage = (Stage) boton.getScene().getWindow();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+
             FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
-            Stage stage = (Stage) boton.getScene().getWindow();
             stage.setScene(new Scene(root));
+
+            // Mantener el tamaño actual
+            stage.setWidth(currentWidth);
+            stage.setHeight(currentHeight);
+
             stage.show();
         } catch (IOException e) {
             System.err.println("❌ Error al cargar la escena: " + fxmlPath);
             e.printStackTrace();
         }
     }
+
 }

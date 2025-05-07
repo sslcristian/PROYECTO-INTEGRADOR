@@ -1,19 +1,23 @@
 package controller;
 
-import application.Main;
 import data.DBConnection;
 import data.EquipoAudiovisualDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.control.TableRow;
+import javafx.scene.control.cell.PropertyValueFactory;
 import model.EquipoAudiovisual;
 import model.FXUtils;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -30,6 +34,7 @@ public class GestionarEquiposController {
     @FXML private TableColumn<EquipoAudiovisual, String> modeloColumn;
     @FXML private TableColumn<EquipoAudiovisual, String> fechaAdquisicionColumn;
 
+    @FXML private TextField idField;
     @FXML private TextField nombreField;
     @FXML private TextField tipoField;
     @FXML private TextField estadoField;
@@ -37,6 +42,9 @@ public class GestionarEquiposController {
     @FXML private TextField marcaField;
     @FXML private TextField modeloField;
     @FXML private DatePicker fechaAdquisicionPicker;
+
+    @FXML private ComboBox<String> tipoComboBox;
+    @FXML private ComboBox<String> estadoComboBox;
 
     @FXML private Button btnAdd;
     @FXML private Button btnUpdate;
@@ -60,13 +68,18 @@ public class GestionarEquiposController {
         modeloColumn.setCellValueFactory(new PropertyValueFactory<>("modelo"));
         fechaAdquisicionColumn.setCellValueFactory(new PropertyValueFactory<>("fechaAdquisicion"));
 
+        // Inicialización de ComboBox
+        tipoComboBox.setItems(FXCollections.observableArrayList("Proyector", "Pantalla", "Micrófono", "Otro"));
+        estadoComboBox.setItems(FXCollections.observableArrayList("Disponible", "Mantenimiento", "Reservado"));
+
         fetchEquipos();
 
         equipoTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
+                idField.setText(String.valueOf(newSel.getIdEquipo()));
                 nombreField.setText(newSel.getNombre());
-                tipoField.setText(newSel.getTipo());
-                estadoField.setText(newSel.getEstado());
+                tipoComboBox.setValue(newSel.getTipo());
+                estadoComboBox.setValue(newSel.getEstado());
                 ubicacionField.setText(newSel.getUbicacion());
                 marcaField.setText(newSel.getMarca());
                 modeloField.setText(newSel.getModelo());
@@ -93,31 +106,29 @@ public class GestionarEquiposController {
 
     @FXML
     public void addEquipo(ActionEvent event) {
+        String idStr = idField.getText().trim();
         String nombre = nombreField.getText().trim();
-        String tipo = tipoField.getText().trim();
-        String estado = estadoField.getText().trim();
+        String tipo = tipoComboBox.getSelectionModel().getSelectedItem();
+        String estado = estadoComboBox.getSelectionModel().getSelectedItem();
         String ubicacion = ubicacionField.getText().trim();
         String marca = marcaField.getText().trim();
         String modelo = modeloField.getText().trim();
-        LocalDate fechaAdquisicionLocalDate = fechaAdquisicionPicker.getValue();  // Obtenemos la fecha de adquisición del DatePicker
+        LocalDate fechaAdquisicionLocalDate = fechaAdquisicionPicker.getValue();
 
-        if (nombre.isEmpty() || tipo.isEmpty() || estado.isEmpty() || ubicacion.isEmpty() || marca.isEmpty() || modelo.isEmpty() || fechaAdquisicionLocalDate == null) {
+        if (idStr.isEmpty() || nombre.isEmpty() || tipo == null || estado == null || ubicacion.isEmpty() || marca.isEmpty() || modelo.isEmpty() || fechaAdquisicionLocalDate == null) {
             showAlert(Alert.AlertType.ERROR, "Campos vacíos", "Complete todos los campos.");
             return;
         }
 
-        Date fechaAdquisicion = Date.valueOf(fechaAdquisicionLocalDate);  // Convertimos LocalDate a java.sql.Date
+        int idEquipo = Integer.parseInt(idStr);
+        Date fechaAdquisicion = Date.valueOf(fechaAdquisicionLocalDate);
 
-        // Aquí se está utilizando el constructor con los parámetros correctos
-        EquipoAudiovisual equipo = new EquipoAudiovisual(nombre, tipo, estado, ubicacion, marca, modelo, fechaAdquisicion);
+        EquipoAudiovisual equipo = new EquipoAudiovisual(idEquipo, nombre, tipo, estado, ubicacion, marca, modelo, fechaAdquisicion);
+        equipoDAO.save(equipo);
 
-        // Guardar el equipo en la base de datos
-        equipoDAO.save(equipo);  // Suponiendo que equipoDAO es una instancia de EquipoAudiovisualDAO
-
-        fetchEquipos();  // Actualizamos la lista de equipos en la tabla
-        clearFields();  // Limpiamos los campos de texto
+        fetchEquipos();
+        clearFields();
     }
-
 
     @FXML
     public void updateEquipo(ActionEvent event) {
@@ -127,29 +138,26 @@ public class GestionarEquiposController {
             return;
         }
 
-        String nombre = nombreField.getText().trim();
-        String tipo = tipoField.getText().trim();
-        String estado = estadoField.getText().trim();
-        String ubicacion = ubicacionField.getText().trim();
-        String marca = marcaField.getText().trim();
-        String modelo = modeloField.getText().trim();
-        java.sql.Date fechaAdquisicion = java.sql.Date.valueOf(fechaAdquisicionPicker.getValue());
+        if (validateFields()) {
+            String nombre = nombreField.getText().trim();
+            String tipo = tipoComboBox.getSelectionModel().getSelectedItem();
+            String estado = estadoComboBox.getSelectionModel().getSelectedItem();
+            String ubicacion = ubicacionField.getText().trim();
+            String marca = marcaField.getText().trim();
+            String modelo = modeloField.getText().trim();
+            Date fechaAdquisicion = Date.valueOf(fechaAdquisicionPicker.getValue());
 
-        if (nombre.isEmpty() || tipo.isEmpty() || estado.isEmpty() || ubicacion.isEmpty() || marca.isEmpty() || modelo.isEmpty() || fechaAdquisicion == null) {
-            showAlert(Alert.AlertType.ERROR, "Campos vacíos", "Complete todos los campos.");
-            return;
+            selected.setNombre(nombre);
+            selected.setTipo(tipo);
+            selected.setEstado(estado);
+            selected.setUbicacion(ubicacion);
+            selected.setMarca(marca);
+            selected.setModelo(modelo);
+            selected.setFechaAdquisicion(fechaAdquisicion);
+            equipoDAO.update(selected);
+            fetchEquipos();
+            clearFields();
         }
-
-        selected.setNombre(nombre);
-        selected.setTipo(tipo);
-        selected.setEstado(estado);
-        selected.setUbicacion(ubicacion);
-        selected.setMarca(marca);
-        selected.setModelo(modelo);
-        selected.setFechaAdquisicion(fechaAdquisicion);
-        equipoDAO.update(selected);
-        fetchEquipos();
-        clearFields();
     }
 
     @FXML
@@ -172,9 +180,10 @@ public class GestionarEquiposController {
     }
 
     private void clearFields() {
+        idField.clear();
         nombreField.clear();
-        tipoField.clear();
-        estadoField.clear();
+        tipoComboBox.setValue(null);
+        estadoComboBox.setValue(null);
         ubicacionField.clear();
         marcaField.clear();
         modeloField.clear();
@@ -190,8 +199,49 @@ public class GestionarEquiposController {
         alert.showAndWait();
     }
 
+    private boolean validateFields() {
+        String idStr = idField.getText().trim();
+        String nombre = nombreField.getText().trim();
+        String tipo = tipoComboBox.getSelectionModel().getSelectedItem();
+        String estado = estadoComboBox.getSelectionModel().getSelectedItem();
+        String ubicacion = ubicacionField.getText().trim();
+        String marca = marcaField.getText().trim();
+        String modelo = modeloField.getText().trim();
+        LocalDate fechaAdquisicionLocalDate = fechaAdquisicionPicker.getValue();
+
+        if (idStr.isEmpty() || nombre.isEmpty() || tipo == null || estado == null || ubicacion.isEmpty() || 
+            marca.isEmpty() || modelo.isEmpty() || fechaAdquisicionLocalDate == null) {
+            showAlert(Alert.AlertType.ERROR, "Campos vacíos", "Complete todos los campos.");
+            return false;
+        }
+
+        try {
+            Integer.parseInt(idStr);
+        } catch (NumberFormatException e) {
+            showAlert(Alert.AlertType.ERROR, "ID inválido", "El ID debe ser un número válido.");
+            return false;
+        }
+
+        return true;
+    }
+
     @FXML
     public void goBackToMenu(ActionEvent event) {
-        Main.loadScene("/view/AdminMenu.fxml");
+        try {
+            Stage stage = (Stage) btnBack.getScene().getWindow();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
+            Parent root = loader.load();
+            stage.setScene(new Scene(root));
+
+            stage.setWidth(currentWidth);
+            stage.setHeight(currentHeight);
+
+            stage.show();
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "No se pudo regresar al menú.");
+        }
     }
 }

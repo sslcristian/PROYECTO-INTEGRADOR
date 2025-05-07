@@ -107,7 +107,8 @@ public class GestionarSalasController {
             String software = softwareField.getText().trim();
             String hardware = hardwareField.getText().trim();
             String ubicacion = ubicacionField.getText().trim();
-            String estado = estadoComboBox.getValue();  // Obtener el valor seleccionado del ComboBox
+            String estado = estadoComboBox.getValue().toLowerCase();  // Convertir a minúsculas
+
 
             // Validar que el estado sea uno de los valores permitidos
             if (estado == null || estado.isEmpty()) {
@@ -148,7 +149,8 @@ public class GestionarSalasController {
             salaSeleccionada.setSoftwareDisponible(softwareField.getText().trim());
             salaSeleccionada.setHardwareEspecial(hardwareField.getText().trim());
             salaSeleccionada.setUbicacion(ubicacionField.getText().trim());
-            salaSeleccionada.setEstado(estadoComboBox.getValue());  // Actualizar estado con el valor del ComboBox
+            salaSeleccionada.setEstado(estadoComboBox.getValue().toLowerCase());
+
 
             salaDAO.update(salaSeleccionada);
             fetchSalas();
@@ -174,10 +176,18 @@ public class GestionarSalasController {
     @FXML
     public void goBackToMenu(ActionEvent event) {
         try {
+            Stage stage = (Stage) btnBack.getScene().getWindow();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
             Parent root = loader.load();
-            Stage stage = (Stage) btnBack.getScene().getWindow();
             stage.setScene(new Scene(root));
+
+            // Mantener el tamaño anterior
+            stage.setWidth(currentWidth);
+            stage.setHeight(currentHeight);
+
             stage.show();
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Error", "No se pudo regresar al menú.");
