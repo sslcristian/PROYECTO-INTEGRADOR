@@ -14,6 +14,9 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Optional;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.scene.control.Alert;
 
 public class MantenimientoEquipoController {
     
@@ -37,6 +40,8 @@ public class MantenimientoEquipoController {
     private TableColumn<Mantenimiento_Equipo, String> colTecnicoResponsable;
     @FXML
     private BorderPane rootLayout;
+    @FXML
+    private Button btnBack;
 
     private Mantenimiento_EquipoDAO dao;
 
@@ -46,9 +51,12 @@ public class MantenimientoEquipoController {
 
     public void init(Connection connection) {
         this.dao = new Mantenimiento_EquipoDAO(connection);
+        System.out.println("Conexión establecida: " + connection);  // Verificar conexión
         cargarEquipos();
         cargarMantenimientos();
     }
+
+
 
     @FXML
     public void initialize() {
@@ -94,8 +102,16 @@ public class MantenimientoEquipoController {
 
     private void cargarEquipos() {
         ArrayList<Integer> equiposDisponibles = dao.obtenerEquiposDisponibles();
-        comboEquipo.setItems(FXCollections.observableArrayList(equiposDisponibles));
+        
+        System.out.println("Equipos obtenidos del DAO: " + equiposDisponibles);  // Verificar los equipos obtenidos
+
+        comboEquipo.getItems().clear();  
+        comboEquipo.getItems().addAll(equiposDisponibles);
+
+        System.out.println("Items en el ComboBox: " + comboEquipo.getItems());  // Verificar los items en el ComboBox
     }
+
+
 
     private void cargarMantenimientos() {
         ArrayList<Mantenimiento_Equipo> lista = dao.fetch();
@@ -145,13 +161,22 @@ public class MantenimientoEquipoController {
         }
     }
 
+    @FXML
     public void volverAlMenu() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AdminMenu.fxml"));
-            Parent menuView = loader.load();
-            rootLayout.setCenter(menuView);
+            Stage stage = (Stage) btnBack.getScene().getWindow();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
+            Parent root = loader.load();
+            
+            stage.setScene(new Scene(root));
+            stage.setWidth(currentWidth);
+            stage.setHeight(currentHeight);
+            stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            mostrarAlerta("No se pudo regresar al menú.", "Error", Alert.AlertType.ERROR);
         }
     }
 

@@ -32,10 +32,11 @@ public class RegisterUserController {
                 return;
             }
 
-            if (!isNumeric(txtCedula.getText()) || txtCedula.getText().length() < 6) {
-                mostrarAlerta("Cédula inválida", "La cédula debe contener solo números y tener al menos 6 dígitos.");
+            if (!isNumeric(txtCedula.getText()) || txtCedula.getText().length() < 6 || txtCedula.getText().length() > 12) {
+                mostrarAlerta("Cédula inválida", "La cédula debe contener solo números y tener entre 6 y 12 dígitos.");
                 return;
             }
+
 
             if (!isNumeric(txtTelefono.getText()) || txtTelefono.getText().length() < 7) {
                 mostrarAlerta("Teléfono inválido", "El teléfono debe contener solo números y al menos 7 dígitos.");

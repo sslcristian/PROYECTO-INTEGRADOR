@@ -117,43 +117,37 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
         }
         return false;
     }
- // Método para actualizar el estado del equipo (por ejemplo: a "mantenimiento" o "disponible")
-    public void actualizarEstadoEquipo(int idEquipo, String nuevoEstado) {
-        String query = "UPDATE TBL_EQUIPO SET estado = ? WHERE id_equipo = ?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setString(1, nuevoEstado);
+    public void actualizarEstadoEquipo(int idEquipo, String estado) {
+        String sql = "UPDATE TBL_EQUIPO SET estado = ? WHERE id_equipo = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, estado);
             pstmt.setInt(2, idEquipo);
-
-            int filas = pstmt.executeUpdate();
-            if (filas > 0) {
-                System.out.println("Estado del equipo actualizado correctamente.");
-            } else {
-                System.out.println("No se encontró equipo con el ID: " + idEquipo);
-            }
+            pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error al actualizar el estado del equipo.");
             e.printStackTrace();
         }
     }
 
-    // Método para obtener solo los IDs de los equipos que están 'disponibles'
+
     public ArrayList<Integer> obtenerEquiposDisponibles() {
-        ArrayList<Integer> equipos = new ArrayList<>();
-        String query = "SELECT id_equipo FROM TBL_EQUIPO WHERE estado = 'disponible'";
+        ArrayList<Integer> equiposDisponibles = new ArrayList<>();
+        String sql = "SELECT id_equipo FROM TBL_EQUIPO WHERE estado = 'Disponible'";
+        
+        System.out.println("Ejecutando consulta: " + sql);  // Verificar la consulta SQL
 
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
+        try (PreparedStatement pstmt = connection.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
-                equipos.add(rs.getInt("id_equipo"));
+                equiposDisponibles.add(rs.getInt("id_equipo"));
             }
+            System.out.println("Equipos disponibles encontrados: " + equiposDisponibles);  // Verificar resultado
         } catch (SQLException e) {
-            System.err.println("Error al obtener equipos disponibles.");
             e.printStackTrace();
         }
-
-        return equipos;
+        return equiposDisponibles;
     }
+
+
+
 
 }
