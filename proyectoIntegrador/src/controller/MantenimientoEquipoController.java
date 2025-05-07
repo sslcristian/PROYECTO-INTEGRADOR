@@ -4,9 +4,7 @@ import data.Mantenimiento_EquipoDAO;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.collections.FXCollections;
-
 import model.Mantenimiento_Equipo;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
@@ -18,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class MantenimientoEquipoController {
+    
     @FXML
     private ComboBox<Integer> comboEquipo;
     @FXML
@@ -41,21 +40,23 @@ public class MantenimientoEquipoController {
 
     private Mantenimiento_EquipoDAO dao;
 
-    public MantenimientoEquipoController(Connection connection) {
+    public MantenimientoEquipoController() {
+        // Constructor vacío requerido por FXMLLoader
+    }
+
+    public void init(Connection connection) {
         this.dao = new Mantenimiento_EquipoDAO(connection);
+        cargarEquipos();
+        cargarMantenimientos();
     }
 
     @FXML
     public void initialize() {
-        cargarEquipos();
-        cargarMantenimientos();
-        
-        // Interacción con TableView mejorada
         tablaMantenimientoEquipo.setRowFactory(tv -> {
             TableRow<Mantenimiento_Equipo> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty()) {
-                    if (event.getClickCount() == 2) { // Doble clic para deseleccionar
+                    if (event.getClickCount() == 2) {
                         tablaMantenimientoEquipo.getSelectionModel().clearSelection();
                         limpiarCampos();
                     } else {
@@ -67,7 +68,7 @@ public class MantenimientoEquipoController {
         });
 
         tablaMantenimientoEquipo.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) { // Escape para deseleccionar
+            if (event.getCode() == KeyCode.ESCAPE) {
                 tablaMantenimientoEquipo.getSelectionModel().clearSelection();
                 limpiarCampos();
             }
@@ -110,7 +111,7 @@ public class MantenimientoEquipoController {
 
             Mantenimiento_Equipo mantenimiento = new Mantenimiento_Equipo(0, idEquipo, fecha, detalle, tecnico);
             dao.save(mantenimiento);
-            dao.actualizarEstadoEquipo(idEquipo, "mantenimiento"); // Actualiza el estado en la base de datos
+            dao.actualizarEstadoEquipo(idEquipo, "mantenimiento");
 
             mostrarAlerta("Registro exitoso", "El mantenimiento ha sido registrado correctamente.", Alert.AlertType.INFORMATION);
             cargarMantenimientos();
@@ -136,7 +137,7 @@ public class MantenimientoEquipoController {
             Optional<ButtonType> resultado = mostrarConfirmacion("¿Eliminar?", "¿Estás seguro de eliminar este mantenimiento?");
             if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
                 dao.delete(seleccionado.getIdMantenimiento());
-                dao.actualizarEstadoEquipo(seleccionado.getIdEquipo(), "disponible"); // Reinicia el estado del equipo
+                dao.actualizarEstadoEquipo(seleccionado.getIdEquipo(), "disponible");
 
                 mostrarAlerta("Eliminado", "El mantenimiento ha sido eliminado correctamente.", Alert.AlertType.INFORMATION);
                 cargarMantenimientos();
@@ -146,7 +147,7 @@ public class MantenimientoEquipoController {
 
     public void volverAlMenu() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ControlMantenimiento.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/AdminMenu.fxml"));
             Parent menuView = loader.load();
             rootLayout.setCenter(menuView);
         } catch (IOException e) {

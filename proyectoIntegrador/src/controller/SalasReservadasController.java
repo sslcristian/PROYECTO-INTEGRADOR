@@ -1,20 +1,23 @@
 package controller;
 
+import application.Main;
 import data.DBConnection;
 import data.SalaPrestadaDAO;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.input.KeyCode;
 import model.SalaPrestada;
-import java.io.IOException;
+
 import java.sql.Connection;
-import java.util.List;
+import java.sql.Date;
+
 
 public class SalasReservadasController {
 
@@ -24,60 +27,67 @@ public class SalasReservadasController {
     @FXML private TableColumn<SalaPrestada, String> colInicio;
     @FXML private TableColumn<SalaPrestada, String> colFin;
     @FXML private TableColumn<SalaPrestada, String> colEstado;
-    @FXML private Button btnActualizar, btnVolver;
+    @FXML private Button btnActualizar;
+    @FXML private Button btnVolver;
 
-    private final SalaPrestadaDAO salaPrestadaDAO;
+    private final Connection connection = DBConnection.getInstance().getConnection();
+    private final SalaPrestadaDAO salaPrestadaDAO = new SalaPrestadaDAO(connection);
     private final ObservableList<SalaPrestada> salasList = FXCollections.observableArrayList();
-
-    public SalasReservadasController() {
-        Connection connection = DBConnection.getInstance().getConnection();
-        if (connection == null) throw new IllegalStateException("❌ Error: No hay conexión con la base de datos.");
-        this.salaPrestadaDAO = new SalaPrestadaDAO(connection);
-    }
 
     @FXML
     public void initialize() {
-        colSala.setCellValueFactory(new PropertyValueFactory<>("idSala"));
-        colUsuario.setCellValueFactory(new PropertyValueFactory<>("idSolicitudS"));
-        colInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
-        colFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
+        colSala.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSala())));
+        colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudS())));
+        colInicio.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getFechaInicio())));
+        colFin.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getFechaFin())));
+        colEstado.setCellValueFactory(cellData -> new SimpleStringProperty(determineEstado(cellData.getValue())));
 
-        actualizarTabla();
+        fetchSalasReservadas();
+
+        tablaSalasReservadas.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                tablaSalasReservadas.getSelectionModel().clearSelection();
+            }
+        });
     }
 
     @FXML
-    private void actualizarTabla() {
-        salasList.setAll(salaPrestadaDAO.fetch());
-        tablaSalasReservadas.setItems(salasList);
+    public void actualizarTabla(ActionEvent event) {
+        fetchSalasReservadas();
     }
 
     @FXML
-    private void volverAlMenu() {
-        cargarEscena("/view/AdminMenu.fxml", btnVolver);
-    }
-
-    private void cargarEscena(String fxmlPath, Button boton) {
-        if (boton == null) {
-            System.err.println("❌ Error: Botón es NULL. Verifica su fx:id en el FXML.");
-            return;
-        }
-
+    public void fetchSalasReservadas() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            Stage stage = (Stage) boton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo cargar la escena.");
+            salasList.setAll(salaPrestadaDAO.fetch());
+            tablaSalasReservadas.setItems(salasList);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Hubo un problema al cargar los datos de las salas.");
         }
     }
 
-    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert alerta = new Alert(tipo);
-        alerta.setTitle(titulo);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+    @FXML
+    public void volverAlMenu(ActionEvent event) {
+        Main.loadScene("/view/AdminMenu.fxml");
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private String determineEstado(SalaPrestada sala) {
+        Date now = new Date(System.currentTimeMillis());
+
+        if (sala.getFechaInicio().after(now)) {
+            return "Reservada";
+        } else if (sala.getFechaFin().before(now)) {
+            return "Finalizada";
+        } else {
+            return "En uso";
+        }
     }
 }

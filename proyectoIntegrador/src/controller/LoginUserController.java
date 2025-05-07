@@ -41,14 +41,19 @@ public class LoginUserController {
             Usuario usuario = dao.autenticar(cedula, contrasena);
 
             if (usuario != null) {
-                Session.setUsuarioActual(usuario); 
+                Session.setUsuarioActual(usuario);
 
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/UserMenu.fxml"));
-
                 Parent userMenu = loader.load();
 
                 Stage stage = (Stage) txtCedula.getScene().getWindow();
-                stage.setScene(new Scene(userMenu));
+                
+                // Mantener el tamaño actual
+                double anchoActual = stage.getWidth();
+                double altoActual = stage.getHeight();
+
+                Scene scene = new Scene(userMenu, anchoActual, altoActual);
+                stage.setScene(scene);
                 stage.show();
 
             } else {
@@ -60,6 +65,7 @@ public class LoginUserController {
             e.printStackTrace();
         }
     }
+
 
     private void showAlert(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);

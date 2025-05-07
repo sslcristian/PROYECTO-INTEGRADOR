@@ -47,12 +47,20 @@ public class LoginAdminController {
                 mostrarAlerta("Contraseña incorrecta", "La contraseña ingresada no es correcta.");
             } else {
               
+
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
-                Parent adminMenu = loader.load();
+                Parent userMenu = loader.load();
 
                 Stage stage = (Stage) txtCedula.getScene().getWindow();
-                stage.setScene(new Scene(adminMenu));
+                
+                // Mantener el tamaño actual
+                double anchoActual = stage.getWidth();
+                double altoActual = stage.getHeight();
+
+                Scene scene = new Scene(userMenu, anchoActual, altoActual);
+                stage.setScene(scene);
                 stage.show();
+
             }
 
         } catch (NumberFormatException e) {

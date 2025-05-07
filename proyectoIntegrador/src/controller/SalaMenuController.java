@@ -22,12 +22,12 @@ public class SalaMenuController {
 
     @FXML
     private void abrirSalasReservadas() {
-        cargarEscena(btnSalasReservadas, "/view/VerSalasReservadas.fxml");
+        cargarEscena(btnSalasReservadas, "/view/SalasReservadasActivas.fxml");
     }
 
     @FXML
     private void abrirReservasSalas() {
-        cargarEscena(btnReservasSalas, "/view/VerReservasdeSalas.fxml");
+        cargarEscena(btnReservasSalas, "/view/HistorialSalas.fxml");
     }
 
     private void cargarEscena(Button boton, String fxmlPath) {

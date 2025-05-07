@@ -1,20 +1,21 @@
 package controller;
 
+import application.Main;
 import data.DBConnection;
 import data.SalaPrestadaDAO;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
 import model.SalaPrestada;
-import java.io.IOException;
+
 import java.sql.Connection;
 import java.sql.Date;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ReservasSalasController {
@@ -26,75 +27,78 @@ public class ReservasSalasController {
     @FXML private TableColumn<SalaPrestada, String> colInicio;
     @FXML private TableColumn<SalaPrestada, String> colFin;
     @FXML private TableColumn<SalaPrestada, String> colEstado;
-    @FXML private DatePicker datePickerFiltro;
-    @FXML private Button btnFiltrar, btnMostrarTodo, btnVolver;
+    
+    @FXML private DatePicker datePickerDesde;
+    @FXML private DatePicker datePickerHasta;
 
-    private final SalaPrestadaDAO salaPrestadaDAO;
-    private final ObservableList<SalaPrestada> reservasList = FXCollections.observableArrayList();
+    @FXML private Button btnFiltrar;
+    @FXML private Button btnMostrarTodo;
+    @FXML private Button btnVolver;
 
-    public ReservasSalasController() {
-        Connection connection = DBConnection.getInstance().getConnection();
-        if (connection == null) throw new IllegalStateException("❌ Error: No hay conexión con la base de datos.");
-        this.salaPrestadaDAO = new SalaPrestadaDAO(connection);
-    }
+    private final Connection connection = DBConnection.getInstance().getConnection();
+    private final SalaPrestadaDAO salaPrestadaDAO = new SalaPrestadaDAO(connection);
+    private final ObservableList<SalaPrestada> historialSalasList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        colSala.setCellValueFactory(new PropertyValueFactory<>("idSala"));
-        colUsuario.setCellValueFactory(new PropertyValueFactory<>("idSolicitudS"));
-        colSolicitud.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
-        colInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
-        colFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
-        colEstado.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
+        configurarColumnas();
+        fetchHistorialSalas();
+    }
 
-        mostrarTodo();
+    private void configurarColumnas() {
+        colSala.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSala())));
+        colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudS())));
+        colSolicitud.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdPrestamoS())));
+        colInicio.setCellValueFactory(cellData -> new SimpleStringProperty(formatDate(cellData.getValue().getFechaInicio())));
+        colFin.setCellValueFactory(cellData -> new SimpleStringProperty(formatDate(cellData.getValue().getFechaFin())));
+        colEstado.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getObservaciones()));
     }
 
     @FXML
-    private void mostrarTodo() {
-        reservasList.setAll(salaPrestadaDAO.fetch());
-        tablaHistorialReservas.setItems(reservasList);
+    public void fetchHistorialSalas() {
+        historialSalasList.setAll(salaPrestadaDAO.fetch());
+		tablaHistorialReservas.setItems(historialSalasList);
     }
 
+
     @FXML
-    private void filtrarPorFecha() {
-        if (datePickerFiltro.getValue() == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Filtro", "Selecciona una fecha para filtrar.");
+    public void filtrarPorFecha(ActionEvent event) {
+        LocalDate desde = datePickerDesde.getValue();
+        LocalDate hasta = datePickerHasta.getValue();
+
+        if (desde == null || hasta == null) {
+            showAlert(Alert.AlertType.WARNING, "Campos vacíos", "Selecciona ambas fechas.");
             return;
         }
 
-        Date fechaSeleccionada = Date.valueOf(datePickerFiltro.getValue());
-        ObservableList<SalaPrestada> filtradas = reservasList.filtered(reserva -> reserva.getFechaInicio().equals(fechaSeleccionada));
-
-        tablaHistorialReservas.setItems(filtradas);
-    }
-
-    @FXML
-    private void volverAlMenu() {
-        cargarEscena("/view/AdminMenu.fxml", btnVolver);
-    }
-
-    private void cargarEscena(String fxmlPath, Button boton) {
-        if (boton == null) {
-            System.err.println("❌ Error: Botón es NULL. Verifica su fx:id en el FXML.");
+        if (hasta.isBefore(desde)) {
+            showAlert(Alert.AlertType.WARNING, "Fechas inválidas", "La fecha 'Hasta' no puede ser anterior a 'Desde'.");
             return;
         }
 
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            Stage stage = (Stage) boton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo cargar la escena.");
-        }
+        List<SalaPrestada> filtradas = salaPrestadaDAO.obtenerHistorialSalasPorFecha(Date.valueOf(desde), Date.valueOf(hasta));
+		tablaHistorialReservas.setItems(FXCollections.observableArrayList(filtradas));
     }
 
-    private void mostrarAlerta(Alert.AlertType tipo, String titulo, String mensaje) {
-        Alert alerta = new Alert(tipo);
-        alerta.setTitle(titulo);
-        alerta.setContentText(mensaje);
-        alerta.showAndWait();
+    @FXML
+    public void mostrarTodo(ActionEvent event) {
+        tablaHistorialReservas.setItems(historialSalasList);
+    }
+
+    @FXML
+    public void volverAlMenu(ActionEvent event) {
+        Main.loadScene("/view/AdminMenu.fxml");
+    }
+
+    private String formatDate(Date date) {
+        return (date != null) ? new SimpleDateFormat("dd/MM/yyyy").format(date) : "";
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
