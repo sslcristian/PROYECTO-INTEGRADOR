@@ -4,19 +4,22 @@ import data.Mantenimiento_SalaDAO;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.collections.FXCollections;
-
 import model.Mantenimiento_Sala;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.input.KeyCode;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Optional;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.scene.control.Alert;
 
 public class MantenimientoSalaController {
+
     @FXML
     private ComboBox<Integer> comboSala;
     @FXML
@@ -36,18 +39,29 @@ public class MantenimientoSalaController {
     @FXML
     private TableColumn<Mantenimiento_Sala, String> colTecnicoResponsable;
     @FXML
-    private BorderPane rootLayout; // Para mantener AdminMenu y cambiar solo el contenido principal
+    private Button btnVolver;
 
     private Mantenimiento_SalaDAO dao;
 
-    public MantenimientoSalaController(Connection connection) {
+    public MantenimientoSalaController() {}
+
+    public void init(Connection connection) {
         this.dao = new Mantenimiento_SalaDAO(connection);
+        cargarSalas();
+        cargarMantenimientos();
     }
 
     @FXML
     public void initialize() {
-        cargarSalas();
-        cargarMantenimientos();
+        tablaMantenimientoSala.setRowFactory(tv -> {
+            TableRow<Mantenimiento_Sala> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (!row.isEmpty()) {
+                    seleccionarMantenimiento();
+                }
+            });
+            return row;
+        });
     }
 
     private void cargarSalas() {
@@ -68,13 +82,10 @@ public class MantenimientoSalaController {
             String tecnico = tecnicoResponsable.getText();
 
             Mantenimiento_Sala mantenimiento = new Mantenimiento_Sala(0, idSala, fecha, detalle, tecnico);
-            dao.save(mantenimiento);  // El DAO maneja la actualización del estado
-
-            mostrarAlerta("Registro exitoso", "El mantenimiento ha sido registrado correctamente.", Alert.AlertType.INFORMATION);
+            dao.save(mantenimiento);
             cargarMantenimientos();
         }
     }
-
 
     public void actualizarMantenimientoSala() {
         Mantenimiento_Sala seleccionado = tablaMantenimientoSala.getSelectionModel().getSelectedItem();
@@ -84,7 +95,6 @@ public class MantenimientoSalaController {
             seleccionado.setTecnicoResponsable(tecnicoResponsable.getText());
 
             dao.update(seleccionado);
-            mostrarAlerta("Actualización exitosa", "El mantenimiento ha sido actualizado correctamente.", Alert.AlertType.INFORMATION);
             cargarMantenimientos();
         }
     }
@@ -94,32 +104,28 @@ public class MantenimientoSalaController {
         if (seleccionado != null) {
             Optional<ButtonType> resultado = mostrarConfirmacion("¿Eliminar?", "¿Estás seguro de eliminar este mantenimiento?");
             if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
-                dao.delete(seleccionado.getIdMantenimiento());  // El DAO ya actualiza el estado automáticamente
-
-                mostrarAlerta("Eliminado", "El mantenimiento ha sido eliminado correctamente.", Alert.AlertType.INFORMATION);
+                dao.delete(seleccionado.getIdMantenimiento());
                 cargarMantenimientos();
             }
         }
     }
 
+    @FXML
     public void volverAlMenu() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/ControlMantenimiento.fxml"));
-            Parent menuView = loader.load();
-
-            rootLayout.setCenter(menuView); // Mantiene AdminMenu sin cambios
+            Stage stage = (Stage) btnVolver.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
+            Parent root = loader.load();
+            stage.setScene(new Scene(root));
+            stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo regresar al menú.", Alert.AlertType.ERROR);
         }
     }
 
     private boolean validarCampos() {
-        if (comboSala.getValue() == null || fechaMantenimiento.getValue() == null ||
-                detalleMantenimiento.getText().trim().isEmpty() || tecnicoResponsable.getText().trim().isEmpty()) {
-            mostrarAlerta("Error", "Todos los campos deben estar completos.", Alert.AlertType.ERROR);
-            return false;
-        }
-        return true;
+        return comboSala.getValue() != null && fechaMantenimiento.getValue() != null &&
+               !detalleMantenimiento.getText().trim().isEmpty() && !tecnicoResponsable.getText().trim().isEmpty();
     }
 
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
@@ -136,5 +142,15 @@ public class MantenimientoSalaController {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         return alerta.showAndWait();
+    }
+
+    private void seleccionarMantenimiento() {
+        Mantenimiento_Sala seleccionado = tablaMantenimientoSala.getSelectionModel().getSelectedItem();
+        if (seleccionado != null) {
+            comboSala.setValue(seleccionado.getIdSala());
+            fechaMantenimiento.setValue(seleccionado.getFechaMantenimiento().toLocalDate());
+            detalleMantenimiento.setText(seleccionado.getDetalle());
+            tecnicoResponsable.setText(seleccionado.getTecnicoResponsable());
+        }
     }
 }

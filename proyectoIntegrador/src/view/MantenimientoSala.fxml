@@ -45,7 +45,7 @@
     </TableView>
 
     <HBox alignment="CENTER" spacing="20">
-        <Button onAction="#volverAlMenu" prefWidth="300" styleClass="button-light-blue" text="🔙 Volver al Menú" />
+        <Button fx:id="btnVolver" text="Volver" onAction="#volverAlMenu" />
+
     </HBox>
 </VBox>
-

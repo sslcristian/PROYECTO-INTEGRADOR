@@ -38,6 +38,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
                 actualizarEstadoSala(mantenimientoSala.getIdSala(), "mantenimiento");
             }
         } catch (SQLException e) {
+            System.err.println("Error al registrar el mantenimiento de la sala.");
             e.printStackTrace();
         }
     }
@@ -61,6 +62,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
                 mantenimientos.add(mantenimiento);
             }
         } catch (SQLException e) {
+            System.err.println("Error al obtener los mantenimientos de sala.");
             e.printStackTrace();
         }
 
@@ -84,6 +86,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
                 System.out.println("Mantenimiento de sala actualizado correctamente.");
             }
         } catch (SQLException e) {
+            System.err.println("Error al actualizar el mantenimiento de la sala.");
             e.printStackTrace();
         }
     }
@@ -114,19 +117,21 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Error al eliminar el mantenimiento de la sala.");
             e.printStackTrace();
         }
     }
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_mantenimiento FROM TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?";
+        String query = "SELECT id_mantenimiento FROM TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?" ;
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
             ResultSet rs = pstmt.executeQuery();
             return rs.next();
         } catch (SQLException e) {
+            System.err.println("Error al autenticar el mantenimiento de sala.");
             e.printStackTrace();
         }
         return false;
@@ -151,6 +156,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
             e.printStackTrace();
         }
     }
+
     public ArrayList<Integer> obtenerSalasDisponibles() {
         ArrayList<Integer> salasDisponibles = new ArrayList<>();
         String query = "SELECT id_sala FROM TBL_SALA_INFORMATICA WHERE estado = 'disponible'";  // Consulta a salas disponibles
@@ -168,5 +174,4 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
         return salasDisponibles;
     }
-
 }
