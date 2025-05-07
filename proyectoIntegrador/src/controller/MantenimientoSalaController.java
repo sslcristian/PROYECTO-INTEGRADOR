@@ -19,7 +19,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 
 public class MantenimientoSalaController {
-
+    
     @FXML
     private ComboBox<Integer> comboSala;
     @FXML
@@ -39,14 +39,19 @@ public class MantenimientoSalaController {
     @FXML
     private TableColumn<Mantenimiento_Sala, String> colTecnicoResponsable;
     @FXML
+    private BorderPane rootLayout;
+    @FXML
     private Button btnVolver;
 
     private Mantenimiento_SalaDAO dao;
 
-    public MantenimientoSalaController() {}
+    public MantenimientoSalaController() {
+        // Constructor vacío requerido por FXMLLoader
+    }
 
     public void init(Connection connection) {
         this.dao = new Mantenimiento_SalaDAO(connection);
+        System.out.println("Conexión establecida: " + connection);  // Verificar conexión
         cargarSalas();
         cargarMantenimientos();
     }
@@ -57,16 +62,51 @@ public class MantenimientoSalaController {
             TableRow<Mantenimiento_Sala> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty()) {
-                    seleccionarMantenimiento();
+                    if (event.getClickCount() == 2) {
+                        tablaMantenimientoSala.getSelectionModel().clearSelection();
+                        limpiarCampos();
+                    } else {
+                        seleccionarMantenimiento();
+                    }
                 }
             });
             return row;
         });
+
+        tablaMantenimientoSala.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                tablaMantenimientoSala.getSelectionModel().clearSelection();
+                limpiarCampos();
+            }
+        });
+    }
+
+    private void seleccionarMantenimiento() {
+        Mantenimiento_Sala seleccionado = tablaMantenimientoSala.getSelectionModel().getSelectedItem();
+        if (seleccionado != null) {
+            comboSala.setValue(seleccionado.getIdSala());
+            fechaMantenimiento.setValue(seleccionado.getFechaMantenimiento().toLocalDate());
+            detalleMantenimiento.setText(seleccionado.getDetalle());
+            tecnicoResponsable.setText(seleccionado.getTecnicoResponsable());
+        }
+    }
+
+    private void limpiarCampos() {
+        comboSala.setValue(null);
+        fechaMantenimiento.setValue(null);
+        detalleMantenimiento.clear();
+        tecnicoResponsable.clear();
     }
 
     private void cargarSalas() {
         ArrayList<Integer> salasDisponibles = dao.obtenerSalasDisponibles();
-        comboSala.setItems(FXCollections.observableArrayList(salasDisponibles));
+        
+        System.out.println("Salas obtenidas del DAO: " + salasDisponibles);  // Verificar las salas obtenidas
+
+        comboSala.getItems().clear();  
+        comboSala.getItems().addAll(salasDisponibles);
+
+        System.out.println("Items en el ComboBox: " + comboSala.getItems());  // Verificar los items en el ComboBox
     }
 
     private void cargarMantenimientos() {
@@ -83,6 +123,9 @@ public class MantenimientoSalaController {
 
             Mantenimiento_Sala mantenimiento = new Mantenimiento_Sala(0, idSala, fecha, detalle, tecnico);
             dao.save(mantenimiento);
+            dao.actualizarEstadoSala(idSala, "mantenimiento");
+
+            mostrarAlerta("Registro exitoso", "El mantenimiento ha sido registrado correctamente.", Alert.AlertType.INFORMATION);
             cargarMantenimientos();
         }
     }
@@ -95,6 +138,7 @@ public class MantenimientoSalaController {
             seleccionado.setTecnicoResponsable(tecnicoResponsable.getText());
 
             dao.update(seleccionado);
+            mostrarAlerta("Actualización exitosa", "El mantenimiento ha sido actualizado correctamente.", Alert.AlertType.INFORMATION);
             cargarMantenimientos();
         }
     }
@@ -105,6 +149,9 @@ public class MantenimientoSalaController {
             Optional<ButtonType> resultado = mostrarConfirmacion("¿Eliminar?", "¿Estás seguro de eliminar este mantenimiento?");
             if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
                 dao.delete(seleccionado.getIdMantenimiento());
+                dao.actualizarEstadoSala(seleccionado.getIdSala(), "disponible");
+
+                mostrarAlerta("Eliminado", "El mantenimiento ha sido eliminado correctamente.", Alert.AlertType.INFORMATION);
                 cargarMantenimientos();
             }
         }
@@ -114,18 +161,28 @@ public class MantenimientoSalaController {
     public void volverAlMenu() {
         try {
             Stage stage = (Stage) btnVolver.getScene().getWindow();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
             Parent root = loader.load();
+            
             stage.setScene(new Scene(root));
+            stage.setWidth(currentWidth);
+            stage.setHeight(currentHeight);
             stage.show();
         } catch (IOException e) {
-            mostrarAlerta("Error", "No se pudo regresar al menú.", Alert.AlertType.ERROR);
+            mostrarAlerta("No se pudo regresar al menú.", "Error", Alert.AlertType.ERROR);
         }
     }
 
     private boolean validarCampos() {
-        return comboSala.getValue() != null && fechaMantenimiento.getValue() != null &&
-               !detalleMantenimiento.getText().trim().isEmpty() && !tecnicoResponsable.getText().trim().isEmpty();
+        if (comboSala.getValue() == null || fechaMantenimiento.getValue() == null ||
+                detalleMantenimiento.getText().trim().isEmpty() || tecnicoResponsable.getText().trim().isEmpty()) {
+            mostrarAlerta("Error", "Todos los campos deben estar completos.", Alert.AlertType.ERROR);
+            return false;
+        }
+        return true;
     }
 
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
@@ -142,15 +199,5 @@ public class MantenimientoSalaController {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         return alerta.showAndWait();
-    }
-
-    private void seleccionarMantenimiento() {
-        Mantenimiento_Sala seleccionado = tablaMantenimientoSala.getSelectionModel().getSelectedItem();
-        if (seleccionado != null) {
-            comboSala.setValue(seleccionado.getIdSala());
-            fechaMantenimiento.setValue(seleccionado.getFechaMantenimiento().toLocalDate());
-            detalleMantenimiento.setText(seleccionado.getDetalle());
-            tecnicoResponsable.setText(seleccionado.getTecnicoResponsable());
-        }
     }
 }

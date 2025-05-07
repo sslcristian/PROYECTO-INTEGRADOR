@@ -137,25 +137,17 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
         return false;
     }
 
-    // Método para actualizar el estado de la sala
-    private void actualizarEstadoSala(int idSala, String nuevoEstado) {
-        String query = "UPDATE TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setString(1, nuevoEstado);
-            pstmt.setInt(2, idSala);
-
-            int filas = pstmt.executeUpdate();
-            if (filas > 0) {
-                System.out.println("Estado de la sala actualizado correctamente.");
-            } else {
-                System.out.println("No se encontró sala con el ID: " + idSala);
-            }
+    public void actualizarEstadoSala(int idSala, String estado) {
+        String sql = "UPDATE TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, estado);   // Establecer el nuevo estado de la sala
+            pstmt.setInt(2, idSala);      // Establecer el ID de la sala a actualizar
+            pstmt.executeUpdate();        // Ejecutar la actualización en la base de datos
         } catch (SQLException e) {
-            System.err.println("Error al actualizar el estado de la sala.");
-            e.printStackTrace();
+            e.printStackTrace();          // Manejo de la excepción si ocurre un error
         }
     }
+
 
     public ArrayList<Integer> obtenerSalasDisponibles() {
         ArrayList<Integer> salasDisponibles = new ArrayList<>();
