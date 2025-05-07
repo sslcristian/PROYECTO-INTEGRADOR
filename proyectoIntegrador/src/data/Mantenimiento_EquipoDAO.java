@@ -14,7 +14,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void save(Mantenimiento_Equipo mantenimientoEquipo) {
-        String query = "INSERT INTO TBL_MANTENIMIENTO_E (id_mantenimiento, id_equipo, fecha_mantenimiento, detalle, técnico_responsable) " +
+        String query = "INSERT INTO TBL_MANTENIMIENTO_E (id_mantenimiento, id_equipo, fecha_mantenimiento, detalle, tecnico_responsable) " +
                        "VALUES (SEQ_MANTENIMIENTO_E.NEXTVAL, ?, ?, ?, ?)";
 
         String[] returnCols = { "id_mantenimiento" };
@@ -54,7 +54,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
                         rs.getInt("id_equipo"),
                         rs.getDate("fecha_mantenimiento"),
                         rs.getString("detalle"),
-                        rs.getString("técnico_responsable")
+                        rs.getString("tecnico_responsable")
                 );
                 mantenimientos.add(mantenimiento);
             }
@@ -67,7 +67,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void update(Mantenimiento_Equipo mantenimientoEquipo) {
-        String query = "UPDATE TBL_MANTENIMIENTO_E SET id_equipo=?, fecha_mantenimiento=?, detalle=?, técnico_responsable=? " +
+        String query = "UPDATE TBL_MANTENIMIENTO_E SET id_equipo=?, fecha_mantenimiento=?, detalle=?, tecnico_responsable=? " +
                        "WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -117,4 +117,43 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
         }
         return false;
     }
+ // Método para actualizar el estado del equipo (por ejemplo: a "mantenimiento" o "disponible")
+    public void actualizarEstadoEquipo(int idEquipo, String nuevoEstado) {
+        String query = "UPDATE TBL_EQUIPO SET estado = ? WHERE id_equipo = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, nuevoEstado);
+            pstmt.setInt(2, idEquipo);
+
+            int filas = pstmt.executeUpdate();
+            if (filas > 0) {
+                System.out.println("Estado del equipo actualizado correctamente.");
+            } else {
+                System.out.println("No se encontró equipo con el ID: " + idEquipo);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar el estado del equipo.");
+            e.printStackTrace();
+        }
+    }
+
+    // Método para obtener solo los IDs de los equipos que están 'disponibles'
+    public ArrayList<Integer> obtenerEquiposDisponibles() {
+        ArrayList<Integer> equipos = new ArrayList<>();
+        String query = "SELECT id_equipo FROM TBL_EQUIPO WHERE estado = 'disponible'";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                equipos.add(rs.getInt("id_equipo"));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener equipos disponibles.");
+            e.printStackTrace();
+        }
+
+        return equipos;
+    }
+
 }

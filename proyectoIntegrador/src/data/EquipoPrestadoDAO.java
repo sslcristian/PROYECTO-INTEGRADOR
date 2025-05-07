@@ -3,6 +3,7 @@ package data;
 import model.EquipoPrestado;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer> {
     private Connection connection;
@@ -120,4 +121,48 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
         }
         return false;
     }
+    public List<EquipoPrestado> obtenerHistorialEquipos() throws SQLException {
+        List<EquipoPrestado> historial = new ArrayList<>();
+        String query = "SELECT * FROM TBL_EQUIPO_PRESTADO ORDER BY fecha_inicio DESC";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                historial.add(new EquipoPrestado(
+                    rs.getInt("id_prestamo_e"),
+                    rs.getInt("id_solicitud_e"),
+                    rs.getInt("id_equipo"),
+                    rs.getTimestamp("fecha_inicio"),
+                    rs.getTimestamp("fecha_fin"),
+                    rs.getString("observaciones")
+                ));
+            }
+        }
+
+        return historial;}
+    public List<EquipoPrestado> obtenerHistorialEquiposPorFecha(Timestamp desde, Timestamp hasta) throws SQLException {
+        List<EquipoPrestado> historialFiltrado = new ArrayList<>();
+        String query = "SELECT * FROM TBL_EQUIPO_PRESTADO WHERE fecha_inicio BETWEEN ? AND ? ORDER BY fecha_inicio DESC";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setTimestamp(1, desde);
+            pstmt.setTimestamp(2, hasta);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                historialFiltrado.add(new EquipoPrestado(
+                    rs.getInt("id_prestamo_e"),
+                    rs.getInt("id_solicitud_e"),
+                    rs.getInt("id_equipo"),
+                    rs.getTimestamp("fecha_inicio"),
+                    rs.getTimestamp("fecha_fin"),
+                    rs.getString("observaciones")
+                ));
+            }
+        }
+
+        return historialFiltrado;
+    }
+    
 }

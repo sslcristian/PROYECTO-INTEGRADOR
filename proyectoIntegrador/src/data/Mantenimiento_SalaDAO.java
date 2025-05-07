@@ -14,7 +14,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public void save(Mantenimiento_Sala mantenimientoSala) {
-        String query = "INSERT INTO TBL_MANTENIMIENTO_S (id_mantenimiento, id_sala, fecha_mantenimiento, detalle, técnico_responsable) " +
+        String query = "INSERT INTO TBL_MANTENIMIENTO_S (id_mantenimiento, id_sala, fecha_mantenimiento, detalle, tecnico_responsable) " +
                        "VALUES (SEQ_MANTENIMIENTO_S.NEXTVAL, ?, ?, ?, ?)";
         String[] returnCols = { "id_mantenimiento" };
 
@@ -33,6 +33,9 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
                     }
                 }
                 System.out.println("Mantenimiento de sala registrado correctamente.");
+
+                // Actualizar estado de la sala a "mantenimiento"
+                actualizarEstadoSala(mantenimientoSala.getIdSala(), "mantenimiento");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -53,7 +56,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
                         rs.getInt("id_sala"),
                         rs.getDate("fecha_mantenimiento"),
                         rs.getString("detalle"),
-                        rs.getString("técnico_responsable")
+                        rs.getString("tecnico_responsable")
                 );
                 mantenimientos.add(mantenimiento);
             }
@@ -66,7 +69,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public void update(Mantenimiento_Sala mantenimientoSala) {
-        String query = "UPDATE TBL_MANTENIMIENTO_S SET id_sala=?, fecha_mantenimiento=?, detalle=?, técnico_responsable=? " +
+        String query = "UPDATE TBL_MANTENIMIENTO_S SET id_sala=?, fecha_mantenimiento=?, detalle=?, tecnico_responsable=? " +
                        "WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -87,16 +90,28 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?";
-
+        // Primero obtenemos el id de la sala asociada al mantenimiento a eliminar
+        String query = "SELECT id_sala FROM TBL_MANTENIMIENTO_S WHERE id_mantenimiento = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
 
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Mantenimiento de sala con ID " + id + " eliminado correctamente.");
-            } else {
-                System.out.println("No se encontró mantenimiento de sala con el ID: " + id);
+            if (rs.next()) {
+                int idSala = rs.getInt("id_sala");
+
+                // Eliminamos el mantenimiento
+                String deleteQuery = "DELETE FROM TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?";
+                try (PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery)) {
+                    deleteStmt.setInt(1, id);
+                    int rowsAffected = deleteStmt.executeUpdate();
+
+                    if (rowsAffected > 0) {
+                        System.out.println("Mantenimiento de sala con ID " + id + " eliminado correctamente.");
+
+                        // Actualizamos el estado de la sala a "disponible"
+                        actualizarEstadoSala(idSala, "disponible");
+                    }
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -116,4 +131,42 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
         }
         return false;
     }
+
+    // Método para actualizar el estado de la sala
+    private void actualizarEstadoSala(int idSala, String nuevoEstado) {
+        String query = "UPDATE TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, nuevoEstado);
+            pstmt.setInt(2, idSala);
+
+            int filas = pstmt.executeUpdate();
+            if (filas > 0) {
+                System.out.println("Estado de la sala actualizado correctamente.");
+            } else {
+                System.out.println("No se encontró sala con el ID: " + idSala);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar el estado de la sala.");
+            e.printStackTrace();
+        }
+    }
+    public ArrayList<Integer> obtenerSalasDisponibles() {
+        ArrayList<Integer> salasDisponibles = new ArrayList<>();
+        String query = "SELECT id_sala FROM TBL_SALA_INFORMATICA WHERE estado = 'disponible'";  // Consulta a salas disponibles
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                salasDisponibles.add(rs.getInt("id_sala"));  // Obtener los IDs de las salas
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener las salas disponibles.");
+            e.printStackTrace();
+        }
+
+        return salasDisponibles;
+    }
+
 }

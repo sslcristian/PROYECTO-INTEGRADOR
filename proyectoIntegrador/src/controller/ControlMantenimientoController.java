@@ -1,36 +1,53 @@
 package controller;
 
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.stage.Stage;
+
 import java.io.IOException;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
+import java.net.URL;
 
 public class ControlMantenimientoController {
 
     @FXML
-    private BorderPane rootLayout; // Debe estar en tu FXML principal
+    private Button irMantenimientoSala;
 
-    // Ir a Mantenimiento de Sala sin afectar el menú lateral
     @FXML
-    private void irMantenimientoSala(ActionEvent event) {
-        cambiarVista("/views/MantenimientoSala.fxml");
+    private Button irMantenimientoEquipo;
+
+    @FXML
+    private void irMantenimientoSala() {
+        cargarEscena(irMantenimientoSala, "/view/MantenimientoSala.fxml");
     }
 
-    // Ir a Mantenimiento de Equipo sin afectar el menú lateral
     @FXML
-    private void irMantenimientoEquipo(ActionEvent event) {
-        cambiarVista("/views/MantenimientoEquipo.fxml");
+    private void irMantenimientoEquipo() {
+        cargarEscena(irMantenimientoEquipo, "/view/MantenimientoEquipo.fxml");
     }
 
-    private void cambiarVista(String rutaFXML) {
+    private void cargarEscena(Button boton, String fxmlPath) {
+        if (boton == null) {
+            System.err.println("❌ Error: Botón es NULL. Verifica su `fx:id` en el FXML.");
+            return;
+        }
+
+        URL fxmlLocation = getClass().getResource(fxmlPath);
+        if (fxmlLocation == null) {
+            System.err.println("❌ Error: Archivo FXML no encontrado en la ruta " + fxmlPath);
+            return;
+        }
+
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFXML));
-            Parent nuevaVista = loader.load();
-            
-            rootLayout.setCenter(nuevaVista); // Cambia solo la parte central, dejando AdminMenu intacto
+            FXMLLoader loader = new FXMLLoader(fxmlLocation);
+            Parent root = loader.load();
+            Stage stage = (Stage) boton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
         } catch (IOException e) {
+            System.err.println("❌ Error al cargar la escena: " + fxmlPath);
             e.printStackTrace();
         }
     }

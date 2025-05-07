@@ -68,13 +68,13 @@ public class MantenimientoSalaController {
             String tecnico = tecnicoResponsable.getText();
 
             Mantenimiento_Sala mantenimiento = new Mantenimiento_Sala(0, idSala, fecha, detalle, tecnico);
-            dao.save(mantenimiento);
-            dao.actualizarEstadoSala(idSala, "mantenimiento"); // Actualiza el estado en la base de datos
+            dao.save(mantenimiento);  // El DAO maneja la actualización del estado
 
             mostrarAlerta("Registro exitoso", "El mantenimiento ha sido registrado correctamente.", Alert.AlertType.INFORMATION);
             cargarMantenimientos();
         }
     }
+
 
     public void actualizarMantenimientoSala() {
         Mantenimiento_Sala seleccionado = tablaMantenimientoSala.getSelectionModel().getSelectedItem();
@@ -94,8 +94,7 @@ public class MantenimientoSalaController {
         if (seleccionado != null) {
             Optional<ButtonType> resultado = mostrarConfirmacion("¿Eliminar?", "¿Estás seguro de eliminar este mantenimiento?");
             if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
-                dao.delete(seleccionado.getIdMantenimiento());
-                dao.actualizarEstadoSala(seleccionado.getIdSala(), "disponible"); // Reinicia el estado de la sala
+                dao.delete(seleccionado.getIdMantenimiento());  // El DAO ya actualiza el estado automáticamente
 
                 mostrarAlerta("Eliminado", "El mantenimiento ha sido eliminado correctamente.", Alert.AlertType.INFORMATION);
                 cargarMantenimientos();
