@@ -57,7 +57,13 @@ public class MantenimientoSalaController {
     }
 
     @FXML
-    public void initialize() {
+    private void initialize() {
+        // Configuración de las columnas
+        colIdSala.setCellValueFactory(cellData -> cellData.getValue().idSalaProperty().asObject());
+        colFechaMantenimiento.setCellValueFactory(cellData -> cellData.getValue().fechaMantenimientoProperty());
+        colDetalles.setCellValueFactory(cellData -> cellData.getValue().detalleProperty());
+        colTecnicoResponsable.setCellValueFactory(cellData -> cellData.getValue().tecnicoResponsableProperty());
+
         tablaMantenimientoSala.setRowFactory(tv -> {
             TableRow<Mantenimiento_Sala> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -80,6 +86,7 @@ public class MantenimientoSalaController {
             }
         });
     }
+
 
     private void seleccionarMantenimiento() {
         Mantenimiento_Sala seleccionado = tablaMantenimientoSala.getSelectionModel().getSelectedItem();
