@@ -73,3 +73,51 @@
     -fx-pref-height: 120px;
     -fx-wrap-text: true;
 }
+/* Estilo del ComboBox */
+.combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #BBDEFB;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333;
+    -fx-padding: 5px;
+}
+
+/* Estilo del ComboBox */
+.combo-box {
+    -fx-background-color: #FFFFFF;  /* Fondo blanco para el ComboBox */
+    -fx-border-color: #90CAF9;      /* Borde azul claro */
+    -fx-border-radius: 8px;         /* Bordes redondeados */
+    -fx-background-radius: 8px;     /* Bordes redondeados */
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;         /* Texto en gris oscuro */
+    -fx-padding: 5px;
+    -fx-pref-width: 250px;          /* Ancho preferido */
+}
+
+/* Estilo de los elementos dentro del ComboBox */
+.combo-box .list-cell {
+    -fx-background-color: transparent;  /* Fondo transparente para los elementos */
+    -fx-text-fill: #333333;             /* Texto en gris oscuro */
+    -fx-padding: 10px;
+}
+
+/* Estilo cuando pasas el ratón sobre un elemento */
+.combo-box .list-cell:hover {
+    -fx-background-color: #F0F0F0;  /* Fondo gris suave al pasar el ratón */
+    -fx-text-fill: #0D47A1;          /* Texto azul para resaltar */
+}
+
+/* Estilo para el elemento seleccionado */
+.combo-box .list-cell:selected {
+    -fx-background-color: #E3F2FD;  /* Fondo azul muy claro al seleccionar */
+    -fx-text-fill: #0D47A1;          /* Texto azul para el elemento seleccionado */
+}
+/* Estilo para las cabeceras de las columnas */
+.table-view .column-header {
+    -fx-background-color: #90CAF9;  /* Color de fondo de las cabeceras */
+    -fx-text-fill: #0D47A1;  /* Color del texto de las cabeceras */
+    -fx-font-weight: bold;  /* Texto en negrita */
+    -fx-padding: 10px;  /* Espaciado alrededor del texto */
+}
