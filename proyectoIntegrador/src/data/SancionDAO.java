@@ -48,13 +48,18 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
+                String motivo = null;
+                if (rs.getClob("MOTIVO") != null) {
+                    motivo = rs.getClob("MOTIVO").getSubString(1, (int) rs.getClob("MOTIVO").length());
+                }
+                
                 Sancion sancion = new Sancion(
-                        rs.getInt("id_sanción"),
-                        rs.getLong("cedula_usuario"),
-                        rs.getDouble("monto"),
-                        rs.getString("motivo"),
-                        rs.getDate("fecha"),
-                        rs.getString("estado")
+                        rs.getInt("ID_SANCION"),
+                        rs.getLong("CEDULA_USUARIO"),
+                        rs.getDouble("MONTO"),
+                        motivo,
+                        rs.getDate("FECHA"),
+                        rs.getString("ESTADO")
                 );
                 sanciones.add(sancion);
             }
@@ -64,6 +69,8 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
         return sanciones;
     }
+
+
 
     @Override
     public void update(Sancion sancion) {
@@ -89,7 +96,7 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM TBL_SANCION WHERE id_sanción=?";
+        String query = "DELETE FROM TBL_SANCION WHERE id_sancion=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -107,7 +114,7 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_sanción FROM TBL_SANCION WHERE id_sanción=?";
+        String query = "SELECT id_sanción FROM TBL_SANCION WHERE id_sancin=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -118,4 +125,33 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
         }
         return false;
     }
+    public boolean isUsuarioExistente(Long cedula) {
+        String query = "SELECT CEDULA FROM TBL_USUARIO WHERE CEDULA = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setLong(1, cedula);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean hasActiveSancion(long cedulaUsuario) {
+        String query = "SELECT COUNT(*) FROM TBL_SANCION WHERE cedula_usuario = ? AND estado = 'Activa'";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setLong(1, cedulaUsuario);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    
 }
