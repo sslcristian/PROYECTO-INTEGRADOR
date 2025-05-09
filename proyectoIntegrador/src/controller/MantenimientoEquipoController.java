@@ -128,18 +128,34 @@ public class MantenimientoEquipoController {
     public void guardarMantenimientoEquipo() {
         if (validarCampos()) {
             int idEquipo = comboEquipo.getValue();
+            
+            // Verificar si el equipo ya está en mantenimiento
+            if (dao.estaEnMantenimiento(idEquipo)) {
+                mostrarAlerta("Error", "Este equipo ya está registrado en mantenimiento.", Alert.AlertType.ERROR);
+                return;
+            }
+
             Date fecha = Date.valueOf(fechaMantenimiento.getValue());
             String detalle = detalleMantenimiento.getText();
             String tecnico = tecnicoResponsable.getText();
 
+            // Crear un nuevo objeto Mantenimiento_Equipo
             Mantenimiento_Equipo mantenimiento = new Mantenimiento_Equipo(0, idEquipo, fecha, detalle, tecnico);
+
+            // Guardar el mantenimiento
             dao.save(mantenimiento);
+            
+            // Actualizar el estado del equipo a 'mantenimiento'
             dao.actualizarEstadoEquipo(idEquipo, "mantenimiento");
 
+            // Mostrar una alerta de éxito
             mostrarAlerta("Registro exitoso", "El mantenimiento ha sido registrado correctamente.", Alert.AlertType.INFORMATION);
+
+            // Recargar la lista de mantenimientos
             cargarMantenimientos();
         }
     }
+
 
     public void actualizarMantenimientoEquipo() {
         Mantenimiento_Equipo seleccionado = tablaMantenimientoEquipo.getSelectionModel().getSelectedItem();

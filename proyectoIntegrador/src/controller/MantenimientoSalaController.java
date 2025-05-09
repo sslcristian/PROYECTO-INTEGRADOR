@@ -124,18 +124,34 @@ public class MantenimientoSalaController {
     public void guardarMantenimientoSala() {
         if (validarCampos()) {
             int idSala = comboSala.getValue();
+            
+            // Verificar si la sala ya está en mantenimiento o ocupada
+            if (dao.estaEnMantenimientoOcupada(idSala)) {
+                mostrarAlerta("Error", "Esta sala ya está ocupada o en mantenimiento.", Alert.AlertType.ERROR);
+                return;
+            }
+
             Date fecha = Date.valueOf(fechaMantenimiento.getValue());
             String detalle = detalleMantenimiento.getText();
             String tecnico = tecnicoResponsable.getText();
 
+            // Crear un nuevo objeto Mantenimiento_Sala (asumiendo que existe esta clase)
             Mantenimiento_Sala mantenimiento = new Mantenimiento_Sala(0, idSala, fecha, detalle, tecnico);
+
+            // Guardar el mantenimiento
             dao.save(mantenimiento);
+            
+            // Actualizar el estado de la sala a 'mantenimiento'
             dao.actualizarEstadoSala(idSala, "mantenimiento");
 
+            // Mostrar una alerta de éxito
             mostrarAlerta("Registro exitoso", "El mantenimiento ha sido registrado correctamente.", Alert.AlertType.INFORMATION);
+
+            // Recargar la lista de mantenimientos
             cargarMantenimientos();
         }
     }
+
 
     public void actualizarMantenimientoSala() {
         Mantenimiento_Sala seleccionado = tablaMantenimientoSala.getSelectionModel().getSelectedItem();

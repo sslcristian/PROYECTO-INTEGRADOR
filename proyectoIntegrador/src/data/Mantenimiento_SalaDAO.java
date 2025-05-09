@@ -166,4 +166,19 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
         return salasDisponibles;
     }
+    public boolean estaEnMantenimientoOcupada(int idSala) {
+        String query = "SELECT estado FROM TBL_SALA_INFORMATICA WHERE id_sala = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, idSala);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String estado = rs.getString("estado");
+                return "mantenimiento".equals(estado) || "ocupada".equals(estado);  // No permitir mantenimiento si está en mantenimiento o ocupada
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

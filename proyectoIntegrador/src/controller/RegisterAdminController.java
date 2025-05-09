@@ -32,7 +32,13 @@ public class RegisterAdminController {
                 showAlert("Campos incompletos", "Por favor, complete todos los campos.");
                 return;
             }
-
+            String cedulaTexto = txtCedula.getText();
+            
+         
+            if (cedulaTexto.length() > 12) {
+                showAlert("Cédula inválida", "La cédula no puede tener más de 12 dígitos.");
+                return;
+            }
          
             long cedula;
             try {

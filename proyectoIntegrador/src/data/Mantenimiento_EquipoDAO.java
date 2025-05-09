@@ -117,35 +117,52 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
         }
         return false;
     }
+ // Método para actualizar el estado de un equipo
     public void actualizarEstadoEquipo(int idEquipo, String estado) {
         String sql = "UPDATE TBL_EQUIPO SET estado = ? WHERE id_equipo = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, estado);
-            pstmt.setInt(2, idEquipo);
-            pstmt.executeUpdate();
+            pstmt.setString(1, estado);  // Establecer el nuevo estado del equipo
+            pstmt.setInt(2, idEquipo);   // Establecer el ID del equipo a actualizar
+            pstmt.executeUpdate();       // Ejecutar la actualización en la base de datos
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();         // Manejo de la excepción si ocurre un error
         }
     }
 
-
+    // Método para obtener los equipos disponibles
     public ArrayList<Integer> obtenerEquiposDisponibles() {
         ArrayList<Integer> equiposDisponibles = new ArrayList<>();
-        String sql = "SELECT id_equipo FROM TBL_EQUIPO WHERE estado = 'Disponible'";
-        
-        System.out.println("Ejecutando consulta: " + sql);  // Verificar la consulta SQL
+        String query = "SELECT id_equipo FROM TBL_EQUIPO WHERE estado = 'disponible'";  // Consulta a equipos disponibles
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
             while (rs.next()) {
-                equiposDisponibles.add(rs.getInt("id_equipo"));
+                equiposDisponibles.add(rs.getInt("id_equipo"));  // Obtener los IDs de los equipos disponibles
             }
-            System.out.println("Equipos disponibles encontrados: " + equiposDisponibles);  // Verificar resultado
+        } catch (SQLException e) {
+            System.err.println("Error al obtener los equipos disponibles.");
+            e.printStackTrace();
+        }
+
+        return equiposDisponibles;
+    }
+    public boolean estaEnMantenimiento(int idEquipo) {
+        String query = "SELECT estado FROM TBL_EQUIPO WHERE id_equipo = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, idEquipo);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String estado = rs.getString("estado");
+                return "mantenimiento".equals(estado); // Si el estado es "mantenimiento", no se puede asignar a un nuevo mantenimiento
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return equiposDisponibles;
+        return false;
     }
+
+
 
 
 
