@@ -126,6 +126,11 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
+                if (tieneSancionActiva(cedula)) {
+                    double monto = obtenerMontoSancionActiva(cedula);
+                    throw new IllegalStateException("Tienes una sanción activa comunicate con los administradores  Monto: COP" + monto);
+                }
+
                 return new Usuario(
                     rs.getLong("cedula"),
                     rs.getString("nombre"),
@@ -141,6 +146,8 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
         }
         return null;
     }
+
+
     public Usuario findByCedula(long cedula) {
         String sql = "SELECT * FROM TBL_USUARIO WHERE cedula = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -188,4 +195,32 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
 
         return usuario;
     }
+    public boolean tieneSancionActiva(long cedula) {
+        String sql = "SELECT COUNT(*) FROM TBL_SANCION WHERE cedula_usuario = ? AND estado = 'Activa'";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, cedula);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; 
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public double obtenerMontoSancionActiva(long cedula) {
+        String sql = "SELECT monto FROM TBL_SANCION WHERE cedula_usuario = ? AND estado = 'Activa'";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, cedula);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("monto");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+
 }

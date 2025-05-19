@@ -38,7 +38,14 @@ public class LoginUserController {
 
             Connection conn = DBConnection.getInstance().getConnection();
             UsuarioDAO dao = new UsuarioDAO(conn);
-            Usuario usuario = dao.autenticar(cedula, contrasena);
+            Usuario usuario = null;
+
+            try {
+                usuario = dao.autenticar(cedula, contrasena);
+            } catch (IllegalStateException ex) {
+                showAlert("Sanción Activa", ex.getMessage());
+                return;
+            }
 
             if (usuario != null) {
                 Session.setUsuarioActual(usuario);
@@ -66,7 +73,6 @@ public class LoginUserController {
         }
     }
 
-
     private void showAlert(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);
@@ -75,3 +81,4 @@ public class LoginUserController {
         alert.showAndWait();
     }
 }
+
