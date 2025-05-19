@@ -28,44 +28,17 @@ public class SancionController {
     private final SancionDAO sancionDAO = new SancionDAO(connection);
     private final ObservableList<Sancion> sancionList = FXCollections.observableArrayList();
 
-    @FXML
-    private TextField cedulaUsuarioField, montoField, motivoField;
-    @FXML
-    private DatePicker fechaPicker;
-    @FXML
-    private ComboBox<String> estadoComboBox;
-    @FXML
-    private TableView<Sancion> sancionTable;
-    @FXML
-    private TableColumn<Sancion, Integer> idColumn;
-    @FXML
-    private TableColumn<Sancion, Long> cedulaColumn;
-    @FXML
-    private TableColumn<Sancion, Double> montoColumn;
-    @FXML
-    private TableColumn<Sancion, String> motivoColumn;
-    @FXML
-    private TableColumn<Sancion, Date> fechaColumn;
-    @FXML
-    private TableColumn<Sancion, String> estadoColumn;
+    @FXML private TextField cedulaUsuarioField, montoField, motivoField;
+    @FXML private DatePicker fechaPicker;
+    @FXML private ComboBox<String> estadoComboBox;
+    @FXML private TableView<Sancion> sancionTable;
+    @FXML private TableColumn<Sancion, Integer> idColumn;
+    @FXML private TableColumn<Sancion, Long> cedulaColumn;
+    @FXML private TableColumn<Sancion, Double> montoColumn;
+    @FXML private TableColumn<Sancion, String> motivoColumn;
+    @FXML private TableColumn<Sancion, Date> fechaColumn;
+    @FXML private TableColumn<Sancion, String> estadoColumn;
     @FXML private Button btnAdd, btnUpdate, btnDelete, btnFetch, btnBack;
-
-    @FXML
-    public void onSancionSelected() {
-        Sancion sancionSeleccionada = sancionTable.getSelectionModel().getSelectedItem();
-        
-        if (sancionSeleccionada == null) {
-            clearFields();
-            return;
-        }
-
-       
-        cedulaUsuarioField.setText(String.valueOf(sancionSeleccionada.getCedulaUsuario()));
-        montoField.setText(String.valueOf(sancionSeleccionada.getMonto()));
-        motivoField.setText(sancionSeleccionada.getMotivo());
-        fechaPicker.setValue(sancionSeleccionada.getFecha().toLocalDate());
-        estadoComboBox.setValue(sancionSeleccionada.getEstado());
-    }
 
     @FXML
     public void initialize() {
@@ -82,7 +55,22 @@ public class SancionController {
         sancionTable.setItems(sancionList);
         fetchSanciones();
 
-        sancionTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> onSancionSelected());
+        sancionTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> onSancionSelected());
+    }
+
+    @FXML
+    public void onSancionSelected() {
+        Sancion sancion = sancionTable.getSelectionModel().getSelectedItem();
+        if (sancion == null) {
+            clearFields();
+            return;
+        }
+
+        cedulaUsuarioField.setText(String.valueOf(sancion.getCedulaUsuario()));
+        montoField.setText(String.valueOf(sancion.getMonto()));
+        motivoField.setText(sancion.getMotivo());
+        fechaPicker.setValue(sancion.getFecha().toLocalDate());
+        estadoComboBox.setValue(sancion.getEstado());
     }
 
     @FXML
@@ -98,14 +86,13 @@ public class SancionController {
     public void addSancion(ActionEvent event) {
         try {
             long cedula = Long.parseLong(cedulaUsuarioField.getText());
-
             if (!sancionDAO.isUsuarioExistente(cedula)) {
-                showAlert(Alert.AlertType.WARNING, "Usuario no encontrado", "La cédula ingresada no corresponde a ningún usuario registrado.");
+                showAlert(Alert.AlertType.WARNING, "Usuario no encontrado", "La cédula ingresada no existe.");
                 return;
             }
 
             if (sancionDAO.hasActiveSancion(cedula)) {
-                showAlert(Alert.AlertType.WARNING, "Sanción activa existente", "El usuario ya tiene una sanción activa y no se le puede asignar otra.");
+                showAlert(Alert.AlertType.WARNING, "Sanción activa existente", "El usuario ya tiene una sanción activa.");
                 return;
             }
 
@@ -114,8 +101,8 @@ public class SancionController {
             Date fecha = Date.valueOf(fechaPicker.getValue());
             String estado = estadoComboBox.getValue();
 
-            Sancion nuevaSancion = new Sancion(0, cedula, monto, motivo, fecha, estado);
-            sancionDAO.save(nuevaSancion);
+            Sancion nueva = new Sancion(0, cedula, monto, motivo, fecha, estado);
+            sancionDAO.save(nueva);
             fetchSanciones();
             clearFields();
         } catch (NumberFormatException e) {
@@ -125,77 +112,61 @@ public class SancionController {
 
     @FXML
     private void updateSancion(ActionEvent event) {
-        // Obtener la sanción seleccionada de la tabla
-        Sancion sancionSeleccionada = sancionTable.getSelectionModel().getSelectedItem();
-        
-        // Verificar si se seleccionó una sanción
-        if (sancionSeleccionada == null) {
-            showAlert(Alert.AlertType.WARNING, "Ninguna sanción seleccionada", "Debes seleccionar una sanción para actualizar.");
+        Sancion seleccionada = sancionTable.getSelectionModel().getSelectedItem();
+
+        if (seleccionada == null) {
+            showAlert(Alert.AlertType.WARNING, "Selecciona una sanción", "Debes seleccionar una sanción para actualizar.");
             return;
         }
 
         try {
-            // Obtener y validar la cédula del usuario
-            long cedulaUsuario = Long.parseLong(cedulaUsuarioField.getText().trim());
-
-            // Verificar si el usuario tiene una sanción activa
-            if (!sancionDAO.hasActiveSancion(cedulaUsuario)) {
-                showAlert(Alert.AlertType.WARNING, "No tiene sanción activa", "El usuario no tiene una sanción activa para actualizar.");
-                return;
-            }
-
-            // Obtener los valores de los campos
+            long cedula = Long.parseLong(cedulaUsuarioField.getText().trim());
             double monto = Double.parseDouble(montoField.getText().trim());
             String motivo = motivoField.getText().trim();
+            Date fecha = Date.valueOf(fechaPicker.getValue());
             String estado = estadoComboBox.getValue();
 
-            // Verificar que todos los campos estén completos
             if (motivo.isEmpty() || estado == null || estado.isEmpty()) {
                 showAlert(Alert.AlertType.WARNING, "Campos vacíos", "Todos los campos deben estar completos.");
                 return;
             }
 
-            // Crear una nueva sanción con los datos actualizados
-            Sancion sancionActualizada = new Sancion(0, cedulaUsuario, monto, motivo, new Date(System.currentTimeMillis()), estado);
+            Sancion actualizada = new Sancion(
+                seleccionada.getIdSancion(),
+                cedula,
+                monto,
+                motivo,
+                fecha,
+                estado
+            );
 
-            // Actualizar la sanción en la base de datos
-            sancionDAO.update(sancionActualizada);
-
-            // Actualizar la vista de sanciones y limpiar los campos
+            sancionDAO.update(actualizada);
             fetchSanciones();
             clearFields();
+            showAlert(Alert.AlertType.INFORMATION, "Éxito", "Sanción actualizada correctamente.");
 
-            // Mostrar mensaje de éxito
-            showAlert(Alert.AlertType.INFORMATION, "Actualización exitosa", "La sanción ha sido actualizada correctamente.");
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Error de formato", "Cédula y Monto deben ser números válidos.");
-        } catch (Exception e) {
-            showAlert(Alert.AlertType.ERROR, "Error al actualizar", "No se pudo actualizar la sanción.");
-            e.printStackTrace();  // Opcional: Imprime la traza del error para depuración.
+            showAlert(Alert.AlertType.ERROR, "Error de formato", "Cédula y Monto deben ser válidos.");
         }
     }
 
-
     @FXML
     public void deleteSancion(ActionEvent event) {
-        Sancion sancionSeleccionada = sancionTable.getSelectionModel().getSelectedItem();
-
-        if (sancionSeleccionada == null) {
-            showAlert(Alert.AlertType.WARNING, "Ninguna sanción seleccionada", "Debes seleccionar una sanción para eliminar.");
+        Sancion seleccionada = sancionTable.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) {
+            showAlert(Alert.AlertType.WARNING, "Selecciona una sanción", "Debes seleccionar una sanción para eliminar.");
             return;
         }
 
-        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmDialog.setTitle("Confirmar eliminación");
-        confirmDialog.setContentText("¿Estás seguro de que deseas eliminar esta sanción?");
-        confirmDialog.showAndWait().ifPresent(response -> {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmar eliminación");
+        confirm.setContentText("¿Deseas eliminar esta sanción?");
+        confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                
-                    sancionDAO.delete(sancionSeleccionada.getIdSancion());
-                    fetchSanciones();
-                    clearFields();
-                    showAlert(Alert.AlertType.INFORMATION, "Eliminación exitosa", "La sanción ha sido eliminada correctamente.");
-               
+                sancionDAO.delete(seleccionada.getIdSancion());
+                fetchSanciones();
+                clearFields();
+                showAlert(Alert.AlertType.INFORMATION, "Eliminada", "Sanción eliminada correctamente.");
             }
         });
     }
@@ -204,24 +175,15 @@ public class SancionController {
     public void goBackToMenu(ActionEvent event) {
         try {
             Stage stage = (Stage) btnBack.getScene().getWindow();
-            double currentWidth = stage.getWidth();
-            double currentHeight = stage.getHeight();
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
             Parent root = loader.load();
             stage.setScene(new Scene(root));
-
-            stage.setWidth(currentWidth);
-            stage.setHeight(currentHeight);
-
-            stage.show();
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Error", "No se pudo regresar al menú.");
         }
     }
 
     private void clearFields() {
-       
         cedulaUsuarioField.clear();
         montoField.clear();
         motivoField.clear();

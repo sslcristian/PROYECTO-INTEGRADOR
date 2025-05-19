@@ -1,12 +1,11 @@
 package data;
 
 import model.Sancion;
-
 import java.sql.*;
 import java.util.ArrayList;
 
 public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
-    private Connection connection;
+    private final Connection connection;
 
     public SancionDAO(Connection connection) {
         this.connection = connection;
@@ -14,25 +13,19 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
     @Override
     public void save(Sancion sancion) {
-        String query = "INSERT INTO TBL_SANCION (cedula_usuario, monto, motivo, fecha, estado) " +
-                       "VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO TBL_SANCION (cedula_usuario, monto, motivo, fecha, estado) VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setLong(1, sancion.getCedulaUsuario());
-            pstmt.setDouble(2, sancion.getMonto());
-            pstmt.setString(3, sancion.getMotivo());
-            pstmt.setDate(4, sancion.getFecha());
-            pstmt.setString(5, sancion.getEstado());
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setLong(1, sancion.getCedulaUsuario());
+            stmt.setDouble(2, sancion.getMonto());
+            stmt.setString(3, sancion.getMotivo());
+            stmt.setDate(4, sancion.getFecha());
+            stmt.setString(5, sancion.getEstado());
 
-            int rowsAffected = pstmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        sancion.setIdSancion(generatedKeys.getInt(1));
-                    }
-                }
-                System.out.println("Sanción registrada correctamente.");
+            stmt.executeUpdate();
+            ResultSet keys = stmt.getGeneratedKeys();
+            if (keys.next()) {
+                sancion.setIdSancion(keys.getInt(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -41,54 +34,46 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
     @Override
     public ArrayList<Sancion> fetch() {
-        ArrayList<Sancion> sanciones = new ArrayList<>();
+        ArrayList<Sancion> lista = new ArrayList<>();
         String query = "SELECT * FROM TBL_SANCION";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
             while (rs.next()) {
-                String motivo = null;
-                if (rs.getClob("MOTIVO") != null) {
-                    motivo = rs.getClob("MOTIVO").getSubString(1, (int) rs.getClob("MOTIVO").length());
-                }
-                
-                Sancion sancion = new Sancion(
-                        rs.getInt("ID_SANCION"),
-                        rs.getLong("CEDULA_USUARIO"),
-                        rs.getDouble("MONTO"),
-                        motivo,
-                        rs.getDate("FECHA"),
-                        rs.getString("ESTADO")
-                );
-                sanciones.add(sancion);
+                String motivo = rs.getClob("MOTIVO") != null
+                    ? rs.getClob("MOTIVO").getSubString(1, (int) rs.getClob("MOTIVO").length())
+                    : null;
+
+                lista.add(new Sancion(
+                    rs.getInt("ID_SANCION"),
+                    rs.getLong("CEDULA_USUARIO"),
+                    rs.getDouble("MONTO"),
+                    motivo,
+                    rs.getDate("FECHA"),
+                    rs.getString("ESTADO")
+                ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return sanciones;
+        return lista;
     }
-
-
 
     @Override
     public void update(Sancion sancion) {
-        String query = "UPDATE TBL_SANCION SET cedula_usuario=?, monto=?, motivo=?, fecha=?, estado=? " +
-                       "WHERE id_sanción=?";
+        String query = "UPDATE TBL_SANCION SET cedula_usuario=?, monto=?, motivo=?, fecha=?, estado=? WHERE id_sancion=?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setLong(1, sancion.getCedulaUsuario());
-            pstmt.setDouble(2, sancion.getMonto());
-            pstmt.setString(3, sancion.getMotivo());
-            pstmt.setDate(4, sancion.getFecha());
-            pstmt.setString(5, sancion.getEstado());
-            pstmt.setInt(6, sancion.getIdSancion());
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setLong(1, sancion.getCedulaUsuario());
+            stmt.setDouble(2, sancion.getMonto());
+            stmt.setString(3, sancion.getMotivo());
+            stmt.setDate(4, sancion.getFecha());
+            stmt.setString(5, sancion.getEstado());
+            stmt.setInt(6, sancion.getIdSancion());
 
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Sanción actualizada correctamente.");
-            }
+            stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -98,15 +83,9 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
     public void delete(Integer id) {
         String query = "DELETE FROM TBL_SANCION WHERE id_sancion=?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Sanción con ID " + id + " eliminada correctamente.");
-            } else {
-                System.out.println("No se encontró una sanción con el ID: " + id);
-            }
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -114,24 +93,22 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_sanción FROM TBL_SANCION WHERE id_sancin=?";
+        String query = "SELECT id_sancion FROM TBL_SANCION WHERE id_sancion=?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            return stmt.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
+
     public boolean isUsuarioExistente(Long cedula) {
         String query = "SELECT CEDULA FROM TBL_USUARIO WHERE CEDULA = ?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setLong(1, cedula);
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setLong(1, cedula);
+            return stmt.executeQuery().next();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -142,16 +119,11 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
         String query = "SELECT COUNT(*) FROM TBL_SANCION WHERE cedula_usuario = ? AND estado = 'Activa'";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setLong(1, cedulaUsuario);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
-            }
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
-
-    
 }
