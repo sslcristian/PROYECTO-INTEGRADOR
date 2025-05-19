@@ -39,7 +39,6 @@
     <!-- Tabla para mostrar las sanciones -->
     <TableView fx:id="sancionTable" prefHeight="200" prefWidth="600" style="-fx-background-color: white; -fx-border-color: #BBDEFB;">
         <columns>
-            <TableColumn fx:id="idColumn" prefWidth="50" text="ID" />
             <TableColumn fx:id="cedulaColumn" prefWidth="100" text="Cédula Usuario" />
             <TableColumn fx:id="montoColumn" prefWidth="100" text="Monto" />
             <TableColumn fx:id="motivoColumn" prefWidth="200" text="Motivo" />

@@ -32,7 +32,7 @@ public class SancionController {
     @FXML private DatePicker fechaPicker;
     @FXML private ComboBox<String> estadoComboBox;
     @FXML private TableView<Sancion> sancionTable;
-    @FXML private TableColumn<Sancion, Integer> idColumn;
+    
     @FXML private TableColumn<Sancion, Long> cedulaColumn;
     @FXML private TableColumn<Sancion, Double> montoColumn;
     @FXML private TableColumn<Sancion, String> motivoColumn;
@@ -45,7 +45,7 @@ public class SancionController {
         estadoComboBox.setItems(FXCollections.observableArrayList("Activa", "Inactiva"));
         estadoComboBox.getSelectionModel().selectFirst();
 
-        idColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getIdSancion()).asObject());
+       
         cedulaColumn.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().getCedulaUsuario()).asObject());
         montoColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getMonto()).asObject());
         motivoColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMotivo()));
@@ -175,9 +175,17 @@ public class SancionController {
     public void goBackToMenu(ActionEvent event) {
         try {
             Stage stage = (Stage) btnBack.getScene().getWindow();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
             Parent root = loader.load();
             stage.setScene(new Scene(root));
+
+            stage.setWidth(currentWidth);
+            stage.setHeight(currentHeight);
+
+            stage.show();
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Error", "No se pudo regresar al menú.");
         }
