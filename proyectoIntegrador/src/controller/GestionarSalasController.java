@@ -30,8 +30,8 @@ public class GestionarSalasController {
     @FXML private TableColumn<SalaInformatica, String> hardwareColumn;
     @FXML private TableColumn<SalaInformatica, String> ubicacionColumn;
     @FXML private TableColumn<SalaInformatica, String> estadoColumn;
-
-    @FXML private TextField idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionField;
+    @FXML private ComboBox<String> ubicacionComboBox;
+    @FXML private TextField idSalaField, nombreField, capacidadField, softwareField, hardwareField;
     @FXML private ComboBox<String> estadoComboBox; // Cambio de TextField a ComboBox
     @FXML private Button btnAdd, btnUpdate, btnDelete, btnFetch, btnBack;
 
@@ -55,7 +55,8 @@ public class GestionarSalasController {
         // Configuración del ComboBox para el estado
         estadoComboBox.setItems(FXCollections.observableArrayList("Disponible", "Ocupada", "Mantenimiento"));
         estadoComboBox.getSelectionModel().selectFirst();  // Seleccionar "Disponible" por defecto
-
+        ubicacionComboBox.setItems(FXCollections.observableArrayList("JLB", "EF", "SB", "DC", "CLLE", "ES", "DB"));
+        ubicacionComboBox.getSelectionModel().selectFirst();
         // Mostrar los datos de la sala seleccionada en los campos de texto
         salaTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
@@ -64,7 +65,7 @@ public class GestionarSalasController {
                 capacidadField.setText(String.valueOf(newSel.getCapacidad()));
                 softwareField.setText(newSel.getSoftwareDisponible());
                 hardwareField.setText(newSel.getHardwareEspecial());
-                ubicacionField.setText(newSel.getUbicacion());
+                ubicacionComboBox.setValue(newSel.getUbicacion());
                 estadoComboBox.setValue(newSel.getEstado());  // Asignar el estado desde la sala seleccionada
              
             }
@@ -75,7 +76,7 @@ public class GestionarSalasController {
             TableRow<SalaInformatica> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-                    FXUtils.clearSelectionAndFields(salaTable, idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionField, estadoComboBox);
+                    FXUtils.clearSelectionAndFields(salaTable, idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionComboBox, estadoComboBox);
                 }
             });
             return row;
@@ -84,7 +85,7 @@ public class GestionarSalasController {
         // Permitir deselección con la tecla ESC
         salaTable.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
-                FXUtils.clearSelectionAndFields(salaTable, idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionField, estadoComboBox);
+                FXUtils.clearSelectionAndFields(salaTable, idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionComboBox, estadoComboBox);
             }
         });
     }
@@ -106,7 +107,9 @@ public class GestionarSalasController {
             int capacidad = Integer.parseInt(capacidadField.getText());
             String software = softwareField.getText().trim();
             String hardware = hardwareField.getText().trim();
-            String ubicacion = ubicacionField.getText().trim();
+            String ubicacion = ubicacionComboBox.getValue();  // sin toLowerCase
+
+
             String estado = estadoComboBox.getValue().toLowerCase();  // Convertir a minúsculas
 
 
@@ -148,7 +151,7 @@ public class GestionarSalasController {
             salaSeleccionada.setCapacidad(Integer.parseInt(capacidadField.getText()));
             salaSeleccionada.setSoftwareDisponible(softwareField.getText().trim());
             salaSeleccionada.setHardwareEspecial(hardwareField.getText().trim());
-            salaSeleccionada.setUbicacion(ubicacionField.getText().trim());
+            salaSeleccionada.setUbicacion(ubicacionComboBox.getValue());
             salaSeleccionada.setEstado(estadoComboBox.getValue().toLowerCase());
 
 
@@ -200,7 +203,7 @@ public class GestionarSalasController {
         capacidadField.clear();
         softwareField.clear();
         hardwareField.clear();
-        ubicacionField.clear();
+        ubicacionComboBox.getSelectionModel().selectFirst();
         estadoComboBox.getSelectionModel().selectFirst();  // Restablecer a "Disponible"
         idSalaField.setDisable(false);  // Habilitar el campo ID para nuevas salas
         salaTable.getSelectionModel().clearSelection();  // Limpiar la selección de la tabla

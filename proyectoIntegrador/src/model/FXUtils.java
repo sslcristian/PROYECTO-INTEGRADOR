@@ -104,29 +104,31 @@ if (fechaAdquisicionPicker != null) fechaAdquisicionPicker.setValue(null);
 	    }
 
 	 
-	    public static void clearSelectionAndFields(
-	            TableView<?> table,
-	            TextField tf1, TextField tf2, TextField tf3, TextField tf4, TextField tf5, TextField tf6,
-	            ComboBox<String> estadoComboBox,
-	            DatePicker datePicker
-	    ) {
-	        table.getSelectionModel().clearSelection();
+	 public static void clearSelectionAndFields(
+		        TableView<?> table,
+		        TextField idSalaField,
+		        TextField nombreField,
+		        TextField capacidadField,
+		        TextField softwareField,
+		        TextField hardwareField,
+		        ComboBox<String> ubicacionComboBox,
+		        ComboBox<String> estadoComboBox) {
 
-	        tf1.clear();
-	        tf2.clear();
-	        tf3.clear();
-	        tf4.clear();
-	        tf5.clear();
-	        tf6.clear();
+		    table.getSelectionModel().clearSelection();
 
-	        if (estadoComboBox != null) {
-	            estadoComboBox.getSelectionModel().selectFirst();
-	        }
+		    idSalaField.clear();
+		    nombreField.clear();
+		    capacidadField.clear();
+		    softwareField.clear();
+		    hardwareField.clear();
 
-	        if (datePicker != null) {
-	            datePicker.setValue(null);
-	        }
+		    if (ubicacionComboBox != null) {
+		        ubicacionComboBox.getSelectionModel().selectFirst();
+		    }
+		    if (estadoComboBox != null) {
+		        estadoComboBox.getSelectionModel().selectFirst();
+		    }
 
-	        if (tf1 != null) tf1.setDisable(false); // Rehabilitar ID si estaba desactivado
-	    }
+		    idSalaField.setDisable(false);
+		}
 }

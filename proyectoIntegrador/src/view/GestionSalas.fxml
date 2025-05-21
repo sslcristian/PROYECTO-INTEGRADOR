@@ -30,10 +30,14 @@
     <TextField fx:id="capacidadField" prefWidth="300" promptText="Capacidad" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     <TextField fx:id="softwareField" prefWidth="300" promptText="Software Disponible" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     <TextField fx:id="hardwareField" prefWidth="300" promptText="Hardware Especial" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
-    <TextField fx:id="ubicacionField" prefWidth="300" promptText="Ubicación" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
-    
-    <!-- Aquí está el ComboBox para el estado -->
-    <ComboBox fx:id="estadoComboBox" prefWidth="300" promptText="Estado" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+
+    <!-- Reemplazo del TextField por un ComboBox para ubicación -->
+    <ComboBox fx:id="ubicacionComboBox" prefWidth="300" promptText="Ubicación"
+              style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
+
+    <!-- ComboBox para el estado -->
+    <ComboBox fx:id="estadoComboBox" prefWidth="300" promptText="Estado"
+              style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
 
     <TableView fx:id="salaTable" prefHeight="200" prefWidth="600" style="-fx-background-color: white; -fx-border-color: #BBDEFB;">
         <columns>
@@ -56,3 +60,4 @@
             style="-fx-font-size: 16; -fx-background-color: #1976D2; -fx-text-fill: white;"
             text="Volver al Menú" />
 </VBox>
+
