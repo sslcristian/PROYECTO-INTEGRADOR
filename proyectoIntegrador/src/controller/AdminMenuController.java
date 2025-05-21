@@ -44,7 +44,7 @@ public class AdminMenuController {
 
     @FXML
     private void controlDevolucion() {
-        cargarVista("/view/ControlDevolucion.fxml");
+        cargarVista("/view/DevolucionesMenu.fxml");
     }
 
     @FXML
