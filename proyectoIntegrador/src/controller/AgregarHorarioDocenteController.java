@@ -11,7 +11,7 @@ import javafx.scene.control.TableColumn;
 
 
 
-import application.Main;
+
 import data.DBConnection;
 import data.ExcelService;
 import data.SalaPrestadaDAO;
@@ -36,8 +36,8 @@ public class AgregarHorarioDocenteController {
     @FXML private Button botonCargar, botonEliminar, botonRegistrar, btnVolverMenu;
 
     @FXML private TableColumn<SalaPrestada, Integer>  columnIdSala1;
-    @FXML private TableColumn<SalaPrestada, String> columnFechaInicio1, columnFechaFin1, columnObservaciones1;
-
+    @FXML private TableColumn<SalaPrestada, String>  columnObservaciones1;
+    @FXML private TableColumn<SalaPrestada, Date> columnFechaInicio1, columnFechaFin1;
     @FXML private TableColumn<SalaPrestada, Integer> columnIdSala;
     @FXML private TableColumn<SalaPrestada, String>  columnObservaciones;
     @FXML private TableColumn<SalaPrestada, Date> columnFechaInicio, columnFechaFin;
@@ -56,12 +56,45 @@ public class AgregarHorarioDocenteController {
 
     // Configura columnas de la tabla principal (base de datos)
     private void configurarColumnasTablaPrincipal() {
-       
         columnIdSala1.setCellValueFactory(new PropertyValueFactory<>("idSala"));
-        columnFechaInicio1.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
-        columnFechaFin1.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         columnObservaciones1.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
+
+        // Formato completo con hora
+        SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+        // Fecha Inicio
+        columnFechaInicio1.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
+        columnFechaInicio1.setCellFactory(column -> {
+            return new TableCell<SalaPrestada, Date>() {
+                @Override
+                protected void updateItem(Date item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText("");
+                    } else {
+                        setText(formatoCompleto.format(item));
+                    }
+                }
+            };
+        });
+
+        // Fecha Fin
+        columnFechaFin1.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
+        columnFechaFin1.setCellFactory(column -> {
+            return new TableCell<SalaPrestada, Date>() {
+                @Override
+                protected void updateItem(Date item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText("");
+                    } else {
+                        setText(formatoCompleto.format(item));
+                    }
+                }
+            };
+        });
     }
+
 
     private void configurarColumnasTemplate() {
         columnIdSala.setCellValueFactory(new PropertyValueFactory<>("idSala"));
@@ -114,32 +147,48 @@ public class AgregarHorarioDocenteController {
     }
 
     @FXML
-    void registrar(ActionEvent event) {
-        ObservableList<SalaPrestada> listaPlantilla = tableTemplate.getItems();
-
-        if (listaPlantilla == null || listaPlantilla.isEmpty()) {
-            mostrarAlerta("Sin datos", "Debe cargar primero la plantilla con datos desde Excel.", Alert.AlertType.WARNING);
-            return;
-        }
-
+    private void registrar() {
         int errores = 0;
-        for (SalaPrestada sp : listaPlantilla) {
+
+        // Usar la tabla correcta (tableTemplate)
+        for (SalaPrestada sp : tableTemplate.getItems()) {
+            // Validar conflicto de horario antes de guardar
+            boolean conflicto = salaPrestadaDAO.existeConflictoHorario(
+                sp.getIdSala(), sp.getFechaInicio(), sp.getFechaFin());
+
+            if (conflicto) {
+                errores++;
+                System.err.println("⚠️ Conflicto de horario para Sala ID: " + sp.getIdSala()
+                    + " entre " + sp.getFechaInicio() + " y " + sp.getFechaFin());
+                continue; // Saltar este registro
+            }
+
             try {
-                salaPrestadaDAO.save(sp);
+                salaPrestadaDAO.save(sp); // Asumes que lanza excepciones si falla
+                // (Opcional) actualizar estado de la sala
+                // salaDAO.actualizarEstado(sp.getIdSala(), "Ocupada");
             } catch (Exception e) {
                 errores++;
-                System.err.println("Error al guardar registro: " + sp + " - " + e.getMessage());
+                System.err.println("❌ Error al guardar sala prestada: " + sp);
+                e.printStackTrace();
             }
         }
 
-        if (errores == 0) {
-            mostrarAlerta("Registro exitoso", "Todos los horarios de sala fueron registrados correctamente.", Alert.AlertType.INFORMATION);
+        if (errores > 0) {
+            mostrarAlerta("Registro incompleto", "Se registraron algunas salas, pero hubo " + errores + " errores.",Alert.AlertType.WARNING);
         } else {
-            mostrarAlerta("Registro parcial", "Algunos registros no pudieron guardarse. Revise el log para más detalles.", Alert.AlertType.WARNING);
+            mostrarAlerta("Registro exitoso", "Todas las salas fueron registradas correctamente.",Alert.AlertType.WARNING);
         }
-        cargarDatosTablaPrincipal(); // Refrescar tabla con datos nuevos
-        tableTemplate.getItems().clear(); // Limpiar la tabla de plantilla
+
+        // Limpiar la tabla temporal
+        tableTemplate.getItems().clear();
+        // Recargar la tabla principal desde la base de datos
+        cargarDatosTablaPrincipal();
     }
+
+
+
+
 
     @FXML
     void eliminar(ActionEvent event) {
@@ -207,6 +256,7 @@ public class AgregarHorarioDocenteController {
         ExcelService.createExcelFormat("HorarioSalas.xlsx");
         mostrarAlerta("Plantilla creada", "Se ha generado correctamente la plantilla Excel.", Alert.AlertType.INFORMATION);
     }
+    
 
     private void mostrarAlerta(String titulo, String contenido, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);

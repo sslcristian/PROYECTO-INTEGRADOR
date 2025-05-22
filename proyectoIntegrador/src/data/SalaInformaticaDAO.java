@@ -127,4 +127,16 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
             return false;
         }
     }
+    public boolean actualizarEstado(int idSala, String nuevoEstado) {
+        String sql = "UPDATE TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, nuevoEstado);
+            stmt.setInt(2, idSala);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

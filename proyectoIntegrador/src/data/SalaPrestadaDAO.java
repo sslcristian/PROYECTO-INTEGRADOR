@@ -185,5 +185,28 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
         return historialSalas;
     }
+    public boolean existeConflictoHorario(int idSala, Date fechaInicio, Date fechaFin) {
+        String sql = "SELECT COUNT(*) FROM TBL_SALA_PRESTADA " +
+                     "WHERE id_sala = ? AND (? < fecha_fin) AND (? > fecha_inicio)";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idSala);
+            stmt.setTimestamp(2, new java.sql.Timestamp(fechaFin.getTime()));
+            stmt.setTimestamp(3, new java.sql.Timestamp(fechaInicio.getTime()));
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Si hay resultados, hay conflicto
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+
+
+
 
 }
