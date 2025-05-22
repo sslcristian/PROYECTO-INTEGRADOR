@@ -5,6 +5,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.collections.ObservableList;
+
 public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     private Connection connection;
 
@@ -185,24 +187,41 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
         return historialSalas;
     }
-    public boolean existeConflictoHorario(int idSala, Date fechaInicio, Date fechaFin) {
-        String sql = "SELECT COUNT(*) FROM TBL_SALA_PRESTADA " +
-                     "WHERE id_sala = ? AND (? < fecha_fin) AND (? > fecha_inicio)";
+    public boolean existeConflictoHorario(int idSala, Date nuevoFechaInicio, Date nuevoFechaFin) {
+        String sql = "SELECT COUNT(*) FROM TBL_SALA_PRESTADA "
+                   + "WHERE ID_SALA = ? "
+                   + "AND FECHA_INICIO < ? "  // inicio existente < fin nuevo
+                   + "AND FECHA_FIN > ?";     // fin existente > inicio nuevo
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, idSala);
-            stmt.setTimestamp(2, new java.sql.Timestamp(fechaFin.getTime()));
-            stmt.setTimestamp(3, new java.sql.Timestamp(fechaInicio.getTime()));
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idSala);
+            ps.setTimestamp(2, new java.sql.Timestamp(nuevoFechaFin.getTime()));
+            ps.setTimestamp(3, new java.sql.Timestamp(nuevoFechaInicio.getTime()));
 
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1) > 0; // Si hay resultados, hay conflicto
+                int count = rs.getInt(1);
+                return count > 0;  // Si existe al menos uno, hay conflicto
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            // Aquí puedes lanzar una excepción o manejar el error según convenga
         }
         return false;
     }
+
+
+    private boolean existeConflictoEnTablaTemporal(SalaPrestada nueva, ObservableList<SalaPrestada> lista) {
+        for (SalaPrestada existente : lista) {
+            if (existente.getIdSala() == nueva.getIdSala()) {
+                boolean solapa = nueva.getFechaInicio().before(existente.getFechaFin()) &&
+                                 nueva.getFechaFin().after(existente.getFechaInicio());
+                if (solapa) return true;
+            }
+        }
+        return false;
+    }
+
 
 
 

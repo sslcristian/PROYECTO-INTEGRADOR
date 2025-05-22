@@ -160,6 +160,10 @@ public class AgregarHorarioDocenteController {
                 errores++;
                 System.err.println("⚠️ Conflicto de horario para Sala ID: " + sp.getIdSala()
                     + " entre " + sp.getFechaInicio() + " y " + sp.getFechaFin());
+                mostrarAlerta("Conflicto de horario",
+                    "La sala con ID " + sp.getIdSala() + " NO PUEDES RESERVAR SALAS EN LA MISMA HORA "
+                    + sp.getFechaInicio() + " y " + sp.getFechaFin() + ". No se registró esta reserva.",
+                    Alert.AlertType.WARNING);
                 continue; // Saltar este registro
             }
 
@@ -171,13 +175,20 @@ public class AgregarHorarioDocenteController {
                 errores++;
                 System.err.println("❌ Error al guardar sala prestada: " + sp);
                 e.printStackTrace();
+                mostrarAlerta("Error de guardado",
+                    "No se pudo guardar la reserva para la sala con ID " + sp.getIdSala() + ".",
+                    Alert.AlertType.ERROR);
             }
         }
 
         if (errores > 0) {
-            mostrarAlerta("Registro incompleto", "Se registraron algunas salas, pero hubo " + errores + " errores.",Alert.AlertType.WARNING);
+            mostrarAlerta("Registro incompleto",
+                "no se registraron las reservas, pero hubo " + errores + " errores o conflictos.",
+                Alert.AlertType.WARNING);
         } else {
-            mostrarAlerta("Registro exitoso", "Todas las salas fueron registradas correctamente.",Alert.AlertType.WARNING);
+            mostrarAlerta("Registro exitoso",
+                "Todas las reservas fueron registradas correctamente.",
+                Alert.AlertType.INFORMATION);
         }
 
         // Limpiar la tabla temporal
