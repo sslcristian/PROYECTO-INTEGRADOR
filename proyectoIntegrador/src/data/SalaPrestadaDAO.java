@@ -42,7 +42,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     @Override
     public ArrayList<SalaPrestada> fetch() {
         ArrayList<SalaPrestada> salasPrestadas = new ArrayList<>();
-        String query = "SELECT * FROM TBL_SALA_PRESTADA";
+        String query = "SELECT * FROM TBL_SALA_PRESTADA WHERE fecha_fin >= SYSDATE";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -61,6 +61,30 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
         } catch (SQLException e) {
             System.err.println("Error al obtener las salas prestadas: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return salasPrestadas;
+    }
+    public ArrayList<SalaPrestada> fetchTodas() {
+        ArrayList<SalaPrestada> salasPrestadas = new ArrayList<>();
+        String query = "SELECT * FROM TBL_SALA_PRESTADA";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                salasPrestadas.add(new SalaPrestada(
+                    rs.getInt("id_prestamo_s"),
+                    rs.getInt("id_solicitud_s"),
+                    rs.getInt("id_sala"),
+                    rs.getDate("fecha_inicio"),
+                    rs.getDate("fecha_fin"),
+                    rs.getString("observaciones")
+                ));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener todas las reservas: " + e.getMessage());
             e.printStackTrace();
         }
 

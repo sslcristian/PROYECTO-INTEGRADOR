@@ -40,6 +40,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
             e.printStackTrace();
         }
     }
+
     public void actualizarEstadoSegunReservas(int idSala) throws SQLException {
         String sql = "SELECT COUNT(*) FROM TBL_SALA_PRESTADA "
                    + "WHERE id_sala = ? "
@@ -47,27 +48,33 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, idSala);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                if (count > 0) {
-                    actualizarEstadoSala(idSala, "Ocupada");
-                } else {
-                    actualizarEstadoSala(idSala, "Disponible");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int count = rs.getInt(1);
+                    System.out.println("Reservas activas para sala " + idSala + ": " + count);
+                    if (count > 0) {
+                        actualizarEstadoSala(idSala, "Ocupada");
+                    } else {
+                        actualizarEstadoSala(idSala, "Disponible");
+                    }
                 }
             }
         }
     }
 
-    public void actualizarEstadoSala(int idSala, String estado) throws SQLException {
+
+    public boolean actualizarEstadoSala(int idSala, String estado) {
         String sql = "UPDATE TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, estado);
             ps.setInt(2, idSala);
-            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("❌ Error al actualizar estado de sala: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
-
 
     @Override
     public ArrayList<SalaInformatica> fetch() {
@@ -137,8 +144,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
     @Override
     public boolean authenticate(Integer idSala) {
-        // Este método no aplica realmente para este DAO; se deja por requerimientos del CRUD_Operation genérico.
-        return exists(idSala);
+        throw new UnsupportedOperationException("El método authenticate no aplica para SalaInformaticaDAO");
     }
 
     public boolean exists(Integer idSala) {
@@ -155,16 +161,30 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
             return false;
         }
     }
-    public boolean actualizarEstado(int idSala, String nuevoEstado) {
-        String sql = "UPDATE TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, nuevoEstado);
-            stmt.setInt(2, idSala);
-            return stmt.executeUpdate() > 0;
+
+    public SalaInformatica findById(int idSala) {
+        String query = "SELECT * FROM TBL_SALA_INFORMATICA WHERE id_sala = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, idSala);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new SalaInformatica(
+                        rs.getInt("id_sala"),
+                        rs.getString("nombre_sala"),
+                        rs.getInt("capacidad"),
+                        rs.getString("software_disponible"),
+                        rs.getString("hardware_especial"),
+                        rs.getString("ubicacion"),
+                        rs.getString("estado")
+                    );
+                }
+            }
         } catch (SQLException e) {
+            System.err.println("❌ Error al buscar sala por ID: " + e.getMessage());
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
 }
+

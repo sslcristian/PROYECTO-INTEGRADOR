@@ -56,7 +56,7 @@ public class ReservasSalasController {
 
     @FXML
     public void fetchHistorialSalas() {
-        historialSalasList.setAll(salaPrestadaDAO.fetch());
+        historialSalasList.setAll(salaPrestadaDAO.fetchTodas());
 		tablaHistorialReservas.setItems(historialSalasList);
     }
 
