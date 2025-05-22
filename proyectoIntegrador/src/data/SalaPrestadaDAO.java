@@ -12,21 +12,25 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
         this.connection = connection;
     }
 
-    @Override
     public void save(SalaPrestada salaPrestada) {
         String query = "INSERT INTO TBL_SALA_PRESTADA " +
                        "(id_prestamo_s, id_solicitud_s, id_sala, fecha_inicio, fecha_fin, observaciones) " +
-                       "VALUES (seq_id_prestamo_s.NEXTVAL, seq_id_solicitud_s.NEXTVAL, ?, ?, ?, ?)";
+                       "VALUES (seq_id_prestamo_s.NEXTVAL, NULL, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, salaPrestada.getIdSala());
-            pstmt.setDate(2, salaPrestada.getFechaInicio());
-            pstmt.setDate(3, salaPrestada.getFechaFin());
+
+            // Convertir java.util.Date a java.sql.Timestamp para fecha y hora
+            pstmt.setTimestamp(2, new Timestamp(salaPrestada.getFechaInicio().getTime()));
+            pstmt.setTimestamp(3, new Timestamp(salaPrestada.getFechaFin().getTime()));
+
             pstmt.setString(4, salaPrestada.getObservaciones());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Sala prestada registrada correctamente.");
+            } else {
+                System.err.println("No se pudo registrar la sala prestada.");
             }
         } catch (SQLException e) {
             System.err.println("Error al insertar la sala prestada.");

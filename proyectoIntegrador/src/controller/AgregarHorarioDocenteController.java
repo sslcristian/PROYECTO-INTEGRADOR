@@ -1,8 +1,15 @@
 package controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+
+
 
 import application.Main;
 import data.DBConnection;
@@ -12,9 +19,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
+
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
@@ -25,12 +35,12 @@ public class AgregarHorarioDocenteController {
 
     @FXML private Button botonCargar, botonEliminar, botonRegistrar, btnVolverMenu;
 
-    @FXML private TableColumn<SalaPrestada, Integer> columnIdPrestamo1, columnIdSolicitud1, columnIdSala1;
+    @FXML private TableColumn<SalaPrestada, Integer>  columnIdSala1;
     @FXML private TableColumn<SalaPrestada, String> columnFechaInicio1, columnFechaFin1, columnObservaciones1;
 
     @FXML private TableColumn<SalaPrestada, Integer> columnIdSala;
-    @FXML private TableColumn<SalaPrestada, String> columnFechaInicio, columnFechaFin, columnObservaciones;
-
+    @FXML private TableColumn<SalaPrestada, String>  columnObservaciones;
+    @FXML private TableColumn<SalaPrestada, Date> columnFechaInicio, columnFechaFin;
     @FXML private TableView<SalaPrestada> tableProductos, tableTemplate;
 
     private final Connection connection = DBConnection.getInstance().getConnection();
@@ -41,25 +51,61 @@ public class AgregarHorarioDocenteController {
         cargarDatosTablaPrincipal();
         configurarColumnasTablaPrincipal();
         configurarColumnasTemplate();
+        
     }
 
     // Configura columnas de la tabla principal (base de datos)
     private void configurarColumnasTablaPrincipal() {
-        columnIdPrestamo1.setCellValueFactory(new PropertyValueFactory<>("idPrestamoS"));
-        columnIdSolicitud1.setCellValueFactory(new PropertyValueFactory<>("idSolicitudS"));
+       
         columnIdSala1.setCellValueFactory(new PropertyValueFactory<>("idSala"));
         columnFechaInicio1.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
         columnFechaFin1.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         columnObservaciones1.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
     }
 
-    // Configura columnas de la tabla de plantilla (desde Excel)
     private void configurarColumnasTemplate() {
         columnIdSala.setCellValueFactory(new PropertyValueFactory<>("idSala"));
-        columnFechaInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
-        columnFechaFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         columnObservaciones.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
+
+        // Asegúrate de tener este formato declarado aquí
+        SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
+        // Fecha Inicio
+        columnFechaInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
+        columnFechaInicio.setCellFactory(column -> {
+            return new TableCell<SalaPrestada, Date>() {
+                @Override
+                protected void updateItem(Date item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText("");
+                    } else {
+                        setText(formatoCompleto.format(item));
+                    }
+                }
+            };
+        });
+
+        // Fecha Fin
+        columnFechaFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
+        columnFechaFin.setCellFactory(column -> {
+            return new TableCell<SalaPrestada, Date>() {
+                @Override
+                protected void updateItem(Date item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText("");
+                    } else {
+                        setText(formatoCompleto.format(item));
+                    }
+                }
+            };
+        });
     }
+
+
+
+
 
     // Carga los datos reales desde la base de datos
     private void cargarDatosTablaPrincipal() {
@@ -137,7 +183,23 @@ public class AgregarHorarioDocenteController {
 
     @FXML
     void cerrarSesion(ActionEvent event) {
-        Main.loadView("/view/AdminMenu.fxml");
+        try {
+            Stage stage = (Stage) btnVolverMenu.getScene().getWindow();
+            double currentWidth = stage.getWidth();
+            double currentHeight = stage.getHeight();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
+            Parent root = loader.load();
+            stage.setScene(new Scene(root));
+
+            // Mantener el tamaño anterior
+            stage.setWidth(currentWidth);
+            stage.setHeight(currentHeight);
+
+            stage.show();
+        } catch (IOException e) {
+        	mostrarAlerta("No se pudo regresar al menú.", "Error", Alert.AlertType.ERROR);
+        }
     }
 
     @FXML
