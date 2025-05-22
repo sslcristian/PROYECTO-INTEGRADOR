@@ -22,7 +22,6 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, salaPrestada.getIdSala());
 
-            // Convertir java.util.Date a java.sql.Timestamp para fecha y hora
             pstmt.setTimestamp(2, new Timestamp(salaPrestada.getFechaInicio().getTime()));
             pstmt.setTimestamp(3, new Timestamp(salaPrestada.getFechaFin().getTime()));
 
@@ -39,7 +38,6 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
             e.printStackTrace();
         }
     }
-
 
     @Override
     public ArrayList<SalaPrestada> fetch() {
@@ -68,7 +66,6 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
         return salasPrestadas;
     }
-
 
     @Override
     public void update(SalaPrestada salaPrestada) {
@@ -143,8 +140,8 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
         }
         return historial;
     }
+
     public SalaPrestada obtenerSalaPrestadaFromResultSet(ResultSet resultSet) throws SQLException {
-        // Recuperar los valores del ResultSet
         int idPrestamo = resultSet.getInt("id_prestamo_s");
         int idSolicitud = resultSet.getInt("id_solicitud_s");
         int idSala = resultSet.getInt("id_sala");
@@ -152,11 +149,9 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
         Date fechaFin = resultSet.getDate("fecha_fin");
         String observaciones = resultSet.getString("observaciones");
 
-        // Verificar si las fechas son null, en cuyo caso asignar la fecha actual o algún valor por defecto
-        fechaInicio = (fechaInicio != null) ? fechaInicio : new Date(System.currentTimeMillis());  // Si es null, se usa la fecha actual
-        fechaFin = (fechaFin != null) ? fechaFin : new Date(System.currentTimeMillis());  // Lo mismo para la fecha de fin
+        fechaInicio = (fechaInicio != null) ? fechaInicio : new Date(System.currentTimeMillis());
+        fechaFin = (fechaFin != null) ? fechaFin : new Date(System.currentTimeMillis());
 
-        // Crear el objeto SalaPrestada con los valores obtenidos
         return new SalaPrestada(idPrestamo, idSolicitud, idSala, fechaInicio, fechaFin, observaciones);
     }
 
@@ -171,14 +166,14 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                int idPrestamo = rs.getInt("id_prestamo_s");
-                int idSolicitud = rs.getInt("id_solicitud_s");
-                int idSala = rs.getInt("id_sala");
-                Date inicio = rs.getDate("fecha_inicio");
-                Date fin = rs.getDate("fecha_fin");
-                String observaciones = rs.getString("observaciones");
-
-                SalaPrestada salaPrestada = new SalaPrestada(idPrestamo, idSolicitud, idSala, inicio, fin, observaciones);
+                SalaPrestada salaPrestada = new SalaPrestada(
+                    rs.getInt("id_prestamo_s"),
+                    rs.getInt("id_solicitud_s"),
+                    rs.getInt("id_sala"),
+                    rs.getDate("fecha_inicio"),
+                    rs.getDate("fecha_fin"),
+                    rs.getString("observaciones")
+                );
                 historialSalas.add(salaPrestada);
             }
         } catch (SQLException e) {
@@ -187,29 +182,28 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
         return historialSalas;
     }
+
     public boolean existeConflictoHorario(int idSala, Date nuevoFechaInicio, Date nuevoFechaFin) {
         String sql = "SELECT COUNT(*) FROM TBL_SALA_PRESTADA "
-                   + "WHERE ID_SALA = ? "
-                   + "AND FECHA_INICIO < ? "  // inicio existente < fin nuevo
-                   + "AND FECHA_FIN > ?";     // fin existente > inicio nuevo
+                   + "WHERE id_sala = ? "
+                   + "AND fecha_inicio < ? "  // inicio existente < fin nuevo
+                   + "AND fecha_fin > ?";     // fin existente > inicio nuevo
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, idSala);
-            ps.setTimestamp(2, new java.sql.Timestamp(nuevoFechaFin.getTime()));
-            ps.setTimestamp(3, new java.sql.Timestamp(nuevoFechaInicio.getTime()));
+            ps.setTimestamp(2, new Timestamp(nuevoFechaFin.getTime()));
+            ps.setTimestamp(3, new Timestamp(nuevoFechaInicio.getTime()));
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int count = rs.getInt(1);
-                return count > 0;  // Si existe al menos uno, hay conflicto
+                return count > 0;
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            // Aquí puedes lanzar una excepción o manejar el error según convenga
         }
         return false;
     }
-
 
     private boolean existeConflictoEnTablaTemporal(SalaPrestada nueva, ObservableList<SalaPrestada> lista) {
         for (SalaPrestada existente : lista) {
@@ -221,11 +215,4 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
         }
         return false;
     }
-
-
-
-
-
-
-
 }

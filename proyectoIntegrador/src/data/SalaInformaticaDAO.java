@@ -40,6 +40,34 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
             e.printStackTrace();
         }
     }
+    public void actualizarEstadoSegunReservas(int idSala) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM TBL_SALA_PRESTADA "
+                   + "WHERE id_sala = ? "
+                   + "AND SYSDATE BETWEEN fecha_inicio AND fecha_fin";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idSala);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                if (count > 0) {
+                    actualizarEstadoSala(idSala, "Ocupada");
+                } else {
+                    actualizarEstadoSala(idSala, "Disponible");
+                }
+            }
+        }
+    }
+
+    public void actualizarEstadoSala(int idSala, String estado) throws SQLException {
+        String sql = "UPDATE TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, estado);
+            ps.setInt(2, idSala);
+            ps.executeUpdate();
+        }
+    }
+
 
     @Override
     public ArrayList<SalaInformatica> fetch() {
