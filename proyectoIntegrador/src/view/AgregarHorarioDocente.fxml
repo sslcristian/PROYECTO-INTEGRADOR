@@ -11,60 +11,84 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AgregarHorarioDocenteController">
-   <center>
-      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" styleClass="vbox" BorderPane.alignment="CENTER">
-         <children>
-            <Label text="INGRESAR HORARIO SEMESTRAL DE LAS SALAS" />
-            <GridPane prefHeight="444.0" prefWidth="352.0" styleClass="grid-pane">
-              <columnConstraints>
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="314.0" minWidth="10.0" prefWidth="293.0" />
-                <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="332.0" minWidth="10.0" prefWidth="267.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="132.0" minHeight="10.0" prefHeight="103.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="168.0" minHeight="0.0" prefHeight="36.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="105.0" minHeight="3.0" prefHeight="57.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="113.0" minHeight="10.0" prefHeight="69.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="77.0" minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <TableView fx:id="tableProductos" prefHeight="315.0" prefWidth="262.0" GridPane.rowIndex="1" GridPane.rowSpan="5">
-                    <columns>
-                        <TableColumn fx:id="columnIdPrestamo1" prefWidth="79.99999809265137" text="ID PRESTAMO" />
-                        <TableColumn fx:id="columnIdSolicitud1" prefWidth="79.99999809265137" text="ID SOLICITUD" />
-                      <TableColumn fx:id="columnIdSala1" prefWidth="79.99999809265137" text="ID SALA" />
-                      <TableColumn fx:id="columnFechaInicio1" prefWidth="68.00000762939453" text="FECHA INICIO" />
-                        <TableColumn fx:id="columnFechaFin1" prefWidth="79.99999809265137" text="FECHA FIN" />
-                        <TableColumn fx:id="columnObservaciones1" prefWidth="79.99999809265137" text="OBSERVACIONES" />
-                    </columns>
-                  </TableView>
-                  <Label text="SALAS PRESTADAS" />
-                  <Label text="REGISTRO DE SALAS PRESTADAS" GridPane.columnIndex="1" />
-                  <Button fx:id="botonEliminar" mnemonicParsing="false" onAction="#eliminar" prefHeight="42.0" prefWidth="238.0" text="Eliminar" GridPane.rowIndex="6" />
-                  <Button fx:id="botonRegistrar" mnemonicParsing="false" onAction="#registrar" prefHeight="89.0" prefWidth="267.0" text="Registrar" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                  <Button fx:id="btnVolverMenu" mnemonicParsing="false" onAction="#cerrarSesion" text="VOLVER AL MENU" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                  <TableView fx:id="tableTemplate" prefHeight="187.0" prefWidth="269.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                    <columns>
-                      <TableColumn fx:id="columnIdSala" prefWidth="75.0" text="ID SALA" />
-                      <TableColumn fx:id="columnFechaInicio" prefWidth="75.0" text="FECHA INICIO" />
-                        <TableColumn fx:id="columnFechaFin" prefWidth="75.0" text="FECHA FIN" />
-                        <TableColumn fx:id="columnObservaciones" prefWidth="75.0" text="OBSERVACIONES" />
-                    </columns>
-                  </TableView>
-                  <Button mnemonicParsing="false" onAction="#creacion" text="CREAR TEMPLATE" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <Button fx:id="botonCargar" mnemonicParsing="false" onAction="#CargarExcel" text="Cargar Excel" GridPane.rowIndex="8" />
-               </children>
-            </GridPane>
-         </children>
-      </VBox>
-   </center>
-   <stylesheets>
-      <URL value="@../../resources/style.css" />
-      <URL value="@Style.css" />
-   </stylesheets>
+<BorderPane prefHeight="500.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.AgregarHorarioDocenteController">
+
+    <center>
+        <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" styleClass="vbox" BorderPane.alignment="CENTER">
+            <children>
+                <Label text="INGRESAR HORARIO SEMESTRAL DE LAS SALAS" />
+                <GridPane prefHeight="444.0" prefWidth="352.0" styleClass="grid-pane">
+                    <columnConstraints>
+                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" prefWidth="293.0" />
+                        <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" prefWidth="267.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="103.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="36.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="57.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="69.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="55.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+
+                        <!-- Tabla de salas prestadas -->
+                        <Label text="SALAS PRESTADAS" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TableView fx:id="tableProductos" prefHeight="315.0" prefWidth="262.0"
+                                   GridPane.rowIndex="1" GridPane.rowSpan="5" GridPane.columnIndex="0">
+                            <columns>
+                                <TableColumn fx:id="columnIdPrestamo1" text="ID PRESTAMO" prefWidth="80.0" />
+                                <TableColumn fx:id="columnIdSolicitud1" text="ID SOLICITUD" prefWidth="80.0" />
+                                <TableColumn fx:id="columnIdSala1" text="ID SALA" prefWidth="80.0" />
+                                <TableColumn fx:id="columnFechaInicio1" text="FECHA INICIO" prefWidth="68.0" />
+                                <TableColumn fx:id="columnFechaFin1" text="FECHA FIN" prefWidth="80.0" />
+                                <TableColumn fx:id="columnObservaciones1" text="OBSERVACIONES" prefWidth="80.0" />
+                            </columns>
+                        </TableView>
+
+                        <!-- Registro y botones -->
+                        <Label text="REGISTRO DE SALAS PRESTADAS" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <TableView fx:id="tableTemplate" prefHeight="187.0" prefWidth="269.0"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2">
+                            <columns>
+                                <TableColumn fx:id="columnIdSala" text="ID SALA" prefWidth="75.0" />
+                                <TableColumn fx:id="columnFechaInicio" text="FECHA INICIO" prefWidth="75.0" />
+                                <TableColumn fx:id="columnFechaFin" text="FECHA FIN" prefWidth="75.0" />
+                                <TableColumn fx:id="columnObservaciones" text="OBSERVACIONES" prefWidth="75.0" />
+                            </columns>
+                        </TableView>
+
+                        <Button fx:id="botonRegistrar" text="Registrar" onAction="#registrar"
+                                prefHeight="89.0" prefWidth="267.0"
+                                GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                        <Button text="CREAR TEMPLATE" onAction="#creacion"
+                                GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                        <Button fx:id="botonEliminar" text="Eliminar" onAction="#eliminar"
+                                prefHeight="42.0" prefWidth="238.0"
+                                GridPane.columnIndex="0" GridPane.rowIndex="6" />
+
+                        <Button fx:id="btnVolverMenu" text="VOLVER AL MENU" onAction="#cerrarSesion"
+                                GridPane.columnIndex="1" GridPane.rowIndex="6" />
+
+                        <Button fx:id="botonCargar" text="Cargar Excel" onAction="#cargarExcel"
+
+                                GridPane.columnIndex="0" GridPane.rowIndex="8" />
+
+                    </children>
+                </GridPane>
+            </children>
+        </VBox>
+    </center>
+
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
 </BorderPane>

@@ -5,15 +5,17 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
-import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class ExcelService {
 
     public static final String RUTA_DESCARGAS = System.getProperty("user.home") + File.separator + "Downloads";
 
-    // ✅ Crear plantilla Excel
+    // 📌 Método para crear la plantilla en Excel con formato adecuado
     public static void createExcelFormat(String filename) {
         File archivoDestino = new File(RUTA_DESCARGAS + File.separator + filename);
 
@@ -22,8 +24,8 @@ public class ExcelService {
 
             Row encabezado = hoja.createRow(0);
             encabezado.createCell(0).setCellValue("ID Sala");
-            encabezado.createCell(1).setCellValue("Fecha Inicio (yyyy-MM-dd)");
-            encabezado.createCell(2).setCellValue("Fecha Fin (yyyy-MM-dd)");
+            encabezado.createCell(1).setCellValue("Fecha Inicio (dd/MM/yyyy HH:mm)");
+            encabezado.createCell(2).setCellValue("Fecha Fin (dd/MM/yyyy HH:mm)");
             encabezado.createCell(3).setCellValue("Observaciones");
 
             for (int i = 0; i < 4; i++) {
@@ -41,7 +43,7 @@ public class ExcelService {
         }
     }
 
-    // ✅ Leer datos desde archivo Excel
+    // 📌 Método para leer datos desde Excel y convertirlos en objetos de tipo SalaPrestada
     public static ArrayList<SalaPrestada> fetchExcel(File archivoOrigen) {
         ArrayList<SalaPrestada> listaSalas = new ArrayList<>();
 
@@ -54,28 +56,45 @@ public class ExcelService {
                 if (fila.getRowNum() == 0) continue; // Saltar encabezado
 
                 try {
-                    // Obtener ID Sala
+                    // 📌 Validación de ID de Sala
                     Cell cellIdSala = fila.getCell(0);
+                    if (cellIdSala == null || cellIdSala.getCellType() != CellType.NUMERIC) continue;
                     int idSala = (int) cellIdSala.getNumericCellValue();
 
-                    // Obtener Fecha Inicio
+                    // 📌 Extraer y validar fechas con hora
                     Cell cellFechaInicio = fila.getCell(1);
-                    Date fechaInicio = extraerFechaDesdeCelda(cellFechaInicio);
+                    Timestamp fechaInicio = extraerFechaDesdeCelda(cellFechaInicio);
 
-                    // Obtener Fecha Fin
                     Cell cellFechaFin = fila.getCell(2);
-                    Date fechaFin = extraerFechaDesdeCelda(cellFechaFin);
+                    Timestamp fechaFin = extraerFechaDesdeCelda(cellFechaFin);
 
-                    // Obtener Observaciones
+                    // 📌 Validación de observaciones
                     Cell cellObservaciones = fila.getCell(3);
                     String observaciones = (cellObservaciones != null) ? obtenerValorCeldaComoTexto(cellObservaciones) : "";
 
-                    // Crear objeto y agregar a la lista
-                    int idSolicitudS = 0; // Valor por defecto si no viene desde Excel
-                    SalaPrestada sala = new SalaPrestada(idSolicitudS, idSala, fechaInicio, fechaFin, observaciones);
+                    // 📌 Validación de datos antes de agregar
+                    if (fechaInicio == null || fechaFin == null || idSala <= 0) {
+                        System.err.println("⚠️ Datos inválidos en fila " + fila.getRowNum());
+                        continue;
+                    }
+
+                    // 📌 Imprimir datos obtenidos para depuración
+                    System.out.println("Datos obtenidos: ID Sala=" + idSala + ", Fecha Inicio=" + fechaInicio + ", Fecha Fin=" + fechaFin + ", Observaciones=" + observaciones);
+
+                 // 📌 Crear objeto y agregar a la lista
+                    int idSolicitudS = 0; // Valor por defecto
+
+                    // Convertir `Timestamp` a `Date` antes de pasarlo al constructor
+                    java.sql.Date fechaInicioSQL = new java.sql.Date(fechaInicio.getTime());
+                    java.sql.Date fechaFinSQL = new java.sql.Date(fechaFin.getTime());
+
+                    SalaPrestada sala = new SalaPrestada(idSolicitudS, idSala, fechaInicioSQL, fechaFinSQL, observaciones);
+                    listaSalas.add(sala);
+
 
                 } catch (Exception ex) {
                     System.err.println("⚠️ Error en fila " + fila.getRowNum() + ": " + ex.getMessage());
+                    continue;
                 }
             }
 
@@ -87,29 +106,68 @@ public class ExcelService {
         return listaSalas;
     }
 
-    // ✅ Extrae una fecha desde una celda (tipo Date o String)
-    private static Date extraerFechaDesdeCelda(Cell celda) {
+    private static Timestamp extraerFechaDesdeCelda(Cell celda) {
         if (celda == null) throw new IllegalArgumentException("Celda de fecha vacía");
 
-        if (celda.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(celda)) {
-            java.util.Date utilDate = celda.getDateCellValue();
-            return new Date(utilDate.getTime());
-        } else if (celda.getCellType() == CellType.STRING) {
-            return Date.valueOf(celda.getStringCellValue().trim());
-        } else {
-            throw new IllegalArgumentException("Tipo de celda de fecha inválido");
+        try {
+            // Si es fecha nativa de Excel (NUMERIC)
+            if (celda.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(celda)) {
+                java.util.Date utilDate = celda.getDateCellValue();
+                return Timestamp.valueOf(utilDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+            } else if (celda.getCellType() == CellType.STRING) {
+                String valor = celda.getStringCellValue().trim();
+                
+                // Quitar caracteres invisibles y normalizar espacios
+                valor = valor.replace('\u202C', ' ').replaceAll("\\s+", " ").replaceAll("\\.", "").replaceAll("a m", "AM").replaceAll("p m", "PM")
+                             .replaceAll("a\\. m\\.", "AM").replaceAll("p\\. m\\.", "PM").toUpperCase();
+
+                // Intentar con 24h y 12h (en español e inglés)
+                DateTimeFormatter[] formatos = new DateTimeFormatter[] {
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"),
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a"),
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a", new java.util.Locale("es", "ES"))
+                };
+
+                for (DateTimeFormatter formatter : formatos) {
+                    try {
+                        LocalDateTime fechaHora = LocalDateTime.parse(valor, formatter);
+                        return Timestamp.valueOf(fechaHora);
+                    } catch (Exception ignored) {}
+                }
+                System.err.println("❌ No se pudo interpretar la fecha: [" + valor + "]");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error procesando fecha: " + e.getMessage());
         }
+
+        return null;
     }
 
-    // ✅ Convierte cualquier celda a texto
     private static String obtenerValorCeldaComoTexto(Cell celda) {
+        if (celda == null) {
+            return "";
+        }
+
         return switch (celda.getCellType()) {
             case STRING -> celda.getStringCellValue();
-            case NUMERIC -> String.valueOf(celda.getNumericCellValue());
+            case NUMERIC -> {
+                if (DateUtil.isCellDateFormatted(celda)) {
+                    java.util.Date fecha = celda.getDateCellValue();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                    yield fecha.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().format(formatter);
+                } else {
+                    yield String.valueOf(celda.getNumericCellValue());
+                }
+            }
             case BOOLEAN -> String.valueOf(celda.getBooleanCellValue());
-            case FORMULA -> celda.getCellFormula();
+            case FORMULA -> {
+                try {
+                    yield celda.getStringCellValue();
+                } catch (IllegalStateException e) {
+                    yield String.valueOf(celda.getNumericCellValue());
+                }
+            }
             default -> "";
         };
     }
 }
-

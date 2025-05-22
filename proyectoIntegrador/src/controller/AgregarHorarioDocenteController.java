@@ -23,60 +23,86 @@ import model.SalaPrestada;
 
 public class AgregarHorarioDocenteController {
 
-    @FXML
-    private Button botonCargar, botonEliminar, botonRegistrar, btnVolverMenu;
+    @FXML private Button botonCargar, botonEliminar, botonRegistrar, btnVolverMenu;
 
-    @FXML
-    private TableColumn<SalaPrestada, Integer> columnIdPrestamo1, columnIdSolicitud1, columnIdSala1, columnIdSala;
+    @FXML private TableColumn<SalaPrestada, Integer> columnIdPrestamo1, columnIdSolicitud1, columnIdSala1;
+    @FXML private TableColumn<SalaPrestada, String> columnFechaInicio1, columnFechaFin1, columnObservaciones1;
 
-    @FXML
-    private TableColumn<SalaPrestada, String> columnFechaInicio1, columnFechaFin1, columnObservaciones1;
+    @FXML private TableColumn<SalaPrestada, Integer> columnIdSala;
+    @FXML private TableColumn<SalaPrestada, String> columnFechaInicio, columnFechaFin, columnObservaciones;
 
-    @FXML
-    private TableColumn<SalaPrestada, String> columnFechaInicio, columnFechaFin, columnObservaciones;
+    @FXML private TableView<SalaPrestada> tableProductos, tableTemplate;
 
-    @FXML
-    private TableView<SalaPrestada> tableProductos, tableTemplate;
-
-    private Connection connection = DBConnection.getInstance().getConnection();
-    private SalaPrestadaDAO salaPrestadaDAO = new SalaPrestadaDAO(connection);
+    private final Connection connection = DBConnection.getInstance().getConnection();
+    private final SalaPrestadaDAO salaPrestadaDAO = new SalaPrestadaDAO(connection);
 
     @FXML
     public void initialize() {
-        ObservableList<SalaPrestada> salasPrestadas = FXCollections.observableArrayList(salaPrestadaDAO.fetch());
+        cargarDatosTablaPrincipal();
+        configurarColumnasTablaPrincipal();
+        configurarColumnasTemplate();
+    }
 
-        // Configurar columnas de la tabla principal
-        columnIdPrestamo1.setCellValueFactory(new PropertyValueFactory<>("idPrestamo"));
-        columnIdSolicitud1.setCellValueFactory(new PropertyValueFactory<>("idSolicitud"));
+    // Configura columnas de la tabla principal (base de datos)
+    private void configurarColumnasTablaPrincipal() {
+        columnIdPrestamo1.setCellValueFactory(new PropertyValueFactory<>("idPrestamoS"));
+        columnIdSolicitud1.setCellValueFactory(new PropertyValueFactory<>("idSolicitudS"));
         columnIdSala1.setCellValueFactory(new PropertyValueFactory<>("idSala"));
         columnFechaInicio1.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
         columnFechaFin1.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         columnObservaciones1.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
+    }
 
-        tableProductos.setItems(salasPrestadas);
-
-        // Configurar columnas de la tabla resumen
+    // Configura columnas de la tabla de plantilla (desde Excel)
+    private void configurarColumnasTemplate() {
         columnIdSala.setCellValueFactory(new PropertyValueFactory<>("idSala"));
         columnFechaInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
         columnFechaFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         columnObservaciones.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
+    }
 
-        tableTemplate.setItems(salasPrestadas);
+    // Carga los datos reales desde la base de datos
+    private void cargarDatosTablaPrincipal() {
+        ObservableList<SalaPrestada> salasPrestadas = FXCollections.observableArrayList(salaPrestadaDAO.fetch());
+        tableProductos.setItems(salasPrestadas);
     }
 
     @FXML
     void registrar(ActionEvent event) {
-        mostrarAlerta("Registro", "Funcionalidad de registro pendiente de implementación.", Alert.AlertType.INFORMATION);
+        ObservableList<SalaPrestada> listaPlantilla = tableTemplate.getItems();
+
+        if (listaPlantilla == null || listaPlantilla.isEmpty()) {
+            mostrarAlerta("Sin datos", "Debe cargar primero la plantilla con datos desde Excel.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        int errores = 0;
+        for (SalaPrestada sp : listaPlantilla) {
+            try {
+                salaPrestadaDAO.save(sp);
+            } catch (Exception e) {
+                errores++;
+                System.err.println("Error al guardar registro: " + sp + " - " + e.getMessage());
+            }
+        }
+
+        if (errores == 0) {
+            mostrarAlerta("Registro exitoso", "Todos los horarios de sala fueron registrados correctamente.", Alert.AlertType.INFORMATION);
+        } else {
+            mostrarAlerta("Registro parcial", "Algunos registros no pudieron guardarse. Revise el log para más detalles.", Alert.AlertType.WARNING);
+        }
+        cargarDatosTablaPrincipal(); // Refrescar tabla con datos nuevos
+        tableTemplate.getItems().clear(); // Limpiar la tabla de plantilla
     }
 
     @FXML
     void eliminar(ActionEvent event) {
-        if (!tableProductos.getSelectionModel().isEmpty()) {
-            SalaPrestada sala = tableProductos.getSelectionModel().getSelectedItem();
-            salaPrestadaDAO.delete(sala.getIdSala()); // Asegurar que el método y el campo son correctos
-            initialize();
+        SalaPrestada seleccionada = tableProductos.getSelectionModel().getSelectedItem();
+        if (seleccionada != null) {
+            salaPrestadaDAO.delete(seleccionada.getIdPrestamoS());
+            cargarDatosTablaPrincipal();
         } else {
-            mostrarAlerta("Seleccione un registro", "Debe seleccionar un dato de la tabla", Alert.AlertType.WARNING);
+            mostrarAlerta("Sin selección", "Debe seleccionar un registro de la tabla.", Alert.AlertType.WARNING);
         }
     }
 
@@ -90,30 +116,41 @@ public class AgregarHorarioDocenteController {
         File archivo = fileChooser.showOpenDialog(stage);
 
         if (archivo != null) {
-            ArrayList<SalaPrestada> salasExcel = ExcelService.fetchExcel(archivo);
-            tableProductos.getItems().setAll(salasExcel);
+            // Limpiar la tabla antes de cargar nuevos datos
+            tableTemplate.getItems().clear();
+
+            ArrayList<SalaPrestada> salasExcel;
+            try {
+                salasExcel = ExcelService.fetchExcel(archivo);
+                if (salasExcel != null && !salasExcel.isEmpty()) {
+                    tableTemplate.getItems().setAll(salasExcel);
+                    mostrarAlerta("Carga exitosa", "Archivo Excel cargado correctamente.", Alert.AlertType.INFORMATION);
+                } else {
+                    mostrarAlerta("Archivo vacío", "El archivo Excel no contiene datos válidos. Verifique el formato de las fechas (dd/MM/yyyy HH:mm) o (dd/MM/yyyy hh:mm a).", Alert.AlertType.WARNING);
+                }
+            } catch (Exception ex) {
+                System.err.println("Error al cargar archivo Excel: " + ex.getMessage());
+                mostrarAlerta("Error", "No se pudo leer el archivo Excel. Verifique que el formato sea correcto y que las fechas tengan el patrón dd/MM/yyyy HH:mm o dd/MM/yyyy hh:mm a.", Alert.AlertType.ERROR);
+            }
         }
     }
 
     @FXML
     void cerrarSesion(ActionEvent event) {
-        Main.loadView("/view/Login.fxml");
+        Main.loadView("/view/AdminMenu.fxml");
     }
 
     @FXML
     void creacion(ActionEvent event) {
-        crearExcel("HorarioSalas.xlsx");
-    }
-
-    private void crearExcel(String nombreArchivo) {
-        ExcelService.createExcelFormat(nombreArchivo);
-        mostrarAlerta("Plantilla creada", "Se ha generado el archivo Excel correctamente.", Alert.AlertType.INFORMATION);
+        ExcelService.createExcelFormat("HorarioSalas.xlsx");
+        mostrarAlerta("Plantilla creada", "Se ha generado correctamente la plantilla Excel.", Alert.AlertType.INFORMATION);
     }
 
     private void mostrarAlerta(String titulo, String contenido, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
+        alert.setHeaderText(null);
         alert.setContentText(contenido);
-        alert.show();
+        alert.showAndWait();
     }
 }

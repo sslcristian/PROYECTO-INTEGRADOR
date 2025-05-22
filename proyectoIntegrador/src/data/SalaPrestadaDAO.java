@@ -14,14 +14,15 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
     @Override
     public void save(SalaPrestada salaPrestada) {
-        String query = "INSERT INTO TBL_SALA_PRESTADA (id_solicitud_s, id_sala, fecha_inicio, fecha_fin, observaciones) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO TBL_SALA_PRESTADA " +
+                       "(id_prestamo_s, id_solicitud_s, id_sala, fecha_inicio, fecha_fin, observaciones) " +
+                       "VALUES (seq_id_prestamo_s.NEXTVAL, seq_id_solicitud_s.NEXTVAL, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, salaPrestada.getIdSolicitudS());
-            pstmt.setInt(2, salaPrestada.getIdSala());
-            pstmt.setDate(3, salaPrestada.getFechaInicio());
-            pstmt.setDate(4, salaPrestada.getFechaFin());
-            pstmt.setString(5, salaPrestada.getObservaciones());
+            pstmt.setInt(1, salaPrestada.getIdSala());
+            pstmt.setDate(2, salaPrestada.getFechaInicio());
+            pstmt.setDate(3, salaPrestada.getFechaFin());
+            pstmt.setString(4, salaPrestada.getObservaciones());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
@@ -32,6 +33,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
             e.printStackTrace();
         }
     }
+
 
     @Override
     public ArrayList<SalaPrestada> fetch() {
