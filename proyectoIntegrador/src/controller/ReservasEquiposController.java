@@ -45,10 +45,18 @@ public class ReservasEquiposController {
     }
 
     private void configurarColumnas() {
+        SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
         colEquipo.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdEquipo())));
         colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudE())));
-        colInicio.setCellValueFactory(cellData -> new SimpleStringProperty(formatDate(cellData.getValue().getFechaInicio())));
-        colFin.setCellValueFactory(cellData -> new SimpleStringProperty(formatDate(cellData.getValue().getFechaFin())));
+        colInicio.setCellValueFactory(cellData -> {
+            Timestamp fecha = cellData.getValue().getFechaInicio();
+            return new SimpleStringProperty(fecha != null ? formatoCompleto.format(fecha) : "");
+        });
+        colFin.setCellValueFactory(cellData -> {
+            Timestamp fecha = cellData.getValue().getFechaFin();
+            return new SimpleStringProperty(fecha != null ? formatoCompleto.format(fecha) : "");
+        });
         colEstado.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getObservaciones()));
     }
 
@@ -125,10 +133,6 @@ public class ReservasEquiposController {
     @FXML
     public void volverAlMenu(ActionEvent event) {
         Main.loadScene("/view/AdminMenu.fxml");
-    }
-
-    private String formatDate(Timestamp timestamp) {
-        return (timestamp != null) ? new SimpleDateFormat("dd/MM/yyyy HH:mm").format(timestamp) : "";
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

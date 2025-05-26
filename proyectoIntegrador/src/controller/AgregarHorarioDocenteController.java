@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 
-
-
-
 import data.DBConnection;
 import data.ExcelService;
 import data.SalaPrestadaDAO;
@@ -24,7 +21,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
@@ -50,8 +46,7 @@ public class AgregarHorarioDocenteController {
     public void initialize() {
         cargarDatosTablaPrincipal();
         configurarColumnasTablaPrincipal();
-        configurarColumnasTemplate();
-        
+        configurarColumnasTemplate();   
     }
 
     // Configura columnas de la tabla principal (base de datos)
@@ -95,7 +90,6 @@ public class AgregarHorarioDocenteController {
         });
     }
 
-
     private void configurarColumnasTemplate() {
         columnIdSala.setCellValueFactory(new PropertyValueFactory<>("idSala"));
         columnObservaciones.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
@@ -136,10 +130,6 @@ public class AgregarHorarioDocenteController {
         });
     }
 
-
-
-
-
     // Carga los datos reales desde la base de datos
     private void cargarDatosTablaPrincipal() {
         ObservableList<SalaPrestada> salasPrestadas = FXCollections.observableArrayList(salaPrestadaDAO.fetch());
@@ -168,22 +158,25 @@ public class AgregarHorarioDocenteController {
             }
 
             try {
-                salaPrestadaDAO.save(sp); // Asumes que lanza excepciones si falla
-                // (Opcional) actualizar estado de la sala
-                // salaDAO.actualizarEstado(sp.getIdSala(), "Ocupada");
+                salaPrestadaDAO.save(sp); // Puede lanzar excepción si la sala no existe
             } catch (Exception e) {
                 errores++;
                 System.err.println("❌ Error al guardar sala prestada: " + sp);
                 e.printStackTrace();
-                mostrarAlerta("Error de guardado",
-                    "No se pudo guardar la reserva para la sala con ID " + sp.getIdSala() + ".",
-                    Alert.AlertType.ERROR);
+                // Aquí capturamos el mensaje personalizado del DAO
+                if ("La sala no existe.".equals(e.getMessage())) {
+                    mostrarAlerta("Advertencia", "La sala no existe.", Alert.AlertType.WARNING);
+                } else {
+                    mostrarAlerta("Error de guardado",
+                        "No se pudo guardar la reserva para la sala con ID " + sp.getIdSala() + ".",
+                        Alert.AlertType.ERROR);
+                }
             }
         }
 
         if (errores > 0) {
             mostrarAlerta("Registro incompleto",
-                "no se registraron las reservas, pero hubo " + errores + " errores o conflictos.",
+                "No se registraron todas las reservas, hubo " + errores + " errores o conflictos.",
                 Alert.AlertType.WARNING);
         } else {
             mostrarAlerta("Registro exitoso",
@@ -196,10 +189,6 @@ public class AgregarHorarioDocenteController {
         // Recargar la tabla principal desde la base de datos
         cargarDatosTablaPrincipal();
     }
-
-
-
-
 
     @FXML
     void eliminar(ActionEvent event) {
@@ -258,7 +247,7 @@ public class AgregarHorarioDocenteController {
 
             stage.show();
         } catch (IOException e) {
-        	mostrarAlerta("No se pudo regresar al menú.", "Error", Alert.AlertType.ERROR);
+            mostrarAlerta("No se pudo regresar al menú.", "Error", Alert.AlertType.ERROR);
         }
     }
 
@@ -267,7 +256,6 @@ public class AgregarHorarioDocenteController {
         ExcelService.createExcelFormat("HorarioSalas.xlsx");
         mostrarAlerta("Plantilla creada", "Se ha generado correctamente la plantilla Excel.", Alert.AlertType.INFORMATION);
     }
-    
 
     private void mostrarAlerta(String titulo, String contenido, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
@@ -276,4 +264,5 @@ public class AgregarHorarioDocenteController {
         alert.setContentText(contenido);
         alert.showAndWait();
     }
+
 }

@@ -4,7 +4,7 @@ import model.SalaPrestada;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+import model.SalaPrestadaConCedula;
 import javafx.collections.ObservableList;
 
 public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
@@ -90,7 +90,33 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
         return salasPrestadas;
     }
+    public List<SalaPrestadaConCedula> fetchConCedulaUsuario() {
+        List<SalaPrestadaConCedula> lista = new ArrayList<>();
+        String query = "SELECT sp.*, s.cedula_usuario FROM TBL_SALA_PRESTADA sp " +
+                       "JOIN TBL_SOLICITUD s ON sp.id_solicitud_s = s.id_solicitud " +
+                       "WHERE sp.fecha_fin >= SYSDATE";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
 
+            while (rs.next()) {
+                SalaPrestadaConCedula sala = new SalaPrestadaConCedula(
+                    rs.getInt("id_prestamo_s"),
+                    rs.getInt("id_solicitud_s"),
+                    rs.getInt("id_sala"),
+                    rs.getDate("fecha_inicio"),
+                    rs.getDate("fecha_fin"),
+                    rs.getString("observaciones"),
+                    rs.getLong("cedula_usuario")
+                );
+                lista.add(sala);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener reservas con cédula: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return lista;
+    }
     @Override
     public void update(SalaPrestada salaPrestada) {
         String query = "UPDATE TBL_SALA_PRESTADA SET id_solicitud_s=?, id_sala=?, fecha_inicio=?, fecha_fin=?, observaciones=? WHERE id_prestamo_s=?";

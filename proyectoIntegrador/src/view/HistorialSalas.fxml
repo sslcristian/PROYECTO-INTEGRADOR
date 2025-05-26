@@ -9,46 +9,35 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.171"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controller.ReservasSalasController"
-      alignment="CENTER"
-      spacing="20.0"
-      prefWidth="800.0"
-      prefHeight="600.0"
-      stylesheets="@Style.css">
+<VBox alignment="CENTER" prefHeight="600.0" prefWidth="800.0" spacing="20.0" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ReservasSalasController">
 
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets bottom="20" left="20" right="20" top="20" />
     </padding>
 
-    <Label text="📆 Historial de Reservas de Salas" styleClass="header-label"/>
+    <Label styleClass="header-label" text="📆 Historial de Reservas de Salas" />
 
     <!-- Tabla para mostrar historial de reservas -->
     <TableView fx:id="tablaHistorialReservas" prefHeight="400.0" prefWidth="750.0" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="colSala" text="Sala"/>
-            <TableColumn fx:id="colUsuario" text="Usuario"/>
-            <TableColumn fx:id="colSolicitud" text="Fecha Solicitud"/>
-            <TableColumn fx:id="colInicio" text="Inicio"/>
-            <TableColumn fx:id="colFin" text="Fin"/>
-            <TableColumn fx:id="colEstado" text="Estado"/>
+            <TableColumn fx:id="colSala" text="Sala" />
+            <TableColumn fx:id="colUsuario" text="Usuario" />
+            <TableColumn fx:id="colInicio" text="Inicio" />
+            <TableColumn fx:id="colFin" text="Fin" />
+            <TableColumn fx:id="colEstado" text="Estado" />
         </columns>
     </TableView>
 
     <!-- HBox para los filtros de fecha -->
-    <HBox spacing="10.0" alignment="CENTER">
-        <Label text="Desde:"/>
-        <DatePicker fx:id="datePickerDesde"/>
-        <Label text="Hasta:"/>
-        <DatePicker fx:id="datePickerHasta"/>
-        <Button text="Filtrar por Fecha" fx:id="btnFiltrar" onAction="#filtrarPorFecha" styleClass="button"/>
-        <Button text="Mostrar Todo" fx:id="btnMostrarTodo" onAction="#mostrarTodo" styleClass="button"/>
+    <HBox alignment="CENTER" spacing="10.0">
+        <Label text="Desde:" />
+        <DatePicker fx:id="datePickerDesde" />
+        <Label text="Hasta:" />
+        <DatePicker fx:id="datePickerHasta" />
+        <Button fx:id="btnFiltrar" onAction="#filtrarPorFecha" styleClass="button" text="Filtrar por Fecha" />
+        <Button fx:id="btnMostrarTodo" onAction="#mostrarTodo" styleClass="button" text="Mostrar Todo" />
     </HBox>
 
     <!-- Botón Volver al Menú -->
-    <Button fx:id="btnVolver"
-            text="🔙 Volver al Menú"
-            onAction="#volverAlMenu"
-            styleClass="button button-blue" />
+    <Button fx:id="btnVolver" onAction="#volverAlMenu" styleClass="button button-blue" text="🔙 Volver al Menú" />
 </VBox>

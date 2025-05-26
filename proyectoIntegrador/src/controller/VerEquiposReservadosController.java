@@ -17,6 +17,7 @@ import model.EquipoPrestado;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 public class VerEquiposReservadosController {
 
@@ -35,12 +36,19 @@ public class VerEquiposReservadosController {
 
     @FXML
     public void initialize() {
-    	colEquipo.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdEquipo())));
-    	colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudE())));
-    	colInicio.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getFechaInicio())));
-    	colFin.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getFechaFin())));
-    	colEstado.setCellValueFactory(cellData -> new SimpleStringProperty(determineEstado(cellData.getValue())));
+        SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
+        colEquipo.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdEquipo())));
+        colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudE())));
+        colInicio.setCellValueFactory(cellData -> {
+            Timestamp fecha = cellData.getValue().getFechaInicio();
+            return new SimpleStringProperty(formatoCompleto.format(fecha));
+        });
+        colFin.setCellValueFactory(cellData -> {
+            Timestamp fecha = cellData.getValue().getFechaFin();
+            return new SimpleStringProperty(formatoCompleto.format(fecha));
+        });
+        colEstado.setCellValueFactory(cellData -> new SimpleStringProperty(determineEstado(cellData.getValue())));
 
         fetchEquiposReservados();
 
