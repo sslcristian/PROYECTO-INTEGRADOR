@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="controller.ReservaSalaController" prefWidth="900" prefHeight="750" style="-fx-background-color: linear-gradient(to bottom right, #2193b0, #6dd5ed);">
+
+    <VBox spacing="25" alignment="TOP_CENTER" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
+
+        <!-- Título -->
+        <Label text="Reserva de Salas" style="-fx-font-size: 40px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 6,0,0,2);" />
+
+        <!-- Formulario -->
+        <VBox spacing="18" alignment="CENTER" prefWidth="850">
+
+            <TextField fx:id="cedulaField" promptText="Cédula del Usuario" prefWidth="850" style="
+                -fx-font-size: 22px; 
+                -fx-padding: 15px 20px; 
+                -fx-background-radius: 12; 
+                -fx-background-color: white; 
+                -fx-border-radius: 12; 
+                -fx-border-color: #81d4fa; 
+                -fx-border-width: 3; 
+                -fx-prompt-text-fill: #90caf9;
+            "/>
+
+            <ComboBox fx:id="salaComboBox" promptText="Seleccione una Sala" prefWidth="850" style="
+                -fx-font-size: 22px; 
+                -fx-padding: 15px 20px; 
+                -fx-background-radius: 12; 
+                -fx-background-color: white; 
+                -fx-border-radius: 12; 
+                -fx-border-color: #81d4fa; 
+                -fx-border-width: 3; 
+                -fx-prompt-text-fill: #90caf9;
+            "/>
+
+            <DatePicker fx:id="datePicker" promptText="Seleccione la fecha" prefWidth="850" style="
+                -fx-font-size: 22px; 
+                -fx-padding: 15px 20px; 
+                -fx-background-radius: 12; 
+                -fx-background-color: white; 
+                -fx-border-radius: 12; 
+                -fx-border-color: #81d4fa; 
+                -fx-border-width: 3; 
+                -fx-prompt-text-fill: #90caf9;
+            "/>
+
+            <HBox spacing="50" alignment="CENTER" prefWidth="850">
+                <VBox spacing="6" alignment="CENTER_LEFT" prefWidth="400">
+                    <Label text="Hora Inicio (24h):" style="-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: 600;" />
+                    <Spinner fx:id="spinnerHoraInicio" prefWidth="400" editable="true" style="
+                        -fx-font-size: 20px; 
+                        -fx-padding: 12px 20px; 
+                        -fx-background-radius: 12; 
+                        -fx-background-color: white; 
+                        -fx-border-radius: 12; 
+                        -fx-border-color: #81d4fa; 
+                        -fx-border-width: 3;
+                    " />
+                </VBox>
+
+                <VBox spacing="6" alignment="CENTER_LEFT" prefWidth="400">
+                    <Label text="Duración (hrs):" style="-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: 600;" />
+                    <Spinner fx:id="spinnerDuracion" prefWidth="400" editable="true" style="
+                        -fx-font-size: 20px; 
+                        -fx-padding: 12px 20px; 
+                        -fx-background-radius: 12; 
+                        -fx-background-color: white; 
+                        -fx-border-radius: 12; 
+                        -fx-border-color: #81d4fa; 
+                        -fx-border-width: 3;
+                    " />
+                </VBox>
+            </HBox>
+
+        </VBox>
+
+        <!-- Botón Mostrar Disponibles -->
+        <Button fx:id="btnMostrarDisponibles" text="Mostrar Salas Disponibles" onAction="#mostrarDisponibles" prefWidth="850" prefHeight="65" style="
+            -fx-font-size: 26px; 
+            -fx-background-color: #0288d1; 
+            -fx-text-fill: white; 
+            -fx-font-weight: bold;
+            -fx-background-radius: 20;
+            -fx-cursor: hand;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 6, 0, 0, 3);
+        " />
+
+        <!-- Tabla -->
+        <TableView fx:id="tablaSalas" prefHeight="320" prefWidth="850" style="
+            -fx-font-size: 18px; 
+            -fx-border-color: #0288d1; 
+            -fx-border-radius: 15; 
+            -fx-background-radius: 15; 
+            -fx-background-color: white;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);
+        ">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="80" />
+                <TableColumn fx:id="colSala" text="Sala" prefWidth="140" />
+                <TableColumn fx:id="colEstado" text="Estado" prefWidth="130" />
+                <TableColumn fx:id="colUsuario" text="Cédula Usuario" prefWidth="150" />
+                <TableColumn fx:id="colFecha" text="Fecha" prefWidth="130" />
+                <TableColumn fx:id="colHoraInicio" text="Hora Inicio" prefWidth="110" />
+                <TableColumn fx:id="colDuracion" text="Duración (hrs)" prefWidth="110" />
+            </columns>
+        </TableView>
+
+        <!-- Botones Reservar y Devolver -->
+        <HBox spacing="50" alignment="CENTER" prefWidth="850">
+            <Button fx:id="btnReservar" text="Reservar Sala" onAction="#reservarSala" prefWidth="400" prefHeight="70" style="
+                -fx-font-size: 26px; 
+                -fx-background-color: #43a047; 
+                -fx-text-fill: white; 
+                -fx-font-weight: bold;
+                -fx-background-radius: 25;
+                -fx-cursor: hand;
+                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 6, 0, 0, 3);
+            " />
+            <Button fx:id="btnDevolver" text="Devolver Sala" onAction="#devolverSala" prefWidth="400" prefHeight="70" style="
+                -fx-font-size: 26px; 
+                -fx-background-color: #e53935; 
+                -fx-text-fill: white; 
+                -fx-font-weight: bold;
+                -fx-background-radius: 25;
+                -fx-cursor: hand;
+                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 6, 0, 0, 3);
+            " />
+        </HBox>
+
+    </VBox>
+
+</AnchorPane>
