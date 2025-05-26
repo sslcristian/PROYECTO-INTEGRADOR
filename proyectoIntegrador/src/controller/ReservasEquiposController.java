@@ -1,7 +1,6 @@
 package controller;
 
 import application.Main;
-import data.DBConnection;
 import data.EquipoPrestadoDAO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -10,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import model.EquipoPrestado;
+import model.Session; // Importa la clase Session para obtener la conexión admin
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -34,7 +34,8 @@ public class ReservasEquiposController {
     @FXML private DatePicker datePickerDesde;
     @FXML private DatePicker datePickerHasta;
 
-    private final Connection connection = DBConnection.getInstance().getConnection();
+    // Usa la conexión admin de la sesión activa
+    private final Connection connection = Session.getConnection();
     private final EquipoPrestadoDAO equipoPrestadoDAO = new EquipoPrestadoDAO(connection);
     private final ObservableList<EquipoPrestado> historialEquiposList = FXCollections.observableArrayList();
 
@@ -104,7 +105,7 @@ public class ReservasEquiposController {
         }
 
         Timestamp timestampDesde = Timestamp.valueOf(desde.atStartOfDay());
-        Timestamp timestampHasta = Timestamp.valueOf(hasta.atTime(23, 59, 59)); 
+        Timestamp timestampHasta = Timestamp.valueOf(hasta.atTime(23, 59, 59));
 
         try {
             List<EquipoPrestado> historialFiltrado = equipoPrestadoDAO.obtenerHistorialEquiposPorFecha(timestampDesde, timestampHasta);

@@ -9,16 +9,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-
 import java.io.IOException;
-
 import application.Main;
 
 public class AdminMenuController {
 
     @FXML private StackPane adminContentPane;
-
-
     @FXML private Button btnGestionarSalas;
     @FXML private Button btnGestionarEquipos;
     @FXML private Button btnControlMantenimiento;
@@ -26,7 +22,6 @@ public class AdminMenuController {
     @FXML private Button btnGenerarSancion;
     @FXML private Button btnCerrarSesion;
 
-  
     @FXML
     private void gestionarSalas() {
         cargarVista("/view/SalaMenu.fxml");
@@ -65,10 +60,7 @@ public class AdminMenuController {
 
         alerta.showAndWait().ifPresent(respuesta -> {
             if (respuesta == confirmar) {
-               
-                Session.cerrarSesion();
-
-              
+                Session.cerrarSesion(); // Esto cierra la conexión y limpia la sesión
                 Main.loadScene("/view/MainMenu.fxml");
             }
         });

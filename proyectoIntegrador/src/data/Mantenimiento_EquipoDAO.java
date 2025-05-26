@@ -14,7 +14,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void save(Mantenimiento_Equipo mantenimientoEquipo) {
-        String query = "INSERT INTO TBL_MANTENIMIENTO_E (id_mantenimiento, id_equipo, fecha_mantenimiento, detalle, tecnico_responsable) " +
+        String query = "INSERT INTO proyecto343.TBL_MANTENIMIENTO_E (id_mantenimiento, id_equipo, fecha_mantenimiento, detalle, tecnico_responsable) " +
                        "VALUES (SEQ_MANTENIMIENTO_E.NEXTVAL, ?, ?, ?, ?)";
 
         String[] returnCols = { "id_mantenimiento" };
@@ -43,7 +43,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
     @Override
     public ArrayList<Mantenimiento_Equipo> fetch() {
         ArrayList<Mantenimiento_Equipo> mantenimientos = new ArrayList<>();
-        String query = "SELECT * FROM TBL_MANTENIMIENTO_E";
+        String query = "SELECT * FROM proyecto343.TBL_MANTENIMIENTO_E";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -67,7 +67,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void update(Mantenimiento_Equipo mantenimientoEquipo) {
-        String query = "UPDATE TBL_MANTENIMIENTO_E SET id_equipo=?, fecha_mantenimiento=?, detalle=?, tecnico_responsable=? " +
+        String query = "UPDATE proyecto343.TBL_MANTENIMIENTO_E SET id_equipo=?, fecha_mantenimiento=?, detalle=?, tecnico_responsable=? " +
                        "WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -88,7 +88,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM TBL_MANTENIMIENTO_E WHERE id_mantenimiento=?";
+        String query = "DELETE FROM proyecto343.TBL_MANTENIMIENTO_E WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -106,7 +106,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_mantenimiento FROM TBL_MANTENIMIENTO_E WHERE id_mantenimiento=?";
+        String query = "SELECT id_mantenimiento FROM proyecto343.TBL_MANTENIMIENTO_E WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -119,7 +119,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
     }
  // Método para actualizar el estado de un equipo
     public void actualizarEstadoEquipo(int idEquipo, String estado) {
-        String sql = "UPDATE TBL_EQUIPO SET estado = ? WHERE id_equipo = ?";
+        String sql = "UPDATE proyecto343.TBL_EQUIPO SET estado = ? WHERE id_equipo = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, estado);  // Establecer el nuevo estado del equipo
             pstmt.setInt(2, idEquipo);   // Establecer el ID del equipo a actualizar
@@ -132,7 +132,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
     // Método para obtener los equipos disponibles
     public ArrayList<Integer> obtenerEquiposDisponibles() {
         ArrayList<Integer> equiposDisponibles = new ArrayList<>();
-        String query = "SELECT id_equipo FROM TBL_EQUIPO WHERE estado = 'disponible'";  // Consulta a equipos disponibles
+        String query = "SELECT id_equipo FROM proyecto343.TBL_EQUIPO WHERE estado = 'Disponible'";  // Consulta a equipos disponibles
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -148,7 +148,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
         return equiposDisponibles;
     }
     public boolean estaEnMantenimiento(int idEquipo) {
-        String query = "SELECT estado FROM TBL_EQUIPO WHERE id_equipo = ?";
+        String query = "SELECT estado FROM proyecto343.TBL_EQUIPO WHERE id_equipo = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, idEquipo);
             ResultSet rs = stmt.executeQuery();

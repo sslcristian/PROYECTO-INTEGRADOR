@@ -1,6 +1,5 @@
 package controller;
 
-import data.DBConnection;
 import data.UsuarioDAO;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -36,7 +35,22 @@ public class LoginUserController {
             long cedula = Long.parseLong(txtCedula.getText());
             String contrasena = txtContrasena.getText();
 
-            Connection conn = DBConnection.getInstance().getConnection();
+            // Inicializa la sesión y la conexión SOLO si no existe
+            if (Session.getConnection() == null) {
+                // El 'usuario' es el rol de conexión para este caso
+                boolean sesionIniciada = Session.login(cedula, "usuario");
+                if (!sesionIniciada) {
+                    showAlert("Error de autenticación", "Cédula o contraseña incorrecta.");
+                    return;
+                }
+            }
+
+            Connection conn = Session.getConnection();
+            if (conn == null) {
+                showAlert("Error de conexión", "No se pudo establecer conexión con la base de datos.");
+                return;
+            }
+
             UsuarioDAO dao = new UsuarioDAO(conn);
             Usuario usuario = null;
 
@@ -54,8 +68,6 @@ public class LoginUserController {
                 Parent userMenu = loader.load();
 
                 Stage stage = (Stage) txtCedula.getScene().getWindow();
-                
-                // Mantener el tamaño actual
                 double anchoActual = stage.getWidth();
                 double altoActual = stage.getHeight();
 
@@ -81,4 +93,3 @@ public class LoginUserController {
         alert.showAndWait();
     }
 }
-

@@ -14,7 +14,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public void save(Mantenimiento_Sala mantenimientoSala) {
-        String query = "INSERT INTO TBL_MANTENIMIENTO_S (id_mantenimiento, id_sala, fecha_mantenimiento, detalle, tecnico_responsable) " +
+        String query = "INSERT INTO proyecto343.TBL_MANTENIMIENTO_S (id_mantenimiento, id_sala, fecha_mantenimiento, detalle, tecnico_responsable) " +
                        "VALUES (SEQ_MANTENIMIENTO_S.NEXTVAL, ?, ?, ?, ?)";
         String[] returnCols = { "id_mantenimiento" };
 
@@ -46,7 +46,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
     @Override
     public ArrayList<Mantenimiento_Sala> fetch() {
         ArrayList<Mantenimiento_Sala> mantenimientos = new ArrayList<>();
-        String query = "SELECT * FROM TBL_MANTENIMIENTO_S";
+        String query = "SELECT * FROM proyecto343.TBL_MANTENIMIENTO_S";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -71,7 +71,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public void update(Mantenimiento_Sala mantenimientoSala) {
-        String query = "UPDATE TBL_MANTENIMIENTO_S SET id_sala=?, fecha_mantenimiento=?, detalle=?, tecnico_responsable=? " +
+        String query = "UPDATE proyecto343.TBL_MANTENIMIENTO_S SET id_sala=?, fecha_mantenimiento=?, detalle=?, tecnico_responsable=? " +
                        "WHERE id_mantenimiento=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -94,7 +94,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
     @Override
     public void delete(Integer id) {
         // Primero obtenemos el id de la sala asociada al mantenimiento a eliminar
-        String query = "SELECT id_sala FROM TBL_MANTENIMIENTO_S WHERE id_mantenimiento = ?";
+        String query = "SELECT id_sala FROM proyecto343.TBL_MANTENIMIENTO_S WHERE id_mantenimiento = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
             ResultSet rs = pstmt.executeQuery();
@@ -103,7 +103,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
                 int idSala = rs.getInt("id_sala");
 
                 // Eliminamos el mantenimiento
-                String deleteQuery = "DELETE FROM TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?";
+                String deleteQuery = "DELETE FROM proyecto343.TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?";
                 try (PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery)) {
                     deleteStmt.setInt(1, id);
                     int rowsAffected = deleteStmt.executeUpdate();
@@ -124,7 +124,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_mantenimiento FROM TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?" ;
+        String query = "SELECT id_mantenimiento FROM proyecto343.TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?" ;
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -138,7 +138,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
     }
 
     public void actualizarEstadoSala(int idSala, String estado) {
-        String sql = "UPDATE TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
+        String sql = "UPDATE proyecto343.TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, estado);   // Establecer el nuevo estado de la sala
             pstmt.setInt(2, idSala);      // Establecer el ID de la sala a actualizar
@@ -151,7 +151,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     public ArrayList<Integer> obtenerSalasDisponibles() {
         ArrayList<Integer> salasDisponibles = new ArrayList<>();
-        String query = "SELECT id_sala FROM TBL_SALA_INFORMATICA WHERE estado = 'disponible'";  // Consulta a salas disponibles
+        String query = "SELECT id_sala FROM proyecto343.TBL_SALA_INFORMATICA WHERE estado = 'disponible'";  // Consulta a salas disponibles
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -167,7 +167,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
         return salasDisponibles;
     }
     public boolean estaEnMantenimientoOcupada(int idSala) {
-        String query = "SELECT estado FROM TBL_SALA_INFORMATICA WHERE id_sala = ?";
+        String query = "SELECT estado FROM proyecto343.TBL_SALA_INFORMATICA WHERE id_sala = ?";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, idSala);
             ResultSet rs = stmt.executeQuery();

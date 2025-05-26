@@ -1,4 +1,3 @@
-
 package controller;
 
 import data.DBConnection;
@@ -8,6 +7,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import model.Usuario;
+import model.Session; // Importa la sesión de usuario
 
 import java.sql.Connection;
 import java.util.regex.Pattern;
@@ -37,7 +37,6 @@ public class RegisterUserController {
                 return;
             }
 
-
             if (!isNumeric(txtTelefono.getText()) || txtTelefono.getText().length() < 7) {
                 mostrarAlerta("Teléfono inválido", "El teléfono debe contener solo números y al menos 7 dígitos.");
                 return;
@@ -59,7 +58,8 @@ public class RegisterUserController {
                 return;
             }
 
-            Connection conn = DBConnection.getInstance().getConnection();
+            // Usa la conexión de la sesión de usuario (NO la de admin)
+            Connection conn = Session.getConnection();
             UsuarioDAO dao = new UsuarioDAO(conn);
 
             if (dao.correoExiste(correo)) {

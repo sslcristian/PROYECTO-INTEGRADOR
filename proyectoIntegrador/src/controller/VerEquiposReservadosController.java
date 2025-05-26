@@ -1,7 +1,6 @@
 package controller;
 
 import application.Main;
-import data.DBConnection;
 import data.EquipoPrestadoDAO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -14,6 +13,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.KeyCode;
 import model.EquipoPrestado;
+import model.Session; // Para la sesión admin
 
 import java.sql.Connection;
 import java.sql.Timestamp;
@@ -30,7 +30,8 @@ public class VerEquiposReservadosController {
     @FXML private Button btnActualizar;
     @FXML private Button btnVolver;
 
-    private final Connection connection = DBConnection.getInstance().getConnection();
+    // Usa la conexión de la sesión admin
+    private final Connection connection = Session.getConnection();
     private final EquipoPrestadoDAO equipoPrestadoDAO = new EquipoPrestadoDAO(connection);
     private final ObservableList<EquipoPrestado> equipoReservadoList = FXCollections.observableArrayList();
 

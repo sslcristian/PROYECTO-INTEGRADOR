@@ -1,6 +1,5 @@
 package controller;
 
-import data.DBConnection;
 import data.SalaInformaticaDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +15,7 @@ import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 import model.SalaInformatica;
 import model.FXUtils;
+import model.Session; // <--- Importa la clase Session para manejar la sesión admin
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -32,10 +32,11 @@ public class GestionarSalasController {
     @FXML private TableColumn<SalaInformatica, String> estadoColumn;
     @FXML private ComboBox<String> ubicacionComboBox;
     @FXML private TextField idSalaField, nombreField, capacidadField, softwareField, hardwareField;
-    @FXML private ComboBox<String> estadoComboBox; // Cambio de TextField a ComboBox
+    @FXML private ComboBox<String> estadoComboBox;
     @FXML private Button btnAdd, btnUpdate, btnDelete, btnFetch, btnBack;
 
-    private final Connection connection = DBConnection.getInstance().getConnection();
+    // Usa la conexión de la sesión admin
+    private final Connection connection = Session.getConnection();
     private final SalaInformaticaDAO salaDAO = new SalaInformaticaDAO(connection);
     private final ObservableList<SalaInformatica> salaList = FXCollections.observableArrayList();
 
@@ -54,10 +55,10 @@ public class GestionarSalasController {
 
         // Configuración del ComboBox para el estado
         estadoComboBox.setItems(FXCollections.observableArrayList("Disponible", "Ocupada", "Mantenimiento"));
-        estadoComboBox.getSelectionModel().selectFirst();  // Seleccionar "Disponible" por defecto
+        estadoComboBox.getSelectionModel().selectFirst();
         ubicacionComboBox.setItems(FXCollections.observableArrayList("JLB", "EF", "SB", "DC", "CLLE", "ES", "DB"));
         ubicacionComboBox.getSelectionModel().selectFirst();
-        // Mostrar los datos de la sala seleccionada en los campos de texto
+
         salaTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
                 idSalaField.setText(String.valueOf(newSel.getIdSala()));
@@ -66,8 +67,7 @@ public class GestionarSalasController {
                 softwareField.setText(newSel.getSoftwareDisponible());
                 hardwareField.setText(newSel.getHardwareEspecial());
                 ubicacionComboBox.setValue(newSel.getUbicacion());
-                estadoComboBox.setValue(newSel.getEstado());  // Asignar el estado desde la sala seleccionada
-             
+                estadoComboBox.setValue(newSel.getEstado());
             }
         });
 
@@ -107,23 +107,17 @@ public class GestionarSalasController {
             int capacidad = Integer.parseInt(capacidadField.getText());
             String software = softwareField.getText().trim();
             String hardware = hardwareField.getText().trim();
-            String ubicacion = ubicacionComboBox.getValue();  // sin toLowerCase
+            String ubicacion = ubicacionComboBox.getValue();
+            String estado = estadoComboBox.getValue().toLowerCase();
 
-
-            String estado = estadoComboBox.getValue().toLowerCase();  // Convertir a minúsculas
-
-
-            // Validar que el estado sea uno de los valores permitidos
             if (estado == null || estado.isEmpty()) {
                 showAlert(Alert.AlertType.WARNING, "Estado inválido", "El estado debe ser 'Disponible', 'Ocupada' o 'Mantenimiento'.");
                 return;
             }
-
             if (nombre.isEmpty() || estado.isEmpty()) {
                 showAlert(Alert.AlertType.WARNING, "Campos vacíos", "Nombre y estado son obligatorios.");
                 return;
             }
-
             if (salaDAO.exists(idSala)) {
                 showAlert(Alert.AlertType.WARNING, "ID duplicado", "Ya existe una sala con ese ID.");
                 return;
@@ -153,7 +147,6 @@ public class GestionarSalasController {
             salaSeleccionada.setHardwareEspecial(hardwareField.getText().trim());
             salaSeleccionada.setUbicacion(ubicacionComboBox.getValue());
             salaSeleccionada.setEstado(estadoComboBox.getValue().toLowerCase());
-
 
             salaDAO.update(salaSeleccionada);
             fetchSalas();
@@ -187,7 +180,6 @@ public class GestionarSalasController {
             Parent root = loader.load();
             stage.setScene(new Scene(root));
 
-            // Mantener el tamaño anterior
             stage.setWidth(currentWidth);
             stage.setHeight(currentHeight);
 
@@ -204,9 +196,9 @@ public class GestionarSalasController {
         softwareField.clear();
         hardwareField.clear();
         ubicacionComboBox.getSelectionModel().selectFirst();
-        estadoComboBox.getSelectionModel().selectFirst();  // Restablecer a "Disponible"
-        idSalaField.setDisable(false);  // Habilitar el campo ID para nuevas salas
-        salaTable.getSelectionModel().clearSelection();  // Limpiar la selección de la tabla
+        estadoComboBox.getSelectionModel().selectFirst();
+        idSalaField.setDisable(false);
+        salaTable.getSelectionModel().clearSelection();
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

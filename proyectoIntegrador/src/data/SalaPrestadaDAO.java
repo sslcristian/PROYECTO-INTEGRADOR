@@ -15,7 +15,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     }
 
     public void save(SalaPrestada salaPrestada) {
-        String query = "INSERT INTO TBL_SALA_PRESTADA " +
+        String query = "INSERT INTO proyecto343.TBL_SALA_PRESTADA " +
                        "(id_prestamo_s, id_solicitud_s, id_sala, fecha_inicio, fecha_fin, observaciones) " +
                        "VALUES (seq_id_prestamo_s.NEXTVAL, NULL, ?, ?, ?, ?)";
 
@@ -42,7 +42,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     @Override
     public ArrayList<SalaPrestada> fetch() {
         ArrayList<SalaPrestada> salasPrestadas = new ArrayList<>();
-        String query = "SELECT * FROM TBL_SALA_PRESTADA WHERE fecha_fin >= SYSDATE";
+        String query = "SELECT * FROM proyecto343.TBL_SALA_PRESTADA WHERE fecha_fin >= SYSDATE";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -68,7 +68,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     }
     public ArrayList<SalaPrestada> fetchTodas() {
         ArrayList<SalaPrestada> salasPrestadas = new ArrayList<>();
-        String query = "SELECT * FROM TBL_SALA_PRESTADA";
+        String query = "SELECT * FROM proyecto343.TBL_SALA_PRESTADA";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -92,7 +92,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     }
     public List<SalaPrestadaConCedula> fetchConCedulaUsuario() {
         List<SalaPrestadaConCedula> lista = new ArrayList<>();
-        String query = "SELECT sp.*, s.cedula_usuario FROM TBL_SALA_PRESTADA sp " +
+        String query = "SELECT sp.*, s.cedula_usuario FROM proyecto343.TBL_SALA_PRESTADA sp " +
                        "JOIN TBL_SOLICITUD s ON sp.id_solicitud_s = s.id_solicitud " +
                        "WHERE sp.fecha_fin >= SYSDATE";
         try (Statement stmt = connection.createStatement();
@@ -119,7 +119,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     }
     @Override
     public void update(SalaPrestada salaPrestada) {
-        String query = "UPDATE TBL_SALA_PRESTADA SET id_solicitud_s=?, id_sala=?, fecha_inicio=?, fecha_fin=?, observaciones=? WHERE id_prestamo_s=?";
+        String query = "UPDATE proyecto343.TBL_SALA_PRESTADA SET id_solicitud_s=?, id_sala=?, fecha_inicio=?, fecha_fin=?, observaciones=? WHERE id_prestamo_s=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, salaPrestada.getIdSolicitudS());
@@ -141,7 +141,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM TBL_SALA_PRESTADA WHERE id_prestamo_s=?";
+        String query = "DELETE FROM proyecto343.TBL_SALA_PRESTADA WHERE id_prestamo_s=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -157,7 +157,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_prestamo_s FROM TBL_SALA_PRESTADA WHERE id_prestamo_s=?";
+        String query = "SELECT id_prestamo_s FROM proyecto343.TBL_SALA_PRESTADA WHERE id_prestamo_s=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -172,7 +172,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
     public List<SalaPrestada> obtenerHistorialSalas() throws SQLException {
         List<SalaPrestada> historial = new ArrayList<>();
-        String query = "SELECT * FROM TBL_SALA_PRESTADA ORDER BY fecha_inicio DESC";
+        String query = "SELECT * FROM proyecto343.TBL_SALA_PRESTADA ORDER BY fecha_inicio DESC";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -208,7 +208,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     public List<SalaPrestada> obtenerHistorialSalasPorFecha(Date fechaInicio, Date fechaFin) {
         List<SalaPrestada> historialSalas = new ArrayList<>();
         String sql = "SELECT id_prestamo_s, id_solicitud_s, id_sala, fecha_inicio, fecha_fin, observaciones " +
-                     "FROM TBL_SALA_PRESTADA WHERE fecha_inicio >= ? AND fecha_fin <= ?";
+                     "FROM proyecto343.TBL_SALA_PRESTADA WHERE fecha_inicio >= ? AND fecha_fin <= ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setDate(1, fechaInicio);
@@ -234,7 +234,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     }
 
     public boolean existeConflictoHorario(int idSala, Date nuevoFechaInicio, Date nuevoFechaFin) {
-        String sql = "SELECT COUNT(*) FROM TBL_SALA_PRESTADA "
+        String sql = "SELECT COUNT(*) FROM proyecto343.TBL_SALA_PRESTADA "
                    + "WHERE id_sala = ? "
                    + "AND fecha_inicio < ? "  // inicio existente < fin nuevo
                    + "AND fecha_fin > ?";     // fin existente > inicio nuevo

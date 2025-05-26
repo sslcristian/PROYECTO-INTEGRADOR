@@ -15,7 +15,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public void save(EquipoPrestado equipoPrestado) {
-        String query = "INSERT INTO TBL_EQUIPO_PRESTADO (id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones) " +
+        String query = "INSERT INTO proyecto343.TBL_EQUIPO_PRESTADO (id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones) " +
                        "VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -38,7 +38,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
     @Override
     public ArrayList<EquipoPrestado> fetch() {
         ArrayList<EquipoPrestado> equipoPrestados = new ArrayList<>();
-        String query = "SELECT id_prestamo_e, id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones FROM TBL_EQUIPO_PRESTADO";
+        String query = "SELECT id_prestamo_e, id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones FROM proyecto343.TBL_EQUIPO_PRESTADO";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -66,7 +66,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public void update(EquipoPrestado equipoPrestado) {
-        String query = "UPDATE TBL_EQUIPO_PRESTADO SET id_solicitud_e=?, id_equipo=?, fecha_inicio=?, fecha_fin=?, observaciones=? " +
+        String query = "UPDATE proyecto343.TBL_EQUIPO_PRESTADO SET id_solicitud_e=?, id_equipo=?, fecha_inicio=?, fecha_fin=?, observaciones=? " +
                        "WHERE id_prestamo_e=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -91,7 +91,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM TBL_EQUIPO_PRESTADO WHERE id_prestamo_e=?";
+        String query = "DELETE FROM proyecto343.TBL_EQUIPO_PRESTADO WHERE id_prestamo_e=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -109,7 +109,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_prestamo_e FROM TBL_EQUIPO_PRESTADO WHERE id_prestamo_e=?";
+        String query = "SELECT id_prestamo_e FROM proyecto343.TBL_EQUIPO_PRESTADO WHERE id_prestamo_e=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, id);
@@ -123,7 +123,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
     }
     public List<EquipoPrestado> obtenerHistorialEquipos() throws SQLException {
         List<EquipoPrestado> historial = new ArrayList<>();
-        String query = "SELECT * FROM TBL_EQUIPO_PRESTADO ORDER BY fecha_inicio DESC";
+        String query = "SELECT * FROM proyecto343.TBL_EQUIPO_PRESTADO ORDER BY fecha_inicio DESC";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -143,7 +143,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
         return historial;}
     public List<EquipoPrestado> obtenerHistorialEquiposPorFecha(Timestamp desde, Timestamp hasta) throws SQLException {
         List<EquipoPrestado> historialFiltrado = new ArrayList<>();
-        String query = "SELECT * FROM TBL_EQUIPO_PRESTADO WHERE fecha_inicio BETWEEN ? AND ? ORDER BY fecha_inicio DESC";
+        String query = "SELECT * FROM proyecto343.TBL_EQUIPO_PRESTADO WHERE fecha_inicio BETWEEN ? AND ? ORDER BY fecha_inicio DESC";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setTimestamp(1, desde);

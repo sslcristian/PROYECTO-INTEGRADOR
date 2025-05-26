@@ -13,7 +13,7 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
 
     @Override
     public void save(Devolucion devolucion) {
-        String query = "INSERT INTO TBL_DEVOLUCION (id_devolucion, id_solicitud, fecha_devolucion, hora_devolucion, estado_recurso, observaciones) " +
+        String query = "INSERT INTO proyecto343.TBL_DEVOLUCION (id_devolucion, id_solicitud, fecha_devolucion, hora_devolucion, estado_recurso, observaciones) " +
                        "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -36,7 +36,7 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
     @Override
     public ArrayList<Devolucion> fetch() {
         ArrayList<Devolucion> devoluciones = new ArrayList<>();
-        String query = "SELECT * FROM TBL_DEVOLUCION";
+        String query = "SELECT * FROM proyecto343.TBL_DEVOLUCION";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -61,7 +61,7 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
 
     @Override
     public void update(Devolucion devolucion) {
-        String sql = "UPDATE TBL_DEVOLUCION SET fecha_devolucion=?, hora_devolucion=?, estado_recurso=?, observaciones=? WHERE id_devolucion=?";
+        String sql = "UPDATE proyecto343.TBL_DEVOLUCION SET fecha_devolucion=?, hora_devolucion=?, estado_recurso=?, observaciones=? WHERE id_devolucion=?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setDate(1, devolucion.getFechaDevolucion());
             stmt.setTime(2, devolucion.getHoraDevolucion());
@@ -76,7 +76,7 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
 
     @Override
     public void delete(Integer id) {
-        String sql = "DELETE FROM TBL_DEVOLUCION WHERE id_devolucion=?";
+        String sql = "DELETE FROM proyecto343.TBL_DEVOLUCION WHERE id_devolucion=?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             int rowsAffected = stmt.executeUpdate();
@@ -92,7 +92,7 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
 
     @Override
     public boolean authenticate(Integer id) {
-        String sql = "SELECT id_devolucion FROM TBL_DEVOLUCION WHERE id_devolucion=?";
+        String sql = "SELECT id_devolucion FROM proyecto343.TBL_DEVOLUCION WHERE id_devolucion=?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();

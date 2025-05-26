@@ -20,7 +20,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
             return;
         }
 
-        String insertQuery = "INSERT INTO TBL_SALA_INFORMATICA " +
+        String insertQuery = "INSERT INTO proyecto343.TBL_SALA_INFORMATICA " +
                 "(id_sala, nombre_sala, capacidad, software_disponible, hardware_especial, ubicacion, estado) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -42,7 +42,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public void actualizarEstadoSegunReservas(int idSala) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM TBL_SALA_PRESTADA "
+        String sql = "SELECT COUNT(*) FROM proyecto343.TBL_SALA_PRESTADA "
                    + "WHERE id_sala = ? "
                    + "AND SYSDATE BETWEEN fecha_inicio AND fecha_fin";
 
@@ -64,7 +64,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
 
     public boolean actualizarEstadoSala(int idSala, String estado) {
-        String sql = "UPDATE TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
+        String sql = "UPDATE proyecto343.TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, estado);
             ps.setInt(2, idSala);
@@ -79,7 +79,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     @Override
     public ArrayList<SalaInformatica> fetch() {
         ArrayList<SalaInformatica> salas = new ArrayList<>();
-        String query = "SELECT * FROM TBL_SALA_INFORMATICA";
+        String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query);
              ResultSet rs = pstmt.executeQuery()) {
@@ -105,7 +105,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
     @Override
     public void update(SalaInformatica sala) {
-        String query = "UPDATE TBL_SALA_INFORMATICA SET nombre_sala=?, capacidad=?, software_disponible=?, hardware_especial=?, ubicacion=?, estado=? WHERE id_sala=?";
+        String query = "UPDATE proyecto343.TBL_SALA_INFORMATICA SET nombre_sala=?, capacidad=?, software_disponible=?, hardware_especial=?, ubicacion=?, estado=? WHERE id_sala=?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setString(1, sala.getNombreSala());
@@ -128,7 +128,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
     @Override
     public void delete(Integer idSala) {
-        String query = "DELETE FROM TBL_SALA_INFORMATICA WHERE id_sala = ?";
+        String query = "DELETE FROM proyecto343.TBL_SALA_INFORMATICA WHERE id_sala = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, idSala);
@@ -148,7 +148,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public boolean exists(Integer idSala) {
-        String query = "SELECT 1 FROM TBL_SALA_INFORMATICA WHERE id_sala = ?";
+        String query = "SELECT 1 FROM proyecto343.TBL_SALA_INFORMATICA WHERE id_sala = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, idSala);
@@ -163,7 +163,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public SalaInformatica findById(int idSala) {
-        String query = "SELECT * FROM TBL_SALA_INFORMATICA WHERE id_sala = ?";
+        String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA WHERE id_sala = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, idSala);
             try (ResultSet rs = pstmt.executeQuery()) {

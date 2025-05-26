@@ -1,7 +1,7 @@
 package controller;
 
 import data.AdminDAO;
-import data.DBConnection;
+import data.DBConnectionFactory;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,6 +11,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import model.Admin;
+import model.Session;
 
 import java.sql.Connection;
 
@@ -36,7 +37,8 @@ public class LoginAdminController {
                 return;
             }
 
-            Connection conn = DBConnection.getInstance().getConnection();
+            // 1. Usa la conexión de admin para validar el admin
+            Connection conn = DBConnectionFactory.getConnectionByRole("admin").getConnection();
             AdminDAO dao = new AdminDAO(conn);
 
             Admin admin = dao.findByCedula(cedula);
@@ -46,21 +48,22 @@ public class LoginAdminController {
             } else if (!admin.getContraseñaAdministrativo().equals(contrasena)) {
                 mostrarAlerta("Contraseña incorrecta", "La contraseña ingresada no es correcta.");
             } else {
-              
+                // 2. Si las credenciales son correctas, inicializa la sesión de admin
+                Session.login(cedula, "admin");
 
+                // 3. Cambia de pantalla
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
-                Parent userMenu = loader.load();
+                Parent adminMenu = loader.load();
 
                 Stage stage = (Stage) txtCedula.getScene().getWindow();
-                
+
                 // Mantener el tamaño actual
                 double anchoActual = stage.getWidth();
                 double altoActual = stage.getHeight();
 
-                Scene scene = new Scene(userMenu, anchoActual, altoActual);
+                Scene scene = new Scene(adminMenu, anchoActual, altoActual);
                 stage.setScene(scene);
                 stage.show();
-
             }
 
         } catch (NumberFormatException e) {

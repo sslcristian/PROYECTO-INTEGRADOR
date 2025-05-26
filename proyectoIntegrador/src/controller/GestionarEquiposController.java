@@ -1,6 +1,5 @@
 package controller;
 
-import data.DBConnection;
 import data.EquipoAudiovisualDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +15,7 @@ import model.FXUtils;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import model.Session; // Importa la clase Session para manejar la sesión admin
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -52,7 +52,8 @@ public class GestionarEquiposController {
     @FXML private Button btnFetch;
     @FXML private Button btnBack;
 
-    private final Connection connection = DBConnection.getInstance().getConnection();
+    // Usa la conexión de la sesión admin
+    private final Connection connection = Session.getConnection();
     private final EquipoAudiovisualDAO equipoDAO = new EquipoAudiovisualDAO(connection);
     private final ObservableList<EquipoAudiovisual> equipoList = FXCollections.observableArrayList();
 

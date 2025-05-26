@@ -1,7 +1,6 @@
 package controller;
 
 import application.Main;
-import data.DBConnection;
 import data.SalaPrestadaDAO;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -10,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import model.SalaPrestada;
+import model.Session; // Importa la clase Session para obtener la conexión admin
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -31,7 +31,8 @@ public class ReservasSalasController {
     @FXML private Button btnMostrarTodo;
     @FXML private Button btnVolver;
 
-    private final Connection connection = DBConnection.getInstance().getConnection();
+    // Usa la conexión admin de la sesión activa
+    private final Connection connection = Session.getConnection();
     private final SalaPrestadaDAO salaPrestadaDAO = new SalaPrestadaDAO(connection);
     private final ObservableList<SalaPrestada> historialSalasList = FXCollections.observableArrayList();
 

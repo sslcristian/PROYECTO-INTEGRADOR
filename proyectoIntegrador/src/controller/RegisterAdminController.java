@@ -1,12 +1,14 @@
 package controller;
 
 import data.AdminDAO;
+import data.DBConnectionFactory;
 import data.DBConnection;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import model.Admin;
+import model.Session;
 
 import java.sql.Connection;
 
@@ -25,7 +27,6 @@ public class RegisterAdminController {
     @FXML
     private void registrarAdmin() {
         try {
-         
             if (txtCedula.getText().isEmpty() || txtNombre.getText().isEmpty() || txtCorreo.getText().isEmpty()
                     || txtTelefono.getText().isEmpty() || txtContrasenaAdmin.getText().isEmpty()
                     || txtDepartamento.getText().isEmpty() || txtContrasenaAdministrativo.getText().isEmpty()) {
@@ -33,13 +34,12 @@ public class RegisterAdminController {
                 return;
             }
             String cedulaTexto = txtCedula.getText();
-            
-         
+
             if (cedulaTexto.length() > 12) {
                 showAlert("Cédula inválida", "La cédula no puede tener más de 12 dígitos.");
                 return;
             }
-         
+
             long cedula;
             try {
                 cedula = Long.parseLong(txtCedula.getText());
@@ -48,21 +48,18 @@ public class RegisterAdminController {
                 return;
             }
 
-     
             String telefono = txtTelefono.getText();
             if (!telefono.matches("\\d{7,15}")) {
                 showAlert("Teléfono inválido", "El número de teléfono debe contener entre 7 y 15 dígitos.");
                 return;
             }
 
-     
             String correo = txtCorreo.getText();
             if (!correo.matches("^[\\w-.]+@udi\\.edu\\.co$")) {
                 showAlert("Correo inválido", "El correo debe ser institucional y terminar en @udi.edu.co.");
                 return;
             }
 
-         
             String contrasenaAdmin = txtContrasenaAdmin.getText();
             if (!CONTRASENA_ADMIN_VALIDA.equals(contrasenaAdmin)) {
                 showAlert("Error", "Contraseña de administradores incorrecta.");
@@ -71,12 +68,23 @@ public class RegisterAdminController {
 
             String nombre = txtNombre.getText();
             String departamento = txtDepartamento.getText();
-            String contrasenaAdministrativo = txtContrasenaAdministrativo.getText(); // sin hash
+            String contrasenaAdministrativo = txtContrasenaAdministrativo.getText();
 
-            Connection conn = DBConnection.getInstance().getConnection();
+            // Obtener conexión como admin SIEMPRE, aunque no haya sesión activa
+            Connection conn = Session.getConnection();
+            if (conn == null) {
+                DBConnection dbConnAdmin = DBConnectionFactory.getConnectionByRole("admin");
+                if (dbConnAdmin != null) {
+                    conn = dbConnAdmin.getConnection();
+                }
+            }
+            if (conn == null) {
+                showAlert("Error de conexión", "No se pudo establecer una conexión como administrador.");
+                return;
+            }
+
             AdminDAO dao = new AdminDAO(conn);
 
-       
             if (dao.exists(cedula)) {
                 showAlert("Error", "La cédula ya está registrada.");
                 return;
@@ -87,7 +95,6 @@ public class RegisterAdminController {
                 return;
             }
 
-       
             Admin admin = new Admin(cedula, nombre, correo, telefono, contrasenaAdmin, departamento, contrasenaAdministrativo);
             dao.save(admin);
 

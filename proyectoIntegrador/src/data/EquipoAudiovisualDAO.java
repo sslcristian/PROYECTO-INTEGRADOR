@@ -14,7 +14,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
     @Override
     public void save(EquipoAudiovisual equipo) {
-        String query = "INSERT INTO TBL_EQUIPO (id_equipo, nombre, tipo, estado, ubicacion, marca, modelo, fecha_adquisicion) " +
+        String query = "INSERT INTO proyecto343.TBL_EQUIPO (id_equipo, nombre, tipo, estado, ubicacion, marca, modelo, fecha_adquisicion) " +
                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
@@ -42,7 +42,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
     @Override
     public ArrayList<EquipoAudiovisual> fetch() {
         ArrayList<EquipoAudiovisual> equipos = new ArrayList<>();
-        String query = "SELECT * FROM TBL_EQUIPO";
+        String query = "SELECT * FROM proyecto343.TBL_EQUIPO";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -70,7 +70,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
     @Override
     public void update(EquipoAudiovisual equipo) {
-        String sql = "UPDATE TBL_EQUIPO SET nombre=?, tipo=?, estado=?, ubicacion=?, marca=?, modelo=?, fecha_adquisicion=? WHERE id_equipo=?";
+        String sql = "UPDATE proyecto343.TBL_EQUIPO SET nombre=?, tipo=?, estado=?, ubicacion=?, marca=?, modelo=?, fecha_adquisicion=? WHERE id_equipo=?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, equipo.getNombre());
@@ -92,7 +92,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
     @Override
     public void delete(Integer id) {
-        String sql = "DELETE FROM TBL_EQUIPO WHERE id_equipo=?";
+        String sql = "DELETE FROM proyecto343.TBL_EQUIPO WHERE id_equipo=?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -110,7 +110,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
     @Override
     public boolean authenticate(Integer id) {
-        String sql = "SELECT id_equipo FROM TBL_EQUIPO WHERE id_equipo=?";
+        String sql = "SELECT id_equipo FROM proyecto343.TBL_EQUIPO WHERE id_equipo=?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);

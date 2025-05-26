@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
-import data.DBConnection;
+import model.Session; // Usando Session para mantener sesión admin
 
 import java.io.IOException;
 import java.net.URL;
@@ -20,13 +20,16 @@ public class ControlMantenimientoController {
     @FXML
     private Button irMantenimientoEquipo;
 
-    // Conexión a la base de datos
+    // Conexión a la base de datos para ADMIN
     private Connection connection;
 
     @FXML
     public void initialize() {
-        // Obtén la conexión usando el Singleton DBConnection
-        this.connection = DBConnection.getInstance().getConnection();
+        // Usa la conexión de la sesión activa (admin)
+        this.connection = Session.getConnection();
+        if (this.connection == null) {
+            System.err.println("❌ Error: No hay sesión activa de admin. Debes iniciar sesión como admin antes de usar este módulo.");
+        }
     }
 
     @FXML
@@ -46,7 +49,7 @@ public class ControlMantenimientoController {
         }
 
         if (connection == null) {
-            System.err.println("❌ Error: La conexión a la base de datos es NULL.");
+            System.err.println("❌ Error: La conexión a la base de datos es NULL o no se ha iniciado sesión como admin.");
             return;
         }
 
@@ -62,12 +65,12 @@ public class ControlMantenimientoController {
 
             if (fxmlPath.contains("MantenimientoEquipo.fxml")) {
                 MantenimientoEquipoController controller = loader.getController();
-                controller.init(connection);
+                controller.init(connection); // Inyecta la conexión de admin
             }
 
             if (fxmlPath.contains("MantenimientoSala.fxml")) {
                 MantenimientoSalaController controller = loader.getController();
-                controller.init(connection);
+                controller.init(connection); // Inyecta la conexión de admin
             }
 
             Stage stage = (Stage) boton.getScene().getWindow();

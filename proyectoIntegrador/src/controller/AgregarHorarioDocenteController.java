@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 
-import data.DBConnection;
 import data.ExcelService;
 import data.SalaPrestadaDAO;
 import javafx.collections.FXCollections;
@@ -26,27 +25,31 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.SalaPrestada;
+import model.Session; // Importa la clase Session para gestionar sesión admin
 
 public class AgregarHorarioDocenteController {
 
     @FXML private Button botonCargar, botonEliminar, botonRegistrar, btnVolverMenu;
 
-    @FXML private TableColumn<SalaPrestada, Integer>  columnIdSala1;
-    @FXML private TableColumn<SalaPrestada, String>  columnObservaciones1;
+    @FXML private TableColumn<SalaPrestada, Integer> columnIdSala1;
+    @FXML private TableColumn<SalaPrestada, String> columnObservaciones1;
     @FXML private TableColumn<SalaPrestada, Date> columnFechaInicio1, columnFechaFin1;
+
     @FXML private TableColumn<SalaPrestada, Integer> columnIdSala;
-    @FXML private TableColumn<SalaPrestada, String>  columnObservaciones;
+    @FXML private TableColumn<SalaPrestada, String> columnObservaciones;
     @FXML private TableColumn<SalaPrestada, Date> columnFechaInicio, columnFechaFin;
+
     @FXML private TableView<SalaPrestada> tableProductos, tableTemplate;
 
-    private final Connection connection = DBConnection.getInstance().getConnection();
+    // Usa la conexión de la sesión admin
+    private final Connection connection = Session.getConnection();
     private final SalaPrestadaDAO salaPrestadaDAO = new SalaPrestadaDAO(connection);
 
     @FXML
     public void initialize() {
         cargarDatosTablaPrincipal();
         configurarColumnasTablaPrincipal();
-        configurarColumnasTemplate();   
+        configurarColumnasTemplate();
     }
 
     // Configura columnas de la tabla principal (base de datos)
@@ -54,39 +57,34 @@ public class AgregarHorarioDocenteController {
         columnIdSala1.setCellValueFactory(new PropertyValueFactory<>("idSala"));
         columnObservaciones1.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
 
-        // Formato completo con hora
         SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         // Fecha Inicio
         columnFechaInicio1.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
-        columnFechaInicio1.setCellFactory(column -> {
-            return new TableCell<SalaPrestada, Date>() {
-                @Override
-                protected void updateItem(Date item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText("");
-                    } else {
-                        setText(formatoCompleto.format(item));
-                    }
+        columnFechaInicio1.setCellFactory(column -> new TableCell<SalaPrestada, Date>() {
+            @Override
+            protected void updateItem(Date item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(formatoCompleto.format(item));
                 }
-            };
+            }
         });
 
         // Fecha Fin
         columnFechaFin1.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
-        columnFechaFin1.setCellFactory(column -> {
-            return new TableCell<SalaPrestada, Date>() {
-                @Override
-                protected void updateItem(Date item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText("");
-                    } else {
-                        setText(formatoCompleto.format(item));
-                    }
+        columnFechaFin1.setCellFactory(column -> new TableCell<SalaPrestada, Date>() {
+            @Override
+            protected void updateItem(Date item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(formatoCompleto.format(item));
                 }
-            };
+            }
         });
     }
 
@@ -94,39 +92,34 @@ public class AgregarHorarioDocenteController {
         columnIdSala.setCellValueFactory(new PropertyValueFactory<>("idSala"));
         columnObservaciones.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
 
-        // Asegúrate de tener este formato declarado aquí
         SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         // Fecha Inicio
         columnFechaInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
-        columnFechaInicio.setCellFactory(column -> {
-            return new TableCell<SalaPrestada, Date>() {
-                @Override
-                protected void updateItem(Date item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText("");
-                    } else {
-                        setText(formatoCompleto.format(item));
-                    }
+        columnFechaInicio.setCellFactory(column -> new TableCell<SalaPrestada, Date>() {
+            @Override
+            protected void updateItem(Date item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(formatoCompleto.format(item));
                 }
-            };
+            }
         });
 
         // Fecha Fin
         columnFechaFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
-        columnFechaFin.setCellFactory(column -> {
-            return new TableCell<SalaPrestada, Date>() {
-                @Override
-                protected void updateItem(Date item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText("");
-                    } else {
-                        setText(formatoCompleto.format(item));
-                    }
+        columnFechaFin.setCellFactory(column -> new TableCell<SalaPrestada, Date>() {
+            @Override
+            protected void updateItem(Date item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(formatoCompleto.format(item));
                 }
-            };
+            }
         });
     }
 
@@ -140,9 +133,7 @@ public class AgregarHorarioDocenteController {
     private void registrar() {
         int errores = 0;
 
-        // Usar la tabla correcta (tableTemplate)
         for (SalaPrestada sp : tableTemplate.getItems()) {
-            // Validar conflicto de horario antes de guardar
             boolean conflicto = salaPrestadaDAO.existeConflictoHorario(
                 sp.getIdSala(), sp.getFechaInicio(), sp.getFechaFin());
 
@@ -154,16 +145,15 @@ public class AgregarHorarioDocenteController {
                     "La sala con ID " + sp.getIdSala() + " NO PUEDES RESERVAR SALAS EN LA MISMA HORA "
                     + sp.getFechaInicio() + " y " + sp.getFechaFin() + ". No se registró esta reserva.",
                     Alert.AlertType.WARNING);
-                continue; // Saltar este registro
+                continue;
             }
 
             try {
-                salaPrestadaDAO.save(sp); // Puede lanzar excepción si la sala no existe
+                salaPrestadaDAO.save(sp);
             } catch (Exception e) {
                 errores++;
                 System.err.println("❌ Error al guardar sala prestada: " + sp);
                 e.printStackTrace();
-                // Aquí capturamos el mensaje personalizado del DAO
                 if ("La sala no existe.".equals(e.getMessage())) {
                     mostrarAlerta("Advertencia", "La sala no existe.", Alert.AlertType.WARNING);
                 } else {
@@ -184,9 +174,7 @@ public class AgregarHorarioDocenteController {
                 Alert.AlertType.INFORMATION);
         }
 
-        // Limpiar la tabla temporal
         tableTemplate.getItems().clear();
-        // Recargar la tabla principal desde la base de datos
         cargarDatosTablaPrincipal();
     }
 
@@ -211,9 +199,7 @@ public class AgregarHorarioDocenteController {
         File archivo = fileChooser.showOpenDialog(stage);
 
         if (archivo != null) {
-            // Limpiar la tabla antes de cargar nuevos datos
             tableTemplate.getItems().clear();
-
             ArrayList<SalaPrestada> salasExcel;
             try {
                 salasExcel = ExcelService.fetchExcel(archivo);
@@ -233,6 +219,7 @@ public class AgregarHorarioDocenteController {
     @FXML
     void cerrarSesion(ActionEvent event) {
         try {
+            // Aquí NO cerramos la sesión admin, solo volvemos al menú
             Stage stage = (Stage) btnVolverMenu.getScene().getWindow();
             double currentWidth = stage.getWidth();
             double currentHeight = stage.getHeight();
@@ -240,11 +227,8 @@ public class AgregarHorarioDocenteController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
             Parent root = loader.load();
             stage.setScene(new Scene(root));
-
-            // Mantener el tamaño anterior
             stage.setWidth(currentWidth);
             stage.setHeight(currentHeight);
-
             stage.show();
         } catch (IOException e) {
             mostrarAlerta("No se pudo regresar al menú.", "Error", Alert.AlertType.ERROR);
@@ -264,5 +248,4 @@ public class AgregarHorarioDocenteController {
         alert.setContentText(contenido);
         alert.showAndWait();
     }
-
 }

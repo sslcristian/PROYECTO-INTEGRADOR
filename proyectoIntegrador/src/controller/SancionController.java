@@ -2,7 +2,6 @@ package controller;
 
 import data.SancionDAO;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,7 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import model.Sancion;
-import data.DBConnection;
+import model.Session; // Importar para conexión admin
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -24,7 +23,8 @@ import java.sql.Date;
 
 public class SancionController {
 
-    private final Connection connection = DBConnection.getInstance().getConnection();
+    // Usa la conexión de la sesión admin
+    private final Connection connection = Session.getConnection();
     private final SancionDAO sancionDAO = new SancionDAO(connection);
     private final ObservableList<Sancion> sancionList = FXCollections.observableArrayList();
 
@@ -45,7 +45,6 @@ public class SancionController {
         estadoComboBox.setItems(FXCollections.observableArrayList("Activa", "Inactiva"));
         estadoComboBox.getSelectionModel().selectFirst();
 
-       
         cedulaColumn.setCellValueFactory(cellData -> new SimpleLongProperty(cellData.getValue().getCedulaUsuario()).asObject());
         montoColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getMonto()).asObject());
         motivoColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMotivo()));
