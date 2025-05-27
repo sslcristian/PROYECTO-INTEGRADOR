@@ -7,13 +7,13 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Prestamo {
+public class PrestamoDAO {
     private final Connection connection;
 
-    public Prestamo(Connection connection) {
+    public PrestamoDAO(Connection connection) {
         this.connection = connection;
     }
-
+    
     // Guarda una nueva solicitud usando la secuencia SEQ_TBL_SOLICITUD para el id
     public void save(SolicitudPrestamo solicitud) throws SQLException {
         String sql = "INSERT INTO proyecto343.TBL_SOLICITUD (" +
@@ -109,33 +109,21 @@ public class Prestamo {
         }
     }
 
-    // Lista solo las solicitudes con estado 'Aceptada'
-    public List<SolicitudPrestamo> fetchAceptadas() throws SQLException {
-        List<SolicitudPrestamo> solicitudes = new ArrayList<>();
-        String sql = "SELECT id_solicitud, cedula_usuario, fecha_solicitud, tipo_recurso, detalle_recurso, fecha_uso, hora_inicio, hora_fin, estado FROM proyecto343.TBL_SOLICITUD WHERE estado = 'Aceptada'";
+    public ArrayList<Integer> fetchIdsAceptadas() throws SQLException {
+        ArrayList<Integer> ids = new ArrayList<>();
+        String sql = "SELECT id_solicitud FROM proyecto343.TBL_SOLICITUD WHERE estado = 'Aceptada'";
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
-                SolicitudPrestamo solicitud = new SolicitudPrestamo(
-                        rs.getInt("id_solicitud"),
-                        rs.getLong("cedula_usuario"),
-                        rs.getDate("fecha_solicitud"),
-                        rs.getString("tipo_recurso"),
-                        rs.getString("detalle_recurso"),
-                        rs.getDate("fecha_uso"),
-                        toLocalDateTime(rs.getTimestamp("hora_inicio")),
-                        toLocalDateTime(rs.getTimestamp("hora_fin")),
-                        rs.getString("estado")
-                );
-                solicitudes.add(solicitud);
+                ids.add(rs.getInt("id_solicitud"));
             }
         }
-        return solicitudes;
+        return ids;
     }
-
     // Utilidad para convertir Timestamp a LocalDateTime de forma segura
     private static LocalDateTime toLocalDateTime(Timestamp ts) {
         if (ts == null) return null;
         return ts.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
+    
 }

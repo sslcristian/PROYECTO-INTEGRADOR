@@ -1,10 +1,10 @@
 package controller;
 
 import data.DevolucionDAO;
-import data.Prestamo; // El DAO de solicitudes (antes prestamoDAO)
+import data.PrestamoDAO; // El DAO de solicitudes (antes prestamoDAO)
 import data.DBConnectionFactory;
 import model.Devolucion;
-import model.SolicitudPrestamo;
+
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,10 +18,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DevolucionController {
-    @FXML private ComboBox<SolicitudPrestamo> comboSolicitud;
+	@FXML private ComboBox<Integer> comboSolicitud;
     @FXML private DatePicker fechaDevolucion;
     @FXML private TextField horaDevolucion;
     @FXML private TextField estadoRecurso;
@@ -35,14 +36,14 @@ public class DevolucionController {
     @FXML private Button btnVolver;
     @FXML private Button btnRegistrar;
     private DevolucionDAO devolucionDAO;
-    private Prestamo prestamoDAO;
+    private PrestamoDAO prestamoDAO;
 
     public void initialize() {
         try {
             // Obtener la conexión admin usando el factory
             Connection conn = DBConnectionFactory.getConnectionByRole("admin").getConnection();
             devolucionDAO = new DevolucionDAO(conn);
-            prestamoDAO = new Prestamo(conn);
+            prestamoDAO = new PrestamoDAO(conn);
             cargarSolicitudes();
             configurarTabla();
             cargarDevoluciones();
@@ -53,13 +54,14 @@ public class DevolucionController {
 
     private void cargarSolicitudes() {
         try {
-            List<SolicitudPrestamo> solicitudes = prestamoDAO.fetchAceptadas();
-            comboSolicitud.setItems(FXCollections.observableArrayList(solicitudes));
+            ArrayList<Integer> solicitudes = prestamoDAO.fetchIdsAceptadas();
+            comboSolicitud.getItems().clear();
+            comboSolicitud.getItems().addAll(solicitudes);
         } catch (Exception e) {
             mostrarAlerta("Error", "No se pudieron cargar las solicitudes aceptadas.");
+            e.printStackTrace();
         }
     }
-
     private void configurarTabla() {
         colIdSolicitud.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getIdSolicitud()).asObject());
         colFechaDevolucion.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getFechaDevolucion()));
@@ -75,16 +77,15 @@ public class DevolucionController {
 
     @FXML
     private void registrarDevolucion() {
-        SolicitudPrestamo solicitud = comboSolicitud.getValue();
+        Integer idSolicitud = comboSolicitud.getValue();
         String horaTxt = horaDevolucion.getText() != null ? horaDevolucion.getText().trim() : "";
 
-        if (solicitud == null || fechaDevolucion.getValue() == null ||
+        if (idSolicitud == null || fechaDevolucion.getValue() == null ||
             horaTxt.isEmpty() || estadoRecurso.getText().trim().isEmpty()) {
             mostrarAlerta("Campos obligatorios", "Todos los campos menos observaciones son obligatorios.");
             return;
         }
 
-        // Validar formato de hora (HH:mm o HH:mm:ss)
         String horaFormateada;
         if (horaTxt.matches("\\d{2}:\\d{2}")) {
             horaFormateada = horaTxt + ":00";
@@ -101,10 +102,10 @@ public class DevolucionController {
             String estado = estadoRecurso.getText().trim();
             String obs = observaciones.getText() != null ? observaciones.getText().trim() : "";
 
-            // El idDevolucion se genera en el DAO usando la secuencia
+            // idDevolucion se genera en el DAO usando la secuencia
             Devolucion devolucion = new Devolucion(
                 0,
-                solicitud.getIdSolicitud(),
+                idSolicitud,
                 fecha,
                 hora,
                 estado,
