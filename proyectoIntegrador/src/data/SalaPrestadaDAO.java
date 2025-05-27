@@ -93,7 +93,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     public List<SalaPrestadaConCedula> fetchConCedulaUsuario() {
         List<SalaPrestadaConCedula> lista = new ArrayList<>();
         String query = "SELECT sp.*, s.cedula_usuario FROM proyecto343.TBL_SALA_PRESTADA sp " +
-                       "JOIN TBL_SOLICITUD s ON sp.id_solicitud_s = s.id_solicitud " +
+                       "JOIN proyecto343.TBL_SOLICITUD s ON sp.id_solicitud_s = s.id_solicitud " +
                        "WHERE sp.fecha_fin >= SYSDATE";
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {

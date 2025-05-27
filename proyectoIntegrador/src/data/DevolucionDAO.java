@@ -1,6 +1,7 @@
 package data;
 
 import model.Devolucion;
+
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -11,13 +12,30 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
         this.connection = connection;
     }
 
+    /**
+     * Guarda una devolución en la base de datos usando la secuencia para id_devolucion.
+     */
     @Override
     public void save(Devolucion devolucion) {
-        String query = "INSERT INTO proyecto343.TBL_DEVOLUCION (id_devolucion, id_solicitud, fecha_devolucion, hora_devolucion, estado_recurso, observaciones) " +
-                       "VALUES (?, ?, ?, ?, ?, ?)";
+        int nextId = 0;
+        // Paso 1: Obtener el siguiente valor de la secuencia
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT proyecto343.seq_id_devolucion.NEXTVAL FROM dual")) {
+            if (rs.next()) {
+                nextId = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // Paso 2: Insertar el registro usando ese id
+        String query = "INSERT INTO proyecto343.tbl_devolucion " +
+                "(id_devolucion, id_solicitud, fecha_devolucion, hora_devolucion, estado_recurso, observaciones) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, devolucion.getIdDevolucion());
+            pstmt.setInt(1, nextId);
             pstmt.setInt(2, devolucion.getIdSolicitud());
             pstmt.setDate(3, devolucion.getFechaDevolucion());
             pstmt.setTime(4, devolucion.getHoraDevolucion());
@@ -33,10 +51,13 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
         }
     }
 
+    /**
+     * Lista todas las devoluciones de la base de datos.
+     */
     @Override
     public ArrayList<Devolucion> fetch() {
         ArrayList<Devolucion> devoluciones = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_DEVOLUCION";
+        String query = "SELECT * FROM proyecto343.tbl_devolucion";
 
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -49,7 +70,9 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
                 String estadoRecurso = rs.getString("estado_recurso");
                 String observaciones = rs.getString("observaciones");
 
-                Devolucion devolucion = new Devolucion(idDevolucion, idSolicitud, fechaDevolucion, horaDevolucion, estadoRecurso, observaciones);
+                Devolucion devolucion = new Devolucion(
+                        idDevolucion, idSolicitud, fechaDevolucion, horaDevolucion, estadoRecurso, observaciones
+                );
                 devoluciones.add(devolucion);
             }
         } catch (SQLException e) {
@@ -59,9 +82,14 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
         return devoluciones;
     }
 
+    /**
+     * Actualiza una devolución existente.
+     */
     @Override
     public void update(Devolucion devolucion) {
-        String sql = "UPDATE proyecto343.TBL_DEVOLUCION SET fecha_devolucion=?, hora_devolucion=?, estado_recurso=?, observaciones=? WHERE id_devolucion=?";
+        String sql = "UPDATE proyecto343.tbl_devolucion " +
+                "SET fecha_devolucion=?, hora_devolucion=?, estado_recurso=?, observaciones=? " +
+                "WHERE id_devolucion=?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setDate(1, devolucion.getFechaDevolucion());
             stmt.setTime(2, devolucion.getHoraDevolucion());
@@ -74,9 +102,12 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
         }
     }
 
+    /**
+     * Elimina una devolución por su ID.
+     */
     @Override
     public void delete(Integer id) {
-        String sql = "DELETE FROM proyecto343.TBL_DEVOLUCION WHERE id_devolucion=?";
+        String sql = "DELETE FROM proyecto343.tbl_devolucion WHERE id_devolucion=?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             int rowsAffected = stmt.executeUpdate();
@@ -90,9 +121,12 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
         }
     }
 
+    /**
+     * Verifica si existe una devolución con el ID dado.
+     */
     @Override
     public boolean authenticate(Integer id) {
-        String sql = "SELECT id_devolucion FROM proyecto343.TBL_DEVOLUCION WHERE id_devolucion=?";
+        String sql = "SELECT id_devolucion FROM proyecto343.tbl_devolucion WHERE id_devolucion=?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
@@ -101,5 +135,19 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * Método adicional para listar devoluciones (útil para JavaFX TableView o conveniencia).
+     */
+    public ArrayList<Devolucion> listarDevoluciones() {
+        return fetch();
+    }
+
+    /**
+     * Método adicional para registrar devolución (más expresivo para tu controlador).
+     */
+    public void registrarDevolucion(Devolucion devolucion) {
+        save(devolucion);
     }
 }
