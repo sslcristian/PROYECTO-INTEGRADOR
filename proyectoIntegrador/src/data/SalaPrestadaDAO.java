@@ -17,7 +17,7 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     public void save(SalaPrestada salaPrestada) {
         String query = "INSERT INTO proyecto343.TBL_SALA_PRESTADA " +
                        "(id_prestamo_s, id_solicitud_s, id_sala, fecha_inicio, fecha_fin, observaciones) " +
-                       "VALUES (seq_id_prestamo_s.NEXTVAL, NULL, ?, ?, ?, ?)";
+                       "VALUES (proyecto343.seq_id_prestamo_s.NEXTVAL, NULL, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, salaPrestada.getIdSala());

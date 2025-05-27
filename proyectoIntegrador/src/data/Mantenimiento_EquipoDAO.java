@@ -15,7 +15,7 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
     @Override
     public void save(Mantenimiento_Equipo mantenimientoEquipo) {
         String query = "INSERT INTO proyecto343.TBL_MANTENIMIENTO_E (id_mantenimiento, id_equipo, fecha_mantenimiento, detalle, tecnico_responsable) " +
-                       "VALUES (SEQ_MANTENIMIENTO_E.NEXTVAL, ?, ?, ?, ?)";
+                       "VALUES (proyecto343.SEQ_MANTENIMIENTO_E.NEXTVAL, ?, ?, ?, ?)";
 
         String[] returnCols = { "id_mantenimiento" };
 

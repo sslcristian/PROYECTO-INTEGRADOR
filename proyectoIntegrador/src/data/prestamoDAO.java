@@ -13,7 +13,7 @@ public class prestamoDAO implements CRUD_Operation<EquipoPrestado, Integer> {
 
     @Override
     public void save(EquipoPrestado equipoPrestado) {
-        String getIdQuery = "SELECT SEQ_PRESTAMO_EQUIPO.NEXTVAL FROM dual";
+        String getIdQuery = "SELECT proyecto343.SEQ_PRESTAMO_EQUIPO.NEXTVAL FROM dual";
         String insertQuery = "INSERT INTO proyecto343.equipo_prestado (id_prestamo_e, id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones) " +
                              "VALUES (?, ?, ?, ?, ?, ?)";
 

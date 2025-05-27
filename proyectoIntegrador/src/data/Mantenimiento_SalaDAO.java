@@ -15,7 +15,7 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
     @Override
     public void save(Mantenimiento_Sala mantenimientoSala) {
         String query = "INSERT INTO proyecto343.TBL_MANTENIMIENTO_S (id_mantenimiento, id_sala, fecha_mantenimiento, detalle, tecnico_responsable) " +
-                       "VALUES (SEQ_MANTENIMIENTO_S.NEXTVAL, ?, ?, ?, ?)";
+                       "VALUES (proyecto343.SEQ_MANTENIMIENTO_S.NEXTVAL, ?, ?, ?, ?)";
         String[] returnCols = { "id_mantenimiento" };
 
         try (PreparedStatement pstmt = connection.prepareStatement(query, returnCols)) {
