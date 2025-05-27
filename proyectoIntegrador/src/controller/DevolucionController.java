@@ -4,7 +4,7 @@ import data.DevolucionDAO;
 import data.PrestamoDAO; // El DAO de solicitudes (antes prestamoDAO)
 import data.DBConnectionFactory;
 import model.Devolucion;
-
+import model.SolicitudComboDTO;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DevolucionController {
-	@FXML private ComboBox<Integer> comboSolicitud;
+	@FXML private ComboBox<model.SolicitudComboDTO> comboSolicitud;
     @FXML private DatePicker fechaDevolucion;
     @FXML private TextField horaDevolucion;
     @FXML private TextField estadoRecurso;
@@ -54,7 +54,7 @@ public class DevolucionController {
 
     private void cargarSolicitudes() {
         try {
-            ArrayList<Integer> solicitudes = prestamoDAO.fetchIdsAceptadas();
+            ArrayList<model.SolicitudComboDTO> solicitudes = prestamoDAO.fetchSolicitudesAceptadas();
             comboSolicitud.getItems().clear();
             comboSolicitud.getItems().addAll(solicitudes);
         } catch (Exception e) {
@@ -77,10 +77,18 @@ public class DevolucionController {
 
     @FXML
     private void registrarDevolucion() {
-        Integer idSolicitud = comboSolicitud.getValue();
+        model.SolicitudComboDTO seleccion = comboSolicitud.getValue();
+        if (seleccion == null) {
+            mostrarAlerta("Campos obligatorios", "Debes seleccionar una solicitud.");
+            return;
+        }
+        int idSolicitud = seleccion.getIdSolicitud();
+        int cedulaUsuario = seleccion.getCedulaUsuario(); // Por si se necesita despues
+
         String horaTxt = horaDevolucion.getText() != null ? horaDevolucion.getText().trim() : "";
 
-        if (idSolicitud == null || fechaDevolucion.getValue() == null ||
+        // Solo necesitas verificar si fechaDevolucion, hora y estado están vacíos
+        if (fechaDevolucion.getValue() == null ||
             horaTxt.isEmpty() || estadoRecurso.getText().trim().isEmpty()) {
             mostrarAlerta("Campos obligatorios", "Todos los campos menos observaciones son obligatorios.");
             return;

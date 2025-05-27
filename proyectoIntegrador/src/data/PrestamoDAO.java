@@ -109,16 +109,19 @@ public class PrestamoDAO {
         }
     }
 
-    public ArrayList<Integer> fetchIdsAceptadas() throws SQLException {
-        ArrayList<Integer> ids = new ArrayList<>();
-        String sql = "SELECT id_solicitud FROM proyecto343.TBL_SOLICITUD WHERE estado = 'Aceptada'";
+    public ArrayList<model.SolicitudComboDTO> fetchSolicitudesAceptadas() throws SQLException {
+        ArrayList<model.SolicitudComboDTO> lista = new ArrayList<>();
+        String sql = "SELECT id_solicitud, cedula_usuario FROM proyecto343.TBL_SOLICITUD WHERE estado = 'Aceptada'";
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
-                ids.add(rs.getInt("id_solicitud"));
+                lista.add(new model.SolicitudComboDTO(
+                    rs.getInt("id_solicitud"),
+                    rs.getInt("cedula_usuario")
+                ));
             }
         }
-        return ids;
+        return lista;
     }
     // Utilidad para convertir Timestamp a LocalDateTime de forma segura
     private static LocalDateTime toLocalDateTime(Timestamp ts) {
