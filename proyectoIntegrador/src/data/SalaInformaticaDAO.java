@@ -205,7 +205,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         return salas;
     }
     public boolean salaDisponible(int idSala, Timestamp inicio, Timestamp fin) {
-        String query = "SELECT COUNT(*) FROM proyecto343.TBL_SOLICITUD_PRESTAMO " +
+        String query = "SELECT COUNT(*) FROM proyecto343.TBL_SOLICITUD " +
                        "WHERE id_sala = ? " +
                        "AND estado IN ('Pendiente', 'Aprobada') " +
                        "AND (? > fecha_inicio AND ? < fecha_fin)";

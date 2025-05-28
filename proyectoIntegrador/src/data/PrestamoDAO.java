@@ -161,7 +161,7 @@ public class PrestamoDAO {
         }
     }
     public boolean equipoDisponible(int idEquipo, Timestamp inicio, Timestamp fin) {
-        String query = "SELECT COUNT(*) FROM proyecto343.TBL_SOLICITUD_PRESTAMO " +
+        String query = "SELECT COUNT(*) FROM proyecto343.TBL_SOLICITUD " +
                        "WHERE id_equipo = ? " +
                        "AND estado IN ('Pendiente', 'Aprobada') " +
                        "AND (? > fecha_inicio AND ? < fecha_fin)";
