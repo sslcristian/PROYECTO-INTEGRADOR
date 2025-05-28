@@ -47,7 +47,7 @@ public class ReservasSalasController {
         colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudS())));
         colInicio.setCellValueFactory(cellData -> new SimpleStringProperty(formatDateTime(cellData.getValue().getFechaInicio())));
         colFin.setCellValueFactory(cellData -> new SimpleStringProperty(formatDateTime(cellData.getValue().getFechaFin())));
-        colEstado.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getObservaciones()));
+        colEstado.setCellValueFactory(cellData -> new SimpleStringProperty("Expirada")); // <-- SOLO "Expirada"
     }
 
     @FXML

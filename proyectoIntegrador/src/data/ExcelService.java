@@ -125,7 +125,7 @@ public class ExcelService {
                 DateTimeFormatter[] formatos = new DateTimeFormatter[] {
                     DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"),
                     DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a"),
-                    DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a", new java.util.Locale("es", "ES"))
+                    DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a")
                 };
 
                 for (DateTimeFormatter formatter : formatos) {

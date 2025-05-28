@@ -128,5 +128,14 @@ public class PrestamoDAO {
         if (ts == null) return null;
         return ts.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
+    public void marcarSolicitudComoExpirada(int idSolicitud) throws Exception {
+        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET ESTADO = 'Expirada' WHERE ID_SOLICITUD = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idSolicitud);
+            stmt.executeUpdate();
+        }
+    }
+    
+    
     
 }

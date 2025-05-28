@@ -150,4 +150,11 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
     public void registrarDevolucion(Devolucion devolucion) {
         save(devolucion);
     }
+    public void eliminarDevolucion(int idDevolucion) throws Exception {
+        String sql = "DELETE FROM proyecto343.TBL_DEVOLUCION WHERE ID_DEVOLUCION = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, idDevolucion);
+            stmt.executeUpdate();
+        }
+    }
 }

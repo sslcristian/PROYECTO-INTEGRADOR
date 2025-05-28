@@ -1,10 +1,10 @@
 package controller;
 
 import data.DevolucionDAO;
-import data.PrestamoDAO; // El DAO de solicitudes (antes prestamoDAO)
+import data.PrestamoDAO;
 import data.DBConnectionFactory;
 import model.Devolucion;
-import model.SolicitudComboDTO;
+
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DevolucionController {
-	@FXML private ComboBox<model.SolicitudComboDTO> comboSolicitud;
+    @FXML private ComboBox<model.SolicitudComboDTO> comboSolicitud;
     @FXML private DatePicker fechaDevolucion;
     @FXML private TextField horaDevolucion;
     @FXML private TextField estadoRecurso;
@@ -35,6 +35,7 @@ public class DevolucionController {
     @FXML private TableColumn<Devolucion, String> colObservaciones;
     @FXML private Button btnVolver;
     @FXML private Button btnRegistrar;
+    @FXML private Button btnEliminar;
     private DevolucionDAO devolucionDAO;
     private PrestamoDAO prestamoDAO;
 
@@ -83,7 +84,7 @@ public class DevolucionController {
             return;
         }
         int idSolicitud = seleccion.getIdSolicitud();
-        int cedulaUsuario = seleccion.getCedulaUsuario(); // Por si se necesita despues
+        
 
         String horaTxt = horaDevolucion.getText() != null ? horaDevolucion.getText().trim() : "";
 
@@ -121,6 +122,12 @@ public class DevolucionController {
             );
             devolucionDAO.save(devolucion);
 
+            // Cambia el estado de la solicitud a "Expirada"
+            prestamoDAO.marcarSolicitudComoExpirada(idSolicitud);
+
+            // Refresca el ComboBox para que la solicitud devuelta ya no aparezca
+            cargarSolicitudes();
+
             mostrarAlerta("Éxito", "Devolución registrada correctamente");
             cargarDevoluciones();
         } catch (IllegalArgumentException e) {
@@ -146,7 +153,7 @@ public class DevolucionController {
 
             stage.show();
         } catch (IOException e) {
-        	mostrarAlerta("Error", "No se pudo regresar al menú.");
+            mostrarAlerta("Error", "No se pudo regresar al menú.");
         }
     }
     private void mostrarAlerta(String titulo, String mensaje) {
@@ -155,5 +162,28 @@ public class DevolucionController {
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+    @FXML
+    private void EliminarDevolucion(ActionEvent event) {
+        Devolucion seleccionada = tablaDevoluciones.getSelectionModel().getSelectedItem();
+        if (seleccionada == null) {
+            mostrarAlerta("Selecciona una devolución", "Debes seleccionar una devolución de la tabla para eliminar.");
+            return;
+        }
+        // Confirmación opcional
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar eliminación");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText("¿Estás seguro de eliminar la devolución seleccionada?");
+        if (confirmacion.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
+        }
+        try {
+            devolucionDAO.eliminarDevolucion(seleccionada.getIdDevolucion());
+            mostrarAlerta("Éxito", "Devolución eliminada correctamente");
+            cargarDevoluciones();
+        } catch (Exception e) {
+            mostrarAlerta("Error", "No se pudo eliminar la devolución: " + e.getMessage());
+        }
     }
 }

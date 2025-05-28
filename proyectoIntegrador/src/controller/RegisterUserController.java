@@ -1,6 +1,6 @@
 package controller;
 
-import data.DBConnection;
+
 import data.UsuarioDAO;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
