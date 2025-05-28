@@ -1,34 +1,58 @@
 package data;
 
 import model.ReservaSala;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.sql.*;
+import java.util.ArrayList;
 
 public class ReservaSalaDAO {
+    private final Connection connection;
 
-    private final ObservableList<ReservaSala> reservas = FXCollections.observableArrayList();
-
-    // Obtener todas las reservas
-    public ObservableList<ReservaSala> getAll() {
-        return reservas;
+    public ReservaSalaDAO(Connection connection) {
+        this.connection = connection;
     }
 
-    // Guardar una nueva reserva
-    public void save(ReservaSala reserva) {
-        reservas.add(reserva);
-    }
-
-    // Actualizar una reserva (ejemplo: cambiar estado)
-    public void update(ReservaSala reserva) {
-        // Aquí no hacemos nada especial porque la lista tiene la referencia directa
-        // Solo debes llamar tabla.refresh() en el controlador para actualizar vista
-    }
-
-    // Buscar reserva por ID (opcional)
-    public ReservaSala findById(int id) {
-        for (ReservaSala r : reservas) {
-            if (r.getId() == id) return r;
+    // Trae todas las salas informáticas (TBL_SALA_INFORMATICA)
+    public ArrayList<ReservaSala> fetchAll() throws SQLException {
+        ArrayList<ReservaSala> salas = new ArrayList<>();
+        String sql = "SELECT ID_SALA, NOMBRE_SALA, CAPACIDAD, SOFTWARE_DISPONIBLE, HARDWARE_ESPECIAL, UBICACION, ESTADO FROM proyecto343.TBL_SALA_INFORMATICA";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                ReservaSala sala = new ReservaSala(
+                        rs.getInt("ID_SALA"),
+                        rs.getString("NOMBRE_SALA"),
+                        rs.getInt("CAPACIDAD"),
+                        rs.getString("SOFTWARE_DISPONIBLE"),
+                        rs.getString("HARDWARE_ESPECIAL"),
+                        rs.getString("UBICACION"),
+                        rs.getString("ESTADO")
+                );
+                salas.add(sala);
+            }
         }
-        return null;
+        return salas;
+    }
+
+    // Puedes agregar otros métodos según necesidades, por ejemplo, fetchDisponibles() si solo quieres mostrar salas disponibles
+    public ArrayList<ReservaSala> fetchDisponibles() throws SQLException {
+        ArrayList<ReservaSala> salas = new ArrayList<>();
+        String sql = "SELECT ID_SALA, NOMBRE_SALA, CAPACIDAD, SOFTWARE_DISPONIBLE, HARDWARE_ESPECIAL, UBICACION, ESTADO " +
+                     "FROM proyecto343.TBL_SALA_INFORMATICA WHERE ESTADO = 'Disponible'";
+        try (Statement st = connection.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                ReservaSala sala = new ReservaSala(
+                        rs.getInt("ID_SALA"),
+                        rs.getString("NOMBRE_SALA"),
+                        rs.getInt("CAPACIDAD"),
+                        rs.getString("SOFTWARE_DISPONIBLE"),
+                        rs.getString("HARDWARE_ESPECIAL"),
+                        rs.getString("UBICACION"),
+                        rs.getString("ESTADO")
+                );
+                salas.add(sala);
+            }
+        }
+        return salas;
     }
 }
