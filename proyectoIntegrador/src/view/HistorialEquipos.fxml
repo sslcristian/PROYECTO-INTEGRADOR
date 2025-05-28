@@ -29,7 +29,7 @@
 
         <columns>
             <TableColumn fx:id="colEquipo" text="Equipo"/>
-            <TableColumn fx:id="colUsuario" text="Usuario"/>
+           
         
             <TableColumn fx:id="colInicio" text="Fecha Inicio"/>
             <TableColumn fx:id="colFin" text="Fecha Fin"/>

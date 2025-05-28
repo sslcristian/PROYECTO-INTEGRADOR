@@ -13,7 +13,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.KeyCode;
 import model.EquipoPrestado;
-import model.Session; // Para la sesión admin
+import model.Session;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
@@ -30,7 +30,6 @@ public class VerEquiposReservadosController {
     @FXML private Button btnActualizar;
     @FXML private Button btnVolver;
 
-    // Usa la conexión de la sesión admin
     private final Connection connection = Session.getConnection();
     private final EquipoPrestadoDAO equipoPrestadoDAO = new EquipoPrestadoDAO(connection);
     private final ObservableList<EquipoPrestado> equipoReservadoList = FXCollections.observableArrayList();
@@ -65,10 +64,18 @@ public class VerEquiposReservadosController {
         fetchEquiposReservados();
     }
 
+    /**
+     * Solo se mostrarán reservas EN USO o FUTURAS, ocultando cualquier reserva terminada (fechaFin < ahora).
+     */
     @FXML
     public void fetchEquiposReservados() {
         try {
-            equipoReservadoList.setAll(equipoPrestadoDAO.fetch());
+            ObservableList<EquipoPrestado> allEquipos = FXCollections.observableArrayList(equipoPrestadoDAO.fetch());
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+
+            // Filtra solo los equipos cuya fecha fin es igual o posterior a ahora (en uso o futuros)
+            ObservableList<EquipoPrestado> vigentes = allEquipos.filtered(ep -> ep.getFechaFin().after(now));
+            equipoReservadoList.setAll(vigentes);
             tablaEquiposReservados.setItems(equipoReservadoList);
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Hubo un problema al cargar los datos de los equipos.");

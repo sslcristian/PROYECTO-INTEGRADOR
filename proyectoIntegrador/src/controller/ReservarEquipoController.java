@@ -12,12 +12,10 @@ import model.EquipoAudiovisual;
 import model.Session;
 import model.SolicitudPrestamo;
 
-
 import java.sql.Connection;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 public class ReservarEquipoController {
@@ -39,7 +37,6 @@ public class ReservarEquipoController {
     @FXML private TableColumn<EquipoAudiovisual, java.sql.Date> fechaAdquisicionColumn;
 
     @FXML private Button btnReservar;
-    
 
     private PrestamoDAO prestamoDAO;
     private EquipoAudiovisualDAO equipoDAO;
@@ -73,8 +70,6 @@ public class ReservarEquipoController {
     private void cargarEquiposDisponibles() {
         try {
             ArrayList<EquipoAudiovisual> equipos = equipoDAO.fetchDisponibles();
-            // Si deseas filtrar solo equipos disponibles, puedes hacerlo aquí:
-            // equipos.removeIf(eq -> !"Disponible".equalsIgnoreCase(eq.getEstado()));
             listaEquipos.setAll(equipos);
         } catch (Exception e) {
             mostrarAlerta("Error al cargar equipos: " + e.getMessage());
@@ -95,32 +90,58 @@ public class ReservarEquipoController {
             return;
         }
 
+        if (!horaInicioStr.matches("\\d{2}:\\d{2}") || !horaFinStr.matches("\\d{2}:\\d{2}")) {
+            mostrarAlerta("Formato de hora inválido. Usa el formato 24 horas HH:mm (ejemplo: 07:00, 14:30, 18:00). No se acepta formato AM/PM.");
+            return;
+        }
+
         LocalTime horaInicio, horaFin;
         try {
             horaInicio = LocalTime.parse(horaInicioStr);
             horaFin = LocalTime.parse(horaFinStr);
-        } catch (Exception e) {
-            mostrarAlerta("Hora inválida. Usa el formato HH:mm (ejemplo: 14:30).");
+        } catch (DateTimeParseException e) {
+            mostrarAlerta("Hora inválida. Usa el formato HH:mm (ejemplo: 07:00, 14:30, 18:00).");
+            return;
+        }
+
+        // Validación de rangos de horario
+        if (!esHoraValida(horaInicio, fechaInicio.getDayOfWeek()) || !esHoraValida(horaFin, fechaFin.getDayOfWeek())) {
+            mostrarAlerta("Las horas ingresadas no están permitidas para el día seleccionado.\n" +
+                    "Lunes a viernes: 07:00-12:00 o 14:00-18:00\n" +
+                    "Sábados: 07:00-14:00\n" +
+                    "Domingos: No se permiten reservas.");
             return;
         }
 
         LocalDateTime inicioDateTime = LocalDateTime.of(fechaInicio, horaInicio);
         LocalDateTime finDateTime = LocalDateTime.of(fechaFin, horaFin);
 
+        // Validar que la fecha y hora de inicio sea antes que la de fin
+        if (!finDateTime.isAfter(inicioDateTime)) {
+            mostrarAlerta("La fecha y hora de fin deben ser posteriores a la de inicio.");
+            return;
+        }
+
+        // Validar traslape de reservas
         Timestamp fechaHoraInicio = Timestamp.valueOf(inicioDateTime);
         Timestamp fechaHoraFin = Timestamp.valueOf(finDateTime);
+
+        if (!prestamoDAO.estaDisponible(seleccionado.getIdEquipo(), fechaHoraInicio, fechaHoraFin)) {
+            mostrarAlerta("Ya existe una reserva para este equipo en el rango de fecha y hora seleccionado.");
+            return;
+        }
 
         // Cédula desde el usuario actual en sesión
         long cedulaUsuario = Session.getUsuarioActual().getCedula();
 
         SolicitudPrestamo solicitud = new SolicitudPrestamo(
-                0, // idSolicitud, lo pone la secuencia
+                0,
                 cedulaUsuario,
                 detalle,
                 fechaHoraInicio,
                 fechaHoraFin,
-                "Pendiente",     // Estado siempre "Pendiente"
-                null,            // idSala NULL
+                "Pendiente",
+                null,
                 seleccionado.getIdEquipo()
         );
 
@@ -133,7 +154,17 @@ public class ReservarEquipoController {
         }
     }
 
-    
+    // Valida si la hora es permitida según el día
+    private boolean esHoraValida(LocalTime hora, DayOfWeek dia) {
+        if (dia == DayOfWeek.SATURDAY) {
+            return !hora.isBefore(LocalTime.of(7, 0)) && !hora.isAfter(LocalTime.of(14, 0));
+        } else if (dia.getValue() >= 1 && dia.getValue() <= 5) { // Lunes a viernes
+            boolean mañana = !hora.isBefore(LocalTime.of(7, 0)) && !hora.isAfter(LocalTime.of(12, 0));
+            boolean tarde = !hora.isBefore(LocalTime.of(14, 0)) && !hora.isAfter(LocalTime.of(18, 0));
+            return mañana || tarde;
+        }
+        return false; // Domingo no permitido
+    }
 
     private void limpiarCampos() {
         fechaInicioPicker.setValue(null);

@@ -9,7 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import model.EquipoPrestado;
-import model.Session; // Importa la clase Session para obtener la conexión admin
+import model.Session;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,7 +22,8 @@ public class ReservasEquiposController {
 
     @FXML private TableView<EquipoPrestado> tablaHistorialReservas;
     @FXML private TableColumn<EquipoPrestado, String> colEquipo;
-    @FXML private TableColumn<EquipoPrestado, String> colUsuario;
+    // Elimina la columna usuario
+    // @FXML private TableColumn<EquipoPrestado, String> colUsuario;
     @FXML private TableColumn<EquipoPrestado, String> colInicio;
     @FXML private TableColumn<EquipoPrestado, String> colFin;
     @FXML private TableColumn<EquipoPrestado, String> colEstado;
@@ -34,7 +35,6 @@ public class ReservasEquiposController {
     @FXML private DatePicker datePickerDesde;
     @FXML private DatePicker datePickerHasta;
 
-    // Usa la conexión admin de la sesión activa
     private final Connection connection = Session.getConnection();
     private final EquipoPrestadoDAO equipoPrestadoDAO = new EquipoPrestadoDAO(connection);
     private final ObservableList<EquipoPrestado> historialEquiposList = FXCollections.observableArrayList();
@@ -42,14 +42,14 @@ public class ReservasEquiposController {
     @FXML
     public void initialize() {
         configurarColumnas();
-        fetchHistorialEquipos(); // Cargar los datos iniciales al inicio
+        fetchHistorialEquipos();
     }
 
     private void configurarColumnas() {
         SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         colEquipo.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdEquipo())));
-        colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudE())));
+        // colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudE())));
         colInicio.setCellValueFactory(cellData -> {
             Timestamp fecha = cellData.getValue().getFechaInicio();
             return new SimpleStringProperty(fecha != null ? formatoCompleto.format(fecha) : "");
