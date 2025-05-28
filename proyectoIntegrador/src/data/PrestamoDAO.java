@@ -20,8 +20,8 @@ public class PrestamoDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, solicitud.getCedulaUsuario());
             ps.setString(2, solicitud.getDetalleRecurso());
-            ps.setDate(3, solicitud.getFechaInicio());
-            ps.setDate(4, solicitud.getFechaFin());
+            ps.setTimestamp(3, solicitud.getFechaInicio());
+            ps.setTimestamp(4, solicitud.getFechaFin());
             ps.setString(5, solicitud.getEstado());
             if (solicitud.getIdSala() != null) {
                 ps.setInt(6, solicitud.getIdSala());
@@ -49,8 +49,8 @@ public class PrestamoDAO {
                         rs.getInt("id_solicitud"),
                         rs.getLong("cedula_usuario"),
                         rs.getString("detalle_recurso"),
-                        rs.getDate("fecha_inicio"),
-                        rs.getDate("fecha_fin"),
+                        rs.getTimestamp("fecha_inicio"),
+                        rs.getTimestamp("fecha_fin"),
                         rs.getString("estado"),
                         rs.getObject("id_sala") == null ? null : rs.getInt("id_sala"),
                         rs.getObject("id_equipo") == null ? null : rs.getInt("id_equipo")
@@ -73,8 +73,8 @@ public class PrestamoDAO {
                         rs.getInt("id_solicitud"),
                         rs.getLong("cedula_usuario"),
                         rs.getString("detalle_recurso"),
-                        rs.getDate("fecha_inicio"),
-                        rs.getDate("fecha_fin"),
+                        rs.getTimestamp("fecha_inicio"),
+                        rs.getTimestamp("fecha_fin"),
                         rs.getString("estado"),
                         rs.getObject("id_sala") == null ? null : rs.getInt("id_sala"),
                         rs.getObject("id_equipo") == null ? null : rs.getInt("id_equipo")
@@ -92,8 +92,8 @@ public class PrestamoDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, solicitud.getCedulaUsuario());
             ps.setString(2, solicitud.getDetalleRecurso());
-            ps.setDate(3, solicitud.getFechaInicio());
-            ps.setDate(4, solicitud.getFechaFin());
+            ps.setTimestamp(3, solicitud.getFechaInicio());
+            ps.setTimestamp(4, solicitud.getFechaFin());
             ps.setString(5, solicitud.getEstado());
             if (solicitud.getIdSala() != null) {
                 ps.setInt(6, solicitud.getIdSala());

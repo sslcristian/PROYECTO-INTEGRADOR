@@ -1,5 +1,7 @@
 package controller;
 
+import java.io.IOException;
+
 import application.Main;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,7 +15,6 @@ import javafx.stage.Stage;
 import model.Session;
 import model.Usuario;
 import javafx.scene.control.ButtonBar;
-
 public class UserMenuController {
 
     @FXML
@@ -98,14 +99,30 @@ public class UserMenuController {
 
     @FXML
     private void reservarSala() {
-        System.out.println("Reserva de sala activada.");
-       
+        cargarVista("/view/ReservarSala.fxml");
     }
 
 
     @FXML
     private void reservarEquipo() {
-        System.out.println("Reserva de equipo activada.");
-        
+        cargarVista("/view/ReservarEquipo.fxml");
     }
+    private void cargarVista(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent vista = loader.load();
+            stackPaneContenido.getChildren().setAll(vista);
+        } catch (IOException e) {
+            mostrarAlerta("Error", "No se pudo cargar la vista: " + fxmlPath);
+            e.printStackTrace();
+        }
+    }
+    private void mostrarAlerta(String titulo, String mensaje) {
+        Alert alerta = new Alert(Alert.AlertType.ERROR);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
+    }
+
 }

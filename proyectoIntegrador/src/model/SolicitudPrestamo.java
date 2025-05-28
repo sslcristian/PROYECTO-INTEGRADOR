@@ -1,19 +1,19 @@
 package model;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class SolicitudPrestamo {
     private int idSolicitud;
     private long cedulaUsuario;
     private String detalleRecurso;
-    private Date fechaInicio;
-    private Date fechaFin;
+    private Timestamp fechaInicio;
+    private Timestamp fechaFin;
     private String estado;
     private Integer idSala;    // Puede ser null
     private Integer idEquipo;  // Puede ser null
 
     public SolicitudPrestamo(int idSolicitud, long cedulaUsuario, String detalleRecurso,
-                             Date fechaInicio, Date fechaFin, String estado,
+                             Timestamp fechaInicio, Timestamp fechaFin, String estado,
                              Integer idSala, Integer idEquipo) {
         this.idSolicitud = idSolicitud;
         this.cedulaUsuario = cedulaUsuario;
@@ -34,11 +34,11 @@ public class SolicitudPrestamo {
     public String getDetalleRecurso() { return detalleRecurso; }
     public void setDetalleRecurso(String detalleRecurso) { this.detalleRecurso = detalleRecurso; }
 
-    public Date getFechaInicio() { return fechaInicio; }
-    public void setFechaInicio(Date fechaInicio) { this.fechaInicio = fechaInicio; }
+    public Timestamp getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(Timestamp fechaInicio) { this.fechaInicio = fechaInicio; }
 
-    public Date getFechaFin() { return fechaFin; }
-    public void setFechaFin(Date fechaFin) { this.fechaFin = fechaFin; }
+    public Timestamp getFechaFin() { return fechaFin; }
+    public void setFechaFin(Timestamp fechaFin) { this.fechaFin = fechaFin; }
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
@@ -49,9 +49,12 @@ public class SolicitudPrestamo {
     public Integer getIdEquipo() { return idEquipo; }
     public void setIdEquipo(Integer idEquipo) { this.idEquipo = idEquipo; }
 
-    // Métodos de ayuda para mostrar en TableView como String (pueden ser usados en PropertyValueFactory)
+    // Métodos de ayuda para mostrar en TableView como String
     public String getIdSalaString() { return idSala != null ? idSala.toString() : ""; }
     public String getIdEquipoString() { return idEquipo != null ? idEquipo.toString() : ""; }
+
+    public String getHoraInicioString() { return fechaInicio != null ? fechaInicio.toString() : ""; }
+    public String getHoraFinString() { return fechaFin != null ? fechaFin.toString() : ""; }
 
     @Override
     public String toString() {

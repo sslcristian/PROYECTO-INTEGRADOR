@@ -65,8 +65,8 @@ public class SolicitudesController {
         colIdPend.setCellValueFactory(new PropertyValueFactory<>("idSolicitud"));
         colCedulaPend.setCellValueFactory(new PropertyValueFactory<>("cedulaUsuario"));
         colDetallePend.setCellValueFactory(new PropertyValueFactory<>("detalleRecurso"));
-        colInicioPend.setCellValueFactory(new PropertyValueFactory<>("horaInicioString"));
-        colFinPend.setCellValueFactory(new PropertyValueFactory<>("horaFinString"));
+        colInicioPend.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
+        colFinPend.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         colEstadoPend.setCellValueFactory(new PropertyValueFactory<>("estado"));
         colSalaPend.setCellValueFactory(new PropertyValueFactory<>("idSalaString"));
         colEquipoPend.setCellValueFactory(new PropertyValueFactory<>("idEquipoString"));
@@ -76,8 +76,8 @@ public class SolicitudesController {
         colIdAcept.setCellValueFactory(new PropertyValueFactory<>("idSolicitud"));
         colCedulaAcept.setCellValueFactory(new PropertyValueFactory<>("cedulaUsuario"));
         colDetalleAcept.setCellValueFactory(new PropertyValueFactory<>("detalleRecurso"));
-        colInicioAcept.setCellValueFactory(new PropertyValueFactory<>("horaInicioString"));
-        colFinAcept.setCellValueFactory(new PropertyValueFactory<>("horaFinString"));
+        colInicioAcept.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
+        colFinAcept.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         colEstadoAcept.setCellValueFactory(new PropertyValueFactory<>("estado"));
         colSalaAcept.setCellValueFactory(new PropertyValueFactory<>("idSalaString"));
         colEquipoAcept.setCellValueFactory(new PropertyValueFactory<>("idEquipoString"));

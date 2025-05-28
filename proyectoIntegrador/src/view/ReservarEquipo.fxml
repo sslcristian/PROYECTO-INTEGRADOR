@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="20" style="-fx-background-color: #E3F2FD;" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ReservarEquipoController">
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <Label text="Reservar Equipo" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #0D47A1;">
+        <font>
+            <Font name="Arial" size="24"/>
+        </font>
+        <effect>
+            <DropShadow color="#90CAF9" radius="3"/>
+        </effect>
+    </Label>
+
+    <!-- Fecha y Hora de Inicio -->
+    <DatePicker fx:id="fechaInicioPicker" promptText="Fecha de Inicio" prefWidth="300" />
+    <TextField fx:id="horaInicioField" promptText="Hora de Inicio (HH:mm)" prefWidth="300" />
+
+    <!-- Fecha y Hora de Fin -->
+    <DatePicker fx:id="fechaFinPicker" promptText="Fecha de Fin" prefWidth="300" />
+    <TextField fx:id="horaFinField" promptText="Hora de Fin (HH:mm)" prefWidth="300" />
+
+    <!-- Detalle del recurso -->
+    <TextArea fx:id="detalleRecursoArea" promptText="¿Por qué necesitas el equipo?" prefWidth="300" prefHeight="100"
+              style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" wrapText="true"/>
+
+    <!-- Tabla de Equipos -->
+    <TableView fx:id="equipoTable" prefHeight="200" prefWidth="700" style="-fx-background-color: white; -fx-border-color: #BBDEFB;">
+        <columns>
+            <TableColumn fx:id="idEquipoColumn" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="nombreColumn" text="Nombre" prefWidth="100"/>
+            <TableColumn fx:id="tipoColumn" text="Tipo" prefWidth="100"/>
+            <TableColumn fx:id="estadoColumn" text="Estado" prefWidth="100"/>
+            <TableColumn fx:id="ubicacionColumn" text="Ubicación" prefWidth="100"/>
+            <TableColumn fx:id="marcaColumn" text="Marca" prefWidth="100"/>
+            <TableColumn fx:id="modeloColumn" text="Modelo" prefWidth="100"/>
+            <TableColumn fx:id="fechaAdquisicionColumn" text="Fecha Adquisición" prefWidth="130"/>
+        </columns>
+    </TableView>
+
+    <!-- Botón para Reservar -->
+    <Button fx:id="btnReservar" text="Reservar Equipo" onAction="#reservarEquipo"
+            prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #64B5F6; -fx-text-fill: white;" />
+
+    <!-- Botón para volver -->
+    
+</VBox>
+

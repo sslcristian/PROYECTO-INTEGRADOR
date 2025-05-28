@@ -96,6 +96,11 @@ public class SancionController {
             }
 
             double monto = Double.parseDouble(montoField.getText());
+            if (monto < 0) {
+                showAlert(Alert.AlertType.WARNING, "Monto inválido", "El monto no puede ser negativo.");
+                return;
+            }
+
             String motivo = motivoField.getText().trim();
             Date fecha = Date.valueOf(fechaPicker.getValue());
             String estado = estadoComboBox.getValue();
@@ -121,6 +126,10 @@ public class SancionController {
         try {
             long cedula = Long.parseLong(cedulaUsuarioField.getText().trim());
             double monto = Double.parseDouble(montoField.getText().trim());
+            if (monto < 0) {
+                showAlert(Alert.AlertType.WARNING, "Monto inválido", "El monto no puede ser negativo.");
+                return;
+            }
             String motivo = motivoField.getText().trim();
             Date fecha = Date.valueOf(fechaPicker.getValue());
             String estado = estadoComboBox.getValue();

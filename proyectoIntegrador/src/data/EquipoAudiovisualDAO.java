@@ -67,6 +67,28 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
         return equipos;
     }
+    public ArrayList<EquipoAudiovisual> fetchDisponibles() {
+        ArrayList<EquipoAudiovisual> equipos = new ArrayList<>();
+        String query = "SELECT * FROM proyecto343.TBL_EQUIPO WHERE estado = 'Disponible'";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                equipos.add(new EquipoAudiovisual(
+                    rs.getInt("id_equipo"),
+                    rs.getString("nombre"),
+                    rs.getString("tipo"),
+                    rs.getString("estado"),
+                    rs.getString("ubicacion"),
+                    rs.getString("marca"),
+                    rs.getString("modelo"),
+                    rs.getDate("fecha_adquisicion")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return equipos;
+    }
 
     @Override
     public void update(EquipoAudiovisual equipo) {
