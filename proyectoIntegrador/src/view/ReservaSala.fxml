@@ -6,7 +6,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" spacing="20" style="-fx-background-color: #E3F2FD;" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ReservarEquipoController">
+<VBox alignment="CENTER" spacing="20" style="-fx-background-color: #E3F2FD;" stylesheets="@Style.css"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controller.ReservaSalaController">
 
     <padding>
         <Insets top="40" right="40" bottom="40" left="40"/>
@@ -33,26 +35,24 @@
     <TextArea fx:id="detalleRecursoArea" promptText="¿Por qué necesitas la sala?" prefWidth="300" prefHeight="100"
         style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" wrapText="true"/>
 
-    <!-- Tabla de Equipos -->
-    <TableView fx:id="equipoTable" prefHeight="200" prefWidth="700" style="-fx-background-color: white; -fx-border-color: #BBDEFB;">
+    <!-- Tabla de Salas -->
+    <TableView fx:id="salaTable" prefHeight="200" prefWidth="700" style="-fx-background-color: white; -fx-border-color: #BBDEFB;">
         <columns>
-            <TableColumn fx:id="idEquipoColumn" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="nombreColumn" text="Nombre" prefWidth="100"/>
-            <TableColumn fx:id="tipoColumn" text="Tipo" prefWidth="100"/>
-            <TableColumn fx:id="estadoColumn" text="Estado" prefWidth="100"/>
+            <TableColumn fx:id="idSalaColumn" text="ID Sala" prefWidth="80"/>
+            <TableColumn fx:id="nombreSalaColumn" text="Nombre" prefWidth="120"/>
+            <TableColumn fx:id="capacidadColumn" text="Capacidad" prefWidth="90"/>
+            <TableColumn fx:id="softwareDisponibleColumn" text="Software" prefWidth="120"/>
+            <TableColumn fx:id="hardwareEspecialColumn" text="Hardware" prefWidth="120"/>
             <TableColumn fx:id="ubicacionColumn" text="Ubicación" prefWidth="100"/>
-            <TableColumn fx:id="marcaColumn" text="Marca" prefWidth="100"/>
-            <TableColumn fx:id="modeloColumn" text="Modelo" prefWidth="100"/>
-            <TableColumn fx:id="fechaAdquisicionColumn" text="Fecha Adquisición" prefWidth="130"/>
+            <TableColumn fx:id="estadoColumn" text="Estado" prefWidth="70"/>
         </columns>
     </TableView>
 
     <!-- Botón para Reservar -->
-    <Button fx:id="btnReservar" text="Reservar Sala" onAction="#reservarEquipo"
+    <Button fx:id="btnReservar" text="Reservar Sala" onAction="#reservarSala"
         prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #64B5F6; -fx-text-fill: white;" />
 
     <!-- Botón para volver -->
-    <!-- Agrega el botón aquí si lo necesitas -->
     <!-- <Button fx:id="btnVolver" text="Volver" onAction="#volver" prefWidth="300" style="-fx-font-size: 16;"/> -->
 
 </VBox>

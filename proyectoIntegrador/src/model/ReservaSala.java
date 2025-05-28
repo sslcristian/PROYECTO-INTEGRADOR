@@ -1,80 +1,56 @@
 package model;
 
+import java.time.LocalDate;
+
 public class ReservaSala {
-    private Integer idSala;
+    // Datos de la sala
+    private int idSala;
     private String nombreSala;
-    private Integer capacidad;
+    private int capacidad;
     private String softwareDisponible;
     private String hardwareEspecial;
     private String ubicacion;
     private String estado;
 
-    // Constructor
-    public ReservaSala(Integer idSala, String nombreSala, Integer capacidad, String softwareDisponible,
-                       String hardwareEspecial, String ubicacion, String estado) {
-        this.idSala = idSala;
-        this.nombreSala = nombreSala;
-        this.capacidad = capacidad;
-        this.softwareDisponible = softwareDisponible;
-        this.hardwareEspecial = hardwareEspecial;
-        this.ubicacion = ubicacion;
-        this.estado = estado;
-    }
+    // Datos de la reserva (préstamo)
+    private int idPrestamoS;
+    private LocalDate fechaInicio;
+    private LocalDate fechaFin;
+    private String observaciones;
 
-    // Getters y Setters
-    public Integer getIdSala() {
-        return idSala;
-    }
+    public ReservaSala() { }
 
-    public void setIdSala(Integer idSala) {
-        this.idSala = idSala;
-    }
+    // Getters y setters
+    public int getIdSala() { return idSala; }
+    public void setIdSala(int idSala) { this.idSala = idSala; }
 
-    public String getNombreSala() {
-        return nombreSala;
-    }
+    public String getNombreSala() { return nombreSala; }
+    public void setNombreSala(String nombreSala) { this.nombreSala = nombreSala; }
 
-    public void setNombreSala(String nombreSala) {
-        this.nombreSala = nombreSala;
-    }
+    public int getCapacidad() { return capacidad; }
+    public void setCapacidad(int capacidad) { this.capacidad = capacidad; }
 
-    public Integer getCapacidad() {
-        return capacidad;
-    }
+    public String getSoftwareDisponible() { return softwareDisponible; }
+    public void setSoftwareDisponible(String softwareDisponible) { this.softwareDisponible = softwareDisponible; }
 
-    public void setCapacidad(Integer capacidad) {
-        this.capacidad = capacidad;
-    }
+    public String getHardwareEspecial() { return hardwareEspecial; }
+    public void setHardwareEspecial(String hardwareEspecial) { this.hardwareEspecial = hardwareEspecial; }
 
-    public String getSoftwareDisponible() {
-        return softwareDisponible;
-    }
+    public String getUbicacion() { return ubicacion; }
+    public void setUbicacion(String ubicacion) { this.ubicacion = ubicacion; }
 
-    public void setSoftwareDisponible(String softwareDisponible) {
-        this.softwareDisponible = softwareDisponible;
-    }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
-    public String getHardwareEspecial() {
-        return hardwareEspecial;
-    }
+    public int getIdPrestamoS() { return idPrestamoS; }
+    public void setIdPrestamoS(int idPrestamoS) { this.idPrestamoS = idPrestamoS; }
 
-    public void setHardwareEspecial(String hardwareEspecial) {
-        this.hardwareEspecial = hardwareEspecial;
-    }
+    public LocalDate getFechaInicio() { return fechaInicio; }
+    public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
 
-    public String getUbicacion() {
-        return ubicacion;
-    }
+    public LocalDate getFechaFin() { return fechaFin; }
+    public void setFechaFin(LocalDate fechaFin) { this.fechaFin = fechaFin; }
 
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
+    public String getObservaciones() { return observaciones; }
+    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
 }
