@@ -122,7 +122,7 @@ public class ReservarSalaController {
         Timestamp fechaHoraInicio = Timestamp.valueOf(inicioDateTime);
         Timestamp fechaHoraFin = Timestamp.valueOf(finDateTime);
 
-        if (!salaDAO.estaDisponible(seleccionada.getIdSala(), fechaHoraInicio, fechaHoraFin)) {
+        if (!salaDAO.salaDisponible(seleccionada.getIdSala(), fechaHoraInicio, fechaHoraFin)) {
             mostrarAlerta("Ya existe una reserva para esta sala en el rango de fecha y hora seleccionado.");
             return;
         }

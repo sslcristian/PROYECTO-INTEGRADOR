@@ -204,23 +204,23 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         }
         return salas;
     }
-    public boolean estaDisponible(int idSala, Timestamp inicio, Timestamp fin) {
+    public boolean salaDisponible(int idSala, Timestamp inicio, Timestamp fin) {
         String query = "SELECT COUNT(*) FROM proyecto343.TBL_SOLICITUD_PRESTAMO " +
-                "WHERE id_sala = ? " +
-                "AND estado IN ('Pendiente', 'Aprobado') " +
-                "AND (? < fecha_fin AND ? > fecha_inicio)";
+                       "WHERE id_sala = ? " +
+                       "AND estado IN ('Pendiente', 'Aprobada') " +
+                       "AND (? > fecha_inicio AND ? < fecha_fin)";
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, idSala);
             ps.setTimestamp(2, fin);
             ps.setTimestamp(3, inicio);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1) == 0; // Si es 0, está disponible
+                return rs.getInt(1) == 0; // Si es 0, la sala está disponible
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false; // Si hay error, asumimos no disponible
+        return false; // Si hay error, no disponible
     }
     public ArrayList<SalaInformatica> fetchAll() throws SQLException {
         ArrayList<SalaInformatica> salas = new ArrayList<>();

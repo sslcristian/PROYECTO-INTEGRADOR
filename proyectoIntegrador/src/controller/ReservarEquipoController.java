@@ -126,7 +126,7 @@ public class ReservarEquipoController {
         Timestamp fechaHoraInicio = Timestamp.valueOf(inicioDateTime);
         Timestamp fechaHoraFin = Timestamp.valueOf(finDateTime);
 
-        if (!prestamoDAO.estaDisponible(seleccionado.getIdEquipo(), fechaHoraInicio, fechaHoraFin)) {
+        if (!prestamoDAO.equipoDisponible(seleccionado.getIdEquipo(), fechaHoraInicio, fechaHoraFin)) {
             mostrarAlerta("Ya existe una reserva para este equipo en el rango de fecha y hora seleccionado.");
             return;
         }

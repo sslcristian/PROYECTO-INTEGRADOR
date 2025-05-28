@@ -160,24 +160,22 @@ public class PrestamoDAO {
             stmt.executeUpdate();
         }
     }
-    public boolean estaDisponible(int idEquipo, Timestamp inicio, Timestamp fin) {
+    public boolean equipoDisponible(int idEquipo, Timestamp inicio, Timestamp fin) {
         String query = "SELECT COUNT(*) FROM proyecto343.TBL_SOLICITUD_PRESTAMO " +
-                "WHERE id_equipo = ? " +
-                "AND estado IN ('Pendiente', 'Aprobado') " + // O los estados que consideres
-                "AND ( " +
-                "      (? < FECHA_FIN AND ? > FECHA_INICIO) " + // Hay traslape si: inicio_nuevo < fin_existente Y fin_nuevo > inicio_existente
-                "   )";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, idEquipo);
-            stmt.setTimestamp(2, fin);
-            stmt.setTimestamp(3, inicio);
-            ResultSet rs = stmt.executeQuery();
+                       "WHERE id_equipo = ? " +
+                       "AND estado IN ('Pendiente', 'Aprobada') " +
+                       "AND (? > fecha_inicio AND ? < fecha_fin)";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, idEquipo);
+            ps.setTimestamp(2, fin);
+            ps.setTimestamp(3, inicio);
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1) == 0; // Si es 0, está disponible
+                return rs.getInt(1) == 0; // Si es 0, el equipo está disponible
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false; // Por defecto, no disponible si error
+        return false; // Si hay error, no disponible
     }
 }
