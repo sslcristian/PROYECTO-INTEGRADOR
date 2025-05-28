@@ -185,6 +185,61 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         }
         return null;
     }
-
+    public ArrayList<SalaInformatica> fetchDisponibles() throws SQLException {
+        ArrayList<SalaInformatica> salas = new ArrayList<>();
+        String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA WHERE estado = 'disponible'";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                salas.add(new SalaInformatica(
+                        rs.getInt("id_sala"),
+                        rs.getString("nombre_sala"),
+                        rs.getInt("capacidad"),
+                        rs.getString("software_disponible"),
+                        rs.getString("hardware_especial"),
+                        rs.getString("ubicacion"),
+                        rs.getString("estado")
+                ));
+            }
+        }
+        return salas;
+    }
+    public boolean estaDisponible(int idSala, Timestamp inicio, Timestamp fin) {
+        String query = "SELECT COUNT(*) FROM proyecto343.TBL_SOLICITUD_PRESTAMO " +
+                "WHERE id_sala = ? " +
+                "AND estado IN ('Pendiente', 'Aprobado') " +
+                "AND (? < fecha_fin AND ? > fecha_inicio)";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, idSala);
+            ps.setTimestamp(2, fin);
+            ps.setTimestamp(3, inicio);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) == 0; // Si es 0, está disponible
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Si hay error, asumimos no disponible
+    }
+    public ArrayList<SalaInformatica> fetchAll() throws SQLException {
+        ArrayList<SalaInformatica> salas = new ArrayList<>();
+        String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                salas.add(new SalaInformatica(
+                        rs.getInt("id_sala"),
+                        rs.getString("nombre_sala"),
+                        rs.getInt("capacidad"),
+                        rs.getString("software_disponible"),
+                        rs.getString("hardware_especial"),
+                        rs.getString("ubicacion"),
+                        rs.getString("estado")
+                ));
+            }
+        }
+        return salas;
+    }
 }
 
