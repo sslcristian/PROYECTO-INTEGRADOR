@@ -2,8 +2,6 @@ package data;
 
 import model.SolicitudPrestamo;
 import java.sql.*;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,22 +11,28 @@ public class PrestamoDAO {
     public PrestamoDAO(Connection connection) {
         this.connection = connection;
     }
-    
+
     // Guarda una nueva solicitud usando la secuencia SEQ_TBL_SOLICITUD para el id
     public void save(SolicitudPrestamo solicitud) throws SQLException {
         String sql = "INSERT INTO proyecto343.TBL_SOLICITUD (" +
-                "id_solicitud, cedula_usuario, fecha_solicitud, tipo_recurso, detalle_recurso, " +
-                "fecha_uso, hora_inicio, hora_fin, estado" +
-                ") VALUES (proyecto343.SEQ_TBL_SOLICITUD.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "id_solicitud, cedula_usuario, detalle_recurso, fecha_inicio, fecha_fin, estado, id_sala, id_equipo" +
+                ") VALUES (proyecto343.SEQ_TBL_SOLICITUD.NEXTVAL, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, solicitud.getCedulaUsuario());
-            ps.setDate(2, solicitud.getFechaSolicitud());
-            ps.setString(3, solicitud.getTipoRecurso());
-            ps.setString(4, solicitud.getDetalleRecurso());
-            ps.setDate(5, solicitud.getFechaUso());
-            ps.setTimestamp(6, Timestamp.valueOf(solicitud.getHoraInicio()));
-            ps.setTimestamp(7, Timestamp.valueOf(solicitud.getHoraFin()));
-            ps.setString(8, solicitud.getEstado());
+            ps.setString(2, solicitud.getDetalleRecurso());
+            ps.setDate(3, solicitud.getFechaInicio());
+            ps.setDate(4, solicitud.getFechaFin());
+            ps.setString(5, solicitud.getEstado());
+            if (solicitud.getIdSala() != null) {
+                ps.setInt(6, solicitud.getIdSala());
+            } else {
+                ps.setNull(6, Types.INTEGER);
+            }
+            if (solicitud.getIdEquipo() != null) {
+                ps.setInt(7, solicitud.getIdEquipo());
+            } else {
+                ps.setNull(7, Types.INTEGER);
+            }
             ps.executeUpdate();
         }
     }
@@ -36,20 +40,20 @@ public class PrestamoDAO {
     // Lista todas las solicitudes
     public List<SolicitudPrestamo> fetchAll() throws SQLException {
         List<SolicitudPrestamo> solicitudes = new ArrayList<>();
-        String sql = "SELECT id_solicitud, cedula_usuario, fecha_solicitud, tipo_recurso, detalle_recurso, fecha_uso, hora_inicio, hora_fin, estado FROM proyecto343.TBL_SOLICITUD";
+        String sql = "SELECT id_solicitud, cedula_usuario, detalle_recurso, fecha_inicio, fecha_fin, estado, id_sala, id_equipo " +
+                     "FROM proyecto343.TBL_SOLICITUD";
         try (Statement st = connection.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 SolicitudPrestamo solicitud = new SolicitudPrestamo(
                         rs.getInt("id_solicitud"),
                         rs.getLong("cedula_usuario"),
-                        rs.getDate("fecha_solicitud"),
-                        rs.getString("tipo_recurso"),
                         rs.getString("detalle_recurso"),
-                        rs.getDate("fecha_uso"),
-                        toLocalDateTime(rs.getTimestamp("hora_inicio")),
-                        toLocalDateTime(rs.getTimestamp("hora_fin")),
-                        rs.getString("estado")
+                        rs.getDate("fecha_inicio"),
+                        rs.getDate("fecha_fin"),
+                        rs.getString("estado"),
+                        rs.getObject("id_sala") == null ? null : rs.getInt("id_sala"),
+                        rs.getObject("id_equipo") == null ? null : rs.getInt("id_equipo")
                 );
                 solicitudes.add(solicitud);
             }
@@ -59,7 +63,7 @@ public class PrestamoDAO {
 
     // Busca una solicitud por id
     public SolicitudPrestamo fetchById(int id) throws SQLException {
-        String sql = "SELECT id_solicitud, cedula_usuario, fecha_solicitud, tipo_recurso, detalle_recurso, fecha_uso, hora_inicio, hora_fin, estado " +
+        String sql = "SELECT id_solicitud, cedula_usuario, detalle_recurso, fecha_inicio, fecha_fin, estado, id_sala, id_equipo " +
                      "FROM proyecto343.TBL_SOLICITUD WHERE id_solicitud = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -68,13 +72,12 @@ public class PrestamoDAO {
                     return new SolicitudPrestamo(
                         rs.getInt("id_solicitud"),
                         rs.getLong("cedula_usuario"),
-                        rs.getDate("fecha_solicitud"),
-                        rs.getString("tipo_recurso"),
                         rs.getString("detalle_recurso"),
-                        rs.getDate("fecha_uso"),
-                        toLocalDateTime(rs.getTimestamp("hora_inicio")),
-                        toLocalDateTime(rs.getTimestamp("hora_fin")),
-                        rs.getString("estado")
+                        rs.getDate("fecha_inicio"),
+                        rs.getDate("fecha_fin"),
+                        rs.getString("estado"),
+                        rs.getObject("id_sala") == null ? null : rs.getInt("id_sala"),
+                        rs.getObject("id_equipo") == null ? null : rs.getInt("id_equipo")
                     );
                 }
             }
@@ -84,18 +87,25 @@ public class PrestamoDAO {
 
     // Actualiza una solicitud existente
     public void update(SolicitudPrestamo solicitud) throws SQLException {
-        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET cedula_usuario=?, fecha_solicitud=?, tipo_recurso=?, detalle_recurso=?, fecha_uso=?, hora_inicio=?, hora_fin=?, estado=? " +
+        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET cedula_usuario=?, detalle_recurso=?, fecha_inicio=?, fecha_fin=?, estado=?, id_sala=?, id_equipo=? " +
                      "WHERE id_solicitud=?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, solicitud.getCedulaUsuario());
-            ps.setDate(2, solicitud.getFechaSolicitud());
-            ps.setString(3, solicitud.getTipoRecurso());
-            ps.setString(4, solicitud.getDetalleRecurso());
-            ps.setDate(5, solicitud.getFechaUso());
-            ps.setTimestamp(6, Timestamp.valueOf(solicitud.getHoraInicio()));
-            ps.setTimestamp(7, Timestamp.valueOf(solicitud.getHoraFin()));
-            ps.setString(8, solicitud.getEstado());
-            ps.setInt(9, solicitud.getIdSolicitud());
+            ps.setString(2, solicitud.getDetalleRecurso());
+            ps.setDate(3, solicitud.getFechaInicio());
+            ps.setDate(4, solicitud.getFechaFin());
+            ps.setString(5, solicitud.getEstado());
+            if (solicitud.getIdSala() != null) {
+                ps.setInt(6, solicitud.getIdSala());
+            } else {
+                ps.setNull(6, Types.INTEGER);
+            }
+            if (solicitud.getIdEquipo() != null) {
+                ps.setInt(7, solicitud.getIdEquipo());
+            } else {
+                ps.setNull(7, Types.INTEGER);
+            }
+            ps.setInt(8, solicitud.getIdSolicitud());
             ps.executeUpdate();
         }
     }
@@ -123,19 +133,31 @@ public class PrestamoDAO {
         }
         return lista;
     }
-    // Utilidad para convertir Timestamp a LocalDateTime de forma segura
-    private static LocalDateTime toLocalDateTime(Timestamp ts) {
-        if (ts == null) return null;
-        return ts.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+    // Cambia el estado de una solicitud a "Aceptada".
+    public void aceptarSolicitud(int idSolicitud) throws SQLException {
+        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET estado = 'Aceptada' WHERE id_solicitud = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idSolicitud);
+            ps.executeUpdate();
+        }
     }
-    public void marcarSolicitudComoExpirada(int idSolicitud) throws Exception {
-        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET ESTADO = 'Expirada' WHERE ID_SOLICITUD = ?";
+
+    // Cambia el estado de una solicitud a "Rechazada".
+    public void rechazarSolicitud(int idSolicitud) throws SQLException {
+        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET estado = 'Rechazada' WHERE id_solicitud = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, idSolicitud);
+            ps.executeUpdate();
+        }
+    }
+
+    // Marca una solicitud como expirada
+    public void marcarSolicitudComoExpirada(int idSolicitud) throws SQLException {
+        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET estado = 'Expirada' WHERE id_solicitud = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, idSolicitud);
             stmt.executeUpdate();
         }
     }
-    
-    
-    
 }

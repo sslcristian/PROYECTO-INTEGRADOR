@@ -31,7 +31,7 @@ public class DevolucionesMenuController {
 
     @FXML
     private void abrirSolicitudesPrestamo() {
-        cargarEscena(btnSolicitudesPrestamo, "/view/SolicitudesPrestamo.fxml");
+        cargarEscena(btnSolicitudesPrestamo, "/view/SolicitudPrestamo.fxml");
     }
 
     @FXML

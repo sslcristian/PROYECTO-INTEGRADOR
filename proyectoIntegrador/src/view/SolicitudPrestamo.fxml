@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="30" prefHeight="900" prefWidth="800"
+      stylesheets="@Style.css"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controller.SolicitudesController">
+
+    <!-- Tabla 1: Solicitudes Pendientes -->
+    <Label styleClass="header-label" text="📋 Solicitudes Pendientes" />
+    <TableView fx:id="tablaPendientes" prefHeight="300" prefWidth="750">
+        <columns>
+            <TableColumn fx:id="colIdPend" text="ID Solicitud" />
+            <TableColumn fx:id="colCedulaPend" text="Cédula Usuario" />
+            <TableColumn fx:id="colDetallePend" text="Detalle Recurso" />
+            <TableColumn fx:id="colInicioPend" text="Hora Inicio" />
+            <TableColumn fx:id="colFinPend" text="Hora Fin" />
+            <TableColumn fx:id="colEstadoPend" text="Estado" />
+            <TableColumn fx:id="colSalaPend" text="ID Sala" />
+            <TableColumn fx:id="colEquipoPend" text="ID Equipo" />
+        </columns>
+    </TableView>
+
+    <!-- Botones de acción para solicitudes pendientes -->
+    <HBox alignment="CENTER" spacing="20">
+        <Button fx:id="btnAceptar" onAction="#aceptarSolicitud" styleClass="button button-green" text="✅ Aceptar Solicitud" />
+        <Button fx:id="btnRechazar" onAction="#rechazarSolicitud" styleClass="button button-red" text="❌ Rechazar Solicitud" />
+        <Button fx:id="btnActualizarPendientes" onAction="#actualizarPendientes" styleClass="button" text="🔄 Actualizar Pendientes" />
+    </HBox>
+
+    <!-- Tabla 2: Solicitudes Aceptadas -->
+    <Label styleClass="header-label" text="📋 Solicitudes Aceptadas" />
+    <TableView fx:id="tablaAceptadas" prefHeight="300" prefWidth="750">
+        <columns>
+            <TableColumn fx:id="colIdAcept" text="ID Solicitud" />
+            <TableColumn fx:id="colCedulaAcept" text="Cédula Usuario" />
+            <TableColumn fx:id="colDetalleAcept" text="Detalle Recurso" />
+            <TableColumn fx:id="colInicioAcept" text="Hora Inicio" />
+            <TableColumn fx:id="colFinAcept" text="Hora Fin" />
+            <TableColumn fx:id="colEstadoAcept" text="Estado" />
+            <TableColumn fx:id="colSalaAcept" text="ID Sala" />
+            <TableColumn fx:id="colEquipoAcept" text="ID Equipo" />
+        </columns>
+    </TableView>
+    <Button fx:id="btnActualizarAceptadas" onAction="#actualizarAceptadas" styleClass="button" text="🔄 Actualizar Aceptadas" />
+
+    <Button fx:id="btnVolver" onAction="#volverAlMenu"
+            styleClass="button button-blue"
+            text="🔙 Volver al Menú" />
+</VBox>
