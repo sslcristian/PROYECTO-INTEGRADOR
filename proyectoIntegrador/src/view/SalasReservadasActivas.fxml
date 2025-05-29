@@ -9,7 +9,9 @@
     <TableView fx:id="tablaSalasReservadas" prefHeight="300" prefWidth="750">
         <columns>
             <TableColumn fx:id="colSala" text="Sala" />
+            <TableColumn fx:id="colNombreSala" text="Nombre Sala" />
             <TableColumn fx:id="colUsuario" text="Cédula Usuario" />
+            <TableColumn fx:id="colNombreUsuario" text="Nombre Usuario" />
             <TableColumn fx:id="colInicio" text="Fecha Inicio" />
             <TableColumn fx:id="colFin" text="Fecha Fin" />
             <TableColumn fx:id="colEstado" text="Estado" />
@@ -22,6 +24,7 @@
     <TableView fx:id="tablaSalasReservadasAdmin" prefHeight="300" prefWidth="750">
         <columns>
             <TableColumn fx:id="colSalaAdmin" text="Sala" />
+            <TableColumn fx:id="colNombreSalaAdmin" text="Nombre Sala" />
             <TableColumn fx:id="colInicioAdmin" text="Fecha Inicio" />
             <TableColumn fx:id="colFinAdmin" text="Fecha Fin" />
             <TableColumn fx:id="colEstadoAdmin" text="Estado" />

@@ -15,7 +15,7 @@ public class ExcelService {
 
     public static final String RUTA_DESCARGAS = System.getProperty("user.home") + File.separator + "Downloads";
 
-    // 📌 Método para crear la plantilla en Excel con formato adecuado
+    // Método para crear la plantilla en Excel con formato adecuado
     public static void createExcelFormat(String filename) {
         File archivoDestino = new File(RUTA_DESCARGAS + File.separator + filename);
 
@@ -43,7 +43,7 @@ public class ExcelService {
         }
     }
 
-    // 📌 Método para leer datos desde Excel y convertirlos en objetos de tipo SalaPrestada
+    //    leer datos desde Excel y convertirlos en objetos 
     public static ArrayList<SalaPrestada> fetchExcel(File archivoOrigen) {
         ArrayList<SalaPrestada> listaSalas = new ArrayList<>();
 
@@ -53,38 +53,38 @@ public class ExcelService {
             Sheet hoja = workbook.getSheetAt(0);
 
             for (Row fila : hoja) {
-                if (fila.getRowNum() == 0) continue; // Saltar encabezado
+                if (fila.getRowNum() == 0) continue; 
 
                 try {
-                    // 📌 Validación de ID de Sala
+                   
                     Cell cellIdSala = fila.getCell(0);
                     if (cellIdSala == null || cellIdSala.getCellType() != CellType.NUMERIC) continue;
                     int idSala = (int) cellIdSala.getNumericCellValue();
 
-                    // 📌 Extraer y validar fechas con hora
+                   
                     Cell cellFechaInicio = fila.getCell(1);
                     Timestamp fechaInicio = extraerFechaDesdeCelda(cellFechaInicio);
 
                     Cell cellFechaFin = fila.getCell(2);
                     Timestamp fechaFin = extraerFechaDesdeCelda(cellFechaFin);
 
-                    // 📌 Validación de observaciones
+                   
                     Cell cellObservaciones = fila.getCell(3);
                     String observaciones = (cellObservaciones != null) ? obtenerValorCeldaComoTexto(cellObservaciones) : "";
 
-                    // 📌 Validación de datos antes de agregar
+                   
                     if (fechaInicio == null || fechaFin == null || idSala <= 0) {
                         System.err.println("⚠️ Datos inválidos en fila " + fila.getRowNum());
                         continue;
                     }
 
-                    // 📌 Imprimir datos obtenidos para depuración
+                    //  Imprimir datos obtenidos 
                     System.out.println("Datos obtenidos: ID Sala=" + idSala + ", Fecha Inicio=" + fechaInicio + ", Fecha Fin=" + fechaFin + ", Observaciones=" + observaciones);
 
-                 // 📌 Crear objeto y agregar a la lista
-                    int idSolicitudS = 0; // Valor por defecto
+                 
+                    int idSolicitudS = 0; 
 
-                    // Convertir `Timestamp` a `Date` antes de pasarlo al constructor
+                  
                     java.sql.Date fechaInicioSQL = new java.sql.Date(fechaInicio.getTime());
                     java.sql.Date fechaFinSQL = new java.sql.Date(fechaFin.getTime());
 
@@ -110,18 +110,18 @@ public class ExcelService {
         if (celda == null) throw new IllegalArgumentException("Celda de fecha vacía");
 
         try {
-            // Si es fecha nativa de Excel (NUMERIC)
+          
             if (celda.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(celda)) {
                 java.util.Date utilDate = celda.getDateCellValue();
                 return Timestamp.valueOf(utilDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
             } else if (celda.getCellType() == CellType.STRING) {
                 String valor = celda.getStringCellValue().trim();
                 
-                // Quitar caracteres invisibles y normalizar espacios
+               
                 valor = valor.replace('\u202C', ' ').replaceAll("\\s+", " ").replaceAll("\\.", "").replaceAll("a m", "AM").replaceAll("p m", "PM")
                              .replaceAll("a\\. m\\.", "AM").replaceAll("p\\. m\\.", "PM").toUpperCase();
 
-                // Intentar con 24h y 12h (en español e inglés)
+              
                 DateTimeFormatter[] formatos = new DateTimeFormatter[] {
                     DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"),
                     DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a"),

@@ -5,7 +5,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import model.SalaPrestadaConCedula;
-import javafx.collections.ObservableList;
 
 public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     private Connection connection;
@@ -255,14 +254,5 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
         return false;
     }
 
-    private boolean existeConflictoEnTablaTemporal(SalaPrestada nueva, ObservableList<SalaPrestada> lista) {
-        for (SalaPrestada existente : lista) {
-            if (existente.getIdSala() == nueva.getIdSala()) {
-                boolean solapa = nueva.getFechaInicio().before(existente.getFechaFin()) &&
-                                 nueva.getFechaFin().after(existente.getFechaInicio());
-                if (solapa) return true;
-            }
-        }
-        return false;
-    }
+   
 }

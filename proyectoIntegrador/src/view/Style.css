@@ -71,7 +71,7 @@
 /* Área de texto específica */
 .text-area {
     -fx-pref-height: 120px;
-    -fx-wrap-text: true;
+   
 }
 /* Estilo del ComboBox */
 .combo-box {

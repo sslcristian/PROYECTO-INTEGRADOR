@@ -225,4 +225,42 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
         return false;
     }
 
+    public ArrayList<Usuario> fetchAllCedulaNombre() {
+        ArrayList<Usuario> usuarios = new ArrayList<>();
+        String query = "SELECT CEDULA, NOMBRE FROM proyecto343.TBL_USUARIO";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                Usuario u = new Usuario(
+                    rs.getLong("CEDULA"),
+                    rs.getString("NOMBRE"),
+                    null, // correo
+                    null, // telefono
+                    null, // tipoUsuario
+                    null, // departamento
+                    null  // contraseña
+                );
+                usuarios.add(u);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usuarios;
+    }
+
+    public java.util.HashMap<Long, String> fetchCedulaNombreMap() {
+        java.util.HashMap<Long, String> mapa = new java.util.HashMap<>();
+        String query = "SELECT CEDULA, NOMBRE FROM proyecto343.TBL_USUARIO";
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                mapa.put(rs.getLong("CEDULA"), rs.getString("NOMBRE"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return mapa;
+    }
+
+
 }
