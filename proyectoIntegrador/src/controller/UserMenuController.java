@@ -1,18 +1,25 @@
 package controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+
+import java.util.List;
+import java.util.Optional;
 
 import application.Main;
+import data.PrestamoDAO;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import model.Session;
 import model.Usuario;
-import javafx.scene.control.ButtonBar;
+import model.SolicitudInfo;
 
 public class UserMenuController {
 
@@ -34,12 +41,23 @@ public class UserMenuController {
     @FXML 
     private javafx.scene.control.Button btnCerrarSesion;
 
+    // Para solicitudes vigentes y DAO
+    private List<SolicitudInfo> solicitudesVigentes;
+    private PrestamoDAO prestamoDao;
+
+    // Llama a este método desde LoginUserController después de cargar el menú y antes de mostrar la escena
+    public void setSolicitudesVigentes(List<SolicitudInfo> solicitudes, PrestamoDAO dao) {
+        this.solicitudesVigentes = solicitudes;
+        this.prestamoDao = dao;
+        // Mostramos la notificación después de cargar el menú
+        Platform.runLater(this::mostrarResumenSolicitudesVigentes);
+    }
+
     @FXML
     private void initialize() {
         Usuario usuario = Session.getUsuarioActual();
         if (usuario != null) {
             lblNombreUsuario.setText("Bienvenido, " + usuario.getNombre());
-            // Solo muestra el botón de reservar equipo a los docentes
             String tipoUsuario = usuario.getTipoUsuario();
             if (tipoUsuario == null || !tipoUsuario.trim().equalsIgnoreCase("docente")) {
                 btnReservarEquipo.setVisible(false);
@@ -47,7 +65,6 @@ public class UserMenuController {
             }
         } else {
             lblNombreUsuario.setText("No hay usuario logueado.");
-            // Por si acaso, oculta el botón si no hay usuario logueado
             btnReservarEquipo.setVisible(false);
             btnReservarEquipo.setManaged(false);
         }
@@ -116,6 +133,58 @@ public class UserMenuController {
 
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert alerta = new Alert(Alert.AlertType.ERROR);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
+    }
+
+    // --- Agregado: Mostrar notificación de solicitudes vigentes ---
+    private void mostrarResumenSolicitudesVigentes() {
+        if (solicitudesVigentes != null && !solicitudesVigentes.isEmpty()) {
+            SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+            for (SolicitudInfo solicitud : solicitudesVigentes) {
+                String fechaInicioStr = solicitud.getFechaInicio() != null ? formato.format(solicitud.getFechaInicio()) : "";
+                String fechaFinStr = solicitud.getFechaFin() != null ? formato.format(solicitud.getFechaFin()) : "";
+
+                String resumen = "Nombre: " +
+                        (solicitud.getNombreSala() != null ? solicitud.getNombreSala() : solicitud.getNombreEquipo()) + "\n" +
+                        "Ubicación: " +
+                        (solicitud.getUbicacionSala() != null ? solicitud.getUbicacionSala() : solicitud.getUbicacionEquipo()) + "\n" +
+                        "Fecha Inicio: " + fechaInicioStr + "\n" +
+                        "Fecha Fin: " + fechaFinStr;
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Solicitud Vigente");
+                alert.setHeaderText("Resumen de tu solicitud");
+                alert.setContentText(resumen);
+
+                ButtonType btnAceptar = new ButtonType("Aceptar");
+                ButtonType btnRechazar = new ButtonType("Rechazar");
+                ButtonType btnCerrar = new ButtonType("Cerrar", ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(btnAceptar, btnRechazar, btnCerrar);
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent()) {
+                    if (result.get() == btnAceptar) {
+                        if (prestamoDao != null && prestamoDao.aceptarSolicitud(solicitud.getIdSolicitud())) {
+                            mostrarAlertaInfo("Préstamo", "Solicitud aceptada exitosamente.");
+                        } else {
+                            mostrarAlertaInfo("Error", "No se pudo aceptar la solicitud.");
+                        }
+                    } else if (result.get() == btnRechazar) {
+                        if (prestamoDao != null && prestamoDao.cancelarSolicitud(solicitud.getIdSolicitud())) {
+                            mostrarAlertaInfo("Préstamo", "Solicitud rechazada exitosamente.");
+                        } else {
+                            mostrarAlertaInfo("Error", "No se pudo rechazar la solicitud.");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void mostrarAlertaInfo(String titulo, String mensaje) {
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
         alerta.setTitle(titulo);
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);

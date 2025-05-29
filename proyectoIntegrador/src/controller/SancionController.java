@@ -39,7 +39,7 @@ public class SancionController {
     @FXML private TableColumn<Sancion, String> motivoColumn;
     @FXML private TableColumn<Sancion, Date> fechaColumn;
     @FXML private TableColumn<Sancion, String> estadoColumn;
-    @FXML private Button btnAdd, btnUpdate, btnDelete, btnFetch, btnBack;
+    @FXML private Button btnAdd, btnUpdate, btnDelete, btnFetch;
     @FXML private Button btnEliminarInactivasMes;
     @FXML private Button btnFiltrarUsuario;
 
@@ -58,6 +58,17 @@ public class SancionController {
         fetchSanciones();
 
         sancionTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> onSancionSelected());
+
+        // <-- RESTRICCIÓN: No permitir fechas anteriores al día de hoy -->
+        fechaPicker.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+                setDisable(empty || date.isBefore(today));
+            }
+        });
+        fechaPicker.setEditable(false);
     }
 
     @FXML
@@ -199,25 +210,7 @@ public class SancionController {
         });
     }
 
-    @FXML
-    public void goBackToMenu(ActionEvent event) {
-        try {
-            Stage stage = (Stage) btnBack.getScene().getWindow();
-            double currentWidth = stage.getWidth();
-            double currentHeight = stage.getHeight();
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
-            Parent root = loader.load();
-            stage.setScene(new Scene(root));
-
-            stage.setWidth(currentWidth);
-            stage.setHeight(currentHeight);
-
-            stage.show();
-        } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "No se pudo regresar al menú.");
-        }
-    }
+   
 
     @FXML
     public void eliminarSancionesInactivasDelMes(ActionEvent event) {

@@ -59,7 +59,7 @@ public class RegisterUserController implements Initializable {
                 return;
             }
 
-            if (txtNombre.getText().trim().length() < 3) {
+            if (txtNombre.getText().trim().length() < 5) {
                 mostrarAlerta("Nombre muy corto", "El nombre debe tener al menos 3 caracteres.");
                 return;
             }

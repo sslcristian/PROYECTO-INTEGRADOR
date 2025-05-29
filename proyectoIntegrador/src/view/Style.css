@@ -121,3 +121,15 @@
     -fx-font-weight: bold;  /* Texto en negrita */
     -fx-padding: 10px;  /* Espaciado alrededor del texto */
 }
+.date-picker .text-field {
+    -fx-background-color: -fx-control-inner-background;
+    -fx-border-color: -fx-box-border;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 0.333em 0.583em 0.333em 0.583em; /* valor por defecto JavaFX */
+    -fx-font-size: 12pt;
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+    -fx-pref-width: 120px;
+    -fx-pref-height: 27px;
+}

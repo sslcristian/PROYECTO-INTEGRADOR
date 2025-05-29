@@ -105,6 +105,12 @@ public class ReservarEquipoController {
             return;
         }
 
+        // NUEVA VALIDACIÓN: Solo un día permitido
+        if (!fechaInicio.equals(fechaFin)) {
+            mostrarAlerta("La reserva solo puede ser para un solo día. La fecha de inicio y fin deben ser iguales.");
+            return;
+        }
+
         if (!horaInicioStr.matches("\\d{2}:\\d{2}") || !horaFinStr.matches("\\d{2}:\\d{2}")) {
             mostrarAlerta("Formato de hora inválido. Usa el formato 24 horas HH:mm (ejemplo: 07:00, 14:30, 18:00). No se acepta formato AM/PM.");
             return;

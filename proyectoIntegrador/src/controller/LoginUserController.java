@@ -7,8 +7,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.Scene;
@@ -19,9 +17,6 @@ import model.SolicitudInfo;
 
 import java.sql.Connection;
 import java.util.List;
-import java.util.Optional;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class LoginUserController {
 
@@ -88,9 +83,8 @@ public class LoginUserController {
             PrestamoDAO prestamoDao = new PrestamoDAO(conn);
             Usuario usuario = null;
 
-            // --- NUEVO: Verifica si hay una solicitud aceptada vigente antes de autenticar completamente ---
+            // Obtiene solicitudes vigentes pero NO las muestra aquí
             List<SolicitudInfo> solicitudesVigentes = prestamoDao.obtenerSolicitudesVigentes(cedula);
-            mostrarResumenSolicitudesVigentes(solicitudesVigentes, prestamoDao);
 
             try {
                 usuario = usuarioDao.autenticar(cedula, contrasena);
@@ -105,6 +99,10 @@ public class LoginUserController {
                 // Cargar menú principal
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/UserMenu.fxml"));
                 Parent userMenu = loader.load();
+
+                // Pasa las solicitudes vigentes al UserMenuController
+                controller.UserMenuController userMenuController = loader.getController();
+                userMenuController.setSolicitudesVigentes(solicitudesVigentes, prestamoDao);
 
                 Stage stage = (Stage) txtCedula.getScene().getWindow();
                 double anchoActual = stage.getWidth();
@@ -121,58 +119,6 @@ public class LoginUserController {
         } catch (Exception e) {
             showAlert("Error", "Ocurrió un error inesperado: " + e.getMessage());
             e.printStackTrace();
-        }
-    }
-
-    // Método para mostrar resumen de solicitudes vigentes, cada una con Aceptar y Rechazar
-    private void mostrarResumenSolicitudesVigentes(List<SolicitudInfo> solicitudesVigentes, PrestamoDAO prestamoDao) {
-        if (solicitudesVigentes != null && !solicitudesVigentes.isEmpty()) {
-            SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            for (SolicitudInfo solicitud : solicitudesVigentes) {
-                String fechaInicioStr = "";
-                String fechaFinStr = "";
-                Date fechaInicio = solicitud.getFechaInicio();
-                Date fechaFin = solicitud.getFechaFin();
-                if (fechaInicio != null) {
-                    fechaInicioStr = formato.format(fechaInicio);
-                }
-                if (fechaFin != null) {
-                    fechaFinStr = formato.format(fechaFin);
-                }
-
-                String resumen = "Nombre: " + 
-                        (solicitud.getNombreSala() != null ? solicitud.getNombreSala() : solicitud.getNombreEquipo()) + "\n" +
-                        "Ubicación: " + 
-                        (solicitud.getUbicacionSala() != null ? solicitud.getUbicacionSala() : solicitud.getUbicacionEquipo()) + "\n" +
-                        "Fecha Inicio: " + fechaInicioStr + "\n" +
-                        "Fecha Fin: " + fechaFinStr;
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Solicitud Vigente");
-                alert.setHeaderText("Resumen de tu solicitud");
-                alert.setContentText(resumen);
-
-                ButtonType btnAceptar = new ButtonType("Aceptar");
-                ButtonType btnRechazar = new ButtonType("Rechazar");
-                ButtonType btnCerrar = new ButtonType("Cerrar", ButtonBar.ButtonData.CANCEL_CLOSE);
-                alert.getButtonTypes().setAll(btnAceptar, btnRechazar, btnCerrar);
-
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.isPresent()) {
-                    if (result.get() == btnAceptar) {
-                        if (prestamoDao.aceptarSolicitud(solicitud.getIdSolicitud())) {
-                            showAlert("Préstamo", "Solicitud aceptada exitosamente.");
-                        } else {
-                            showAlert("Error", "No se pudo aceptar la solicitud.");
-                        }
-                    } else if (result.get() == btnRechazar) {
-                        if (prestamoDao.cancelarSolicitud(solicitud.getIdSolicitud())) {
-                            showAlert("Préstamo", "Solicitud rechazada exitosamente.");
-                        } else {
-                            showAlert("Error", "No se pudo rechazar la solicitud.");
-                        }
-                    }
-                }
-            }
         }
     }
 

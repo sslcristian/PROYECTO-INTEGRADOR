@@ -52,10 +52,6 @@
     <Button fx:id="btnUpdate" onAction="#updateSancion" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Actualizar Sanción" />
     <Button fx:id="btnDelete" onAction="#deleteSancion" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Eliminar Sanción" />
     <Button fx:id="btnFetch" onAction="#fetchSanciones" prefWidth="300" style="-fx-background-color: #42A5F5; -fx-font-size: 16; -fx-text-fill: white;" text="Mostrar Todas las Sanciones" />
-    <Button fx:id="btnEliminarInactivasMes" 
-        onAction="#eliminarSancionesInactivasDelMes" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Eliminar Sanciones Inactivas del Mes" />
+    <Button fx:id="btnEliminarInactivasMes" onAction="#eliminarSancionesInactivasDelMes" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Eliminar Sanciones Inactivas del Mes" />
 <Button fx:id="btnFiltrarUsuario" onAction="#filtrarPorUsuario" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Filtrar por Usuario" />
-
-     
-    <Button fx:id="btnBack" onAction="#goBackToMenu" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #1976D2; -fx-text-fill: white;" text="Volver al Menú" />
 </VBox>
