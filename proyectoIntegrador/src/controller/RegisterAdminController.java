@@ -89,7 +89,7 @@ public class RegisterAdminController implements Initializable {
             String departamento = cbDepartamento.getValue();
             String contrasenaAdministrativo = txtContrasenaAdministrativo.getText();
 
-            // Obtener conexión como admin SIEMPRE, aunque no haya sesión activa
+            // Obtener conexión como admin SIEMPRE, aunque no haya sesion activa
             Connection conn = Session.getConnection();
             if (conn == null) {
                 DBConnection dbConnAdmin = DBConnectionFactory.getConnectionByRole("admin");

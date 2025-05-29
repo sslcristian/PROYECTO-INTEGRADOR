@@ -37,7 +37,7 @@ public class LoginAdminController {
                 return;
             }
 
-            // 1. Usa la conexión de admin para validar el admin
+            // 1. Usa la conexion de admin para validar el admin
             Connection conn = DBConnectionFactory.getConnectionByRole("admin").getConnection();
             AdminDAO dao = new AdminDAO(conn);
 
@@ -51,13 +51,13 @@ public class LoginAdminController {
                 // 2. Si las credenciales son correctas, inicializa la sesión de admin
                 Session.login(cedula, "admin");
 
-                // 3. Cambia de pantalla
+            
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AdminMenu.fxml"));
                 Parent adminMenu = loader.load();
 
                 Stage stage = (Stage) txtCedula.getScene().getWindow();
 
-                // Mantener el tamaño actual
+               
                 double anchoActual = stage.getWidth();
                 double altoActual = stage.getHeight();
 

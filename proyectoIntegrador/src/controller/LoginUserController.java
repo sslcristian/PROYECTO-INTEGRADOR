@@ -83,7 +83,7 @@ public class LoginUserController {
             PrestamoDAO prestamoDao = new PrestamoDAO(conn);
             Usuario usuario = null;
 
-            // Obtiene solicitudes vigentes pero NO las muestra aquí
+          
             List<SolicitudInfo> solicitudesVigentes = prestamoDao.obtenerSolicitudesVigentes(cedula);
 
             try {
@@ -96,7 +96,7 @@ public class LoginUserController {
             if (usuario != null) {
                 Session.setUsuarioActual(usuario);
 
-                // Cargar menú principal
+                // Cargar menu principal
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/UserMenu.fxml"));
                 Parent userMenu = loader.load();
 

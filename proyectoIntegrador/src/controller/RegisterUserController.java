@@ -93,7 +93,7 @@ public class RegisterUserController implements Initializable {
                 return;
             }
 
-            // Guardar el nombre en mayúsculas
+           
             String nombreEnMayusculas = txtNombre.getText().trim().toUpperCase();
 
             Usuario usuario = new Usuario(
