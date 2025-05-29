@@ -14,19 +14,28 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
 
     @Override
     public void save(Sancion sancion) {
-        String query = "INSERT INTO proyecto343.TBL_SANCION (cedula_usuario, monto, motivo, fecha, estado) VALUES (?, ?, ?, ?, ?)";
+        try {
+            // 1. Obtener el siguiente valor de la secuencia
+            String sqlSeq = "SELECT proyecto343.SANCION_SEQ.NEXTVAL FROM DUAL";
+            int nextId = -1;
+            try (PreparedStatement seqStmt = connection.prepareStatement(sqlSeq)) {
+                ResultSet rs = seqStmt.executeQuery();
+                if (rs.next()) {
+                    nextId = rs.getInt(1);
+                }
+            }
+            sancion.setIdSancion(nextId);
 
-        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setLong(1, sancion.getCedulaUsuario());
-            stmt.setDouble(2, sancion.getMonto());
-            stmt.setString(3, sancion.getMotivo());
-            stmt.setDate(4, sancion.getFecha());
-            stmt.setString(5, sancion.getEstado());
-
-            stmt.executeUpdate();
-            ResultSet keys = stmt.getGeneratedKeys();
-            if (keys.next()) {
-                sancion.setIdSancion(keys.getInt(1));
+            // 2. Insertar el registro con el id previamente obtenido
+            String query = "INSERT INTO proyecto343.TBL_SANCION (id_sancion, cedula_usuario, monto, motivo, fecha, estado) VALUES (?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = connection.prepareStatement(query)) {
+                stmt.setInt(1, nextId);
+                stmt.setLong(2, sancion.getCedulaUsuario());
+                stmt.setDouble(3, sancion.getMonto());
+                stmt.setString(4, sancion.getMotivo());
+                stmt.setDate(5, sancion.getFecha());
+                stmt.setString(6, sancion.getEstado());
+                stmt.executeUpdate();
             }
         } catch (SQLException e) {
             e.printStackTrace();
