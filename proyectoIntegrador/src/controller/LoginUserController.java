@@ -1,6 +1,7 @@
 package controller;
 
 import data.UsuarioDAO;
+import data.DBConnectionFactory;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,10 +36,34 @@ public class LoginUserController {
             long cedula = Long.parseLong(txtCedula.getText());
             String contrasena = txtContrasena.getText();
 
+            // Consultar el tipo de usuario antes de iniciar sesión
+            String tipoUsuario = null;
+            try {
+                // Usa una conexión temporal (puedes usar la de usuario por defecto para consultar el tipo)
+                Connection tempConn = DBConnectionFactory.getConnectionByRole("usuario").getConnection();
+                UsuarioDAO tempDao = new UsuarioDAO(tempConn);
+                Usuario userTemp = tempDao.findByCedula(cedula);
+                if (userTemp == null) {
+                    showAlert("Error de autenticación", "Cédula o contraseña incorrecta.");
+                    return;
+                }
+                tipoUsuario = userTemp.getTipoUsuario();
+            } catch (Exception e) {
+                showAlert("Error", "No se pudo determinar el tipo de usuario: " + e.getMessage());
+                return;
+            }
+
+            if (tipoUsuario == null) {
+                showAlert("Error de autenticación", "No se pudo determinar el tipo de usuario.");
+                return;
+            }
+
+            tipoUsuario = tipoUsuario.trim().toLowerCase();
+            String rolConexion = tipoUsuario.equals("docente") ? "docente" : "usuario";
+
             // Inicializa la sesión y la conexión SOLO si no existe
             if (Session.getConnection() == null) {
-                // El 'usuario' es el rol de conexión para este caso
-                boolean sesionIniciada = Session.login(cedula, "usuario");
+                boolean sesionIniciada = Session.login(cedula, rolConexion);
                 if (!sesionIniciada) {
                     showAlert("Error de autenticación", "Cédula o contraseña incorrecta.");
                     return;

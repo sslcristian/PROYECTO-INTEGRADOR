@@ -6,6 +6,8 @@ public class DBConnectionFactory {
         switch (role.toLowerCase()) {
             case "admin":
                 return AdminConnection.getInstance();
+            case "docente":
+                return DocenteConnection.getInstance();
             case "usuario":
                 return UserConnection.getInstance();
             default:
@@ -17,6 +19,9 @@ public class DBConnectionFactory {
         switch (role.toLowerCase()) {
             case "admin":
                 AdminConnection.destroyInstance();
+                break;
+            case "docente":
+                DocenteConnection.destroyInstance();
                 break;
             case "usuario":
                 UserConnection.destroyInstance();

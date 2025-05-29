@@ -1,28 +1,37 @@
 package controller;
 
-
 import data.UsuarioDAO;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ComboBox;
+import javafx.collections.FXCollections;
+import javafx.fxml.Initializable;
 import model.Usuario;
-import model.Session; // Importa la sesión de usuario
+import model.Session;
 
+import java.net.URL;
 import java.sql.Connection;
+import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-public class RegisterUserController {
+public class RegisterUserController implements Initializable {
 
     @FXML private TextField txtCedula;
     @FXML private TextField txtNombre;
     @FXML private TextField txtCorreo;
     @FXML private TextField txtTelefono;
-    @FXML private TextField txtTipoUsuario;
+    @FXML private ComboBox<String> cbTipoUsuario;
     @FXML private TextField txtDepartamento;
     @FXML private PasswordField txtContrasena;
 
     private final Pattern emailPattern = Pattern.compile("^[\\w.-]+@udi\\.edu\\.co$");
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        cbTipoUsuario.setItems(FXCollections.observableArrayList("Docente", "Usuario"));
+    }
 
     @FXML
     private void registrarUsuario() {
@@ -58,7 +67,11 @@ public class RegisterUserController {
                 return;
             }
 
-            // Usa la conexión de la sesión de usuario (NO la de admin)
+            if (cbTipoUsuario.getValue() == null || cbTipoUsuario.getValue().trim().isEmpty()) {
+                mostrarAlerta("Tipo de usuario", "Debe seleccionar un tipo de usuario.");
+                return;
+            }
+
             Connection conn = Session.getConnection();
             UsuarioDAO dao = new UsuarioDAO(conn);
 
@@ -72,7 +85,7 @@ public class RegisterUserController {
                 txtNombre.getText().trim(),
                 correo,
                 txtTelefono.getText().trim(),
-                txtTipoUsuario.getText().trim(),
+                cbTipoUsuario.getValue().trim(),
                 txtDepartamento.getText().trim(),
                 txtContrasena.getText()
             );
@@ -89,7 +102,7 @@ public class RegisterUserController {
     private boolean camposVacios() {
         return txtCedula.getText().isEmpty() || txtNombre.getText().isEmpty() ||
                txtCorreo.getText().isEmpty() || txtTelefono.getText().isEmpty() ||
-               txtTipoUsuario.getText().isEmpty() || txtDepartamento.getText().isEmpty() ||
+               cbTipoUsuario.getValue() == null || txtDepartamento.getText().isEmpty() ||
                txtContrasena.getText().isEmpty();
     }
 
@@ -102,7 +115,7 @@ public class RegisterUserController {
         txtNombre.clear();
         txtCorreo.clear();
         txtTelefono.clear();
-        txtTipoUsuario.clear();
+        cbTipoUsuario.setValue(null);
         txtDepartamento.clear();
         txtContrasena.clear();
     }

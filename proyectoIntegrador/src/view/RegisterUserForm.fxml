@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
@@ -19,7 +20,10 @@
     <TextField fx:id="txtNombre" promptText="Nombre completo" styleClass="text-field" />
     <TextField fx:id="txtCorreo" promptText="Correo institucional" styleClass="text-field" />
     <TextField fx:id="txtTelefono" promptText="Teléfono" styleClass="text-field" />
-    <TextField fx:id="txtTipoUsuario" promptText="Tipo de usuario" styleClass="text-field" />
+
+
+    <ComboBox fx:id="cbTipoUsuario" promptText="Tipo de usuario" styleClass="text-field" />
+
     <TextField fx:id="txtDepartamento" promptText="Departamento" styleClass="text-field" />
     <PasswordField fx:id="txtContrasena" promptText="Contraseña" styleClass="password-field" />
 
