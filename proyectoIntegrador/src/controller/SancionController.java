@@ -15,11 +15,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import model.Sancion;
-import model.Session; // Importar para conexión admin
+import model.Session;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 public class SancionController {
 
@@ -32,13 +34,14 @@ public class SancionController {
     @FXML private DatePicker fechaPicker;
     @FXML private ComboBox<String> estadoComboBox;
     @FXML private TableView<Sancion> sancionTable;
-    
     @FXML private TableColumn<Sancion, Long> cedulaColumn;
     @FXML private TableColumn<Sancion, Double> montoColumn;
     @FXML private TableColumn<Sancion, String> motivoColumn;
     @FXML private TableColumn<Sancion, Date> fechaColumn;
     @FXML private TableColumn<Sancion, String> estadoColumn;
     @FXML private Button btnAdd, btnUpdate, btnDelete, btnFetch, btnBack;
+    @FXML private Button btnEliminarInactivasMes;
+    @FXML private Button btnFiltrarUsuario;
 
     @FXML
     public void initialize() {
@@ -102,6 +105,14 @@ public class SancionController {
             }
 
             String motivo = motivoField.getText().trim();
+            if (motivo.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Campo vacío", "El motivo no puede estar vacío.");
+                return;
+            }
+            if (fechaPicker.getValue() == null) {
+                showAlert(Alert.AlertType.WARNING, "Fecha requerida", "Debes seleccionar una fecha.");
+                return;
+            }
             Date fecha = Date.valueOf(fechaPicker.getValue());
             String estado = estadoComboBox.getValue();
 
@@ -109,6 +120,7 @@ public class SancionController {
             sancionDAO.save(nueva);
             fetchSanciones();
             clearFields();
+            showAlert(Alert.AlertType.INFORMATION, "Éxito", "Sanción agregada correctamente.");
         } catch (NumberFormatException e) {
             showAlert(Alert.AlertType.ERROR, "Error de formato", "Cédula y Monto deben ser numéricos.");
         }
@@ -131,10 +143,18 @@ public class SancionController {
                 return;
             }
             String motivo = motivoField.getText().trim();
+            if (motivo.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Campo vacío", "El motivo no puede estar vacío.");
+                return;
+            }
+            if (fechaPicker.getValue() == null) {
+                showAlert(Alert.AlertType.WARNING, "Fecha requerida", "Debes seleccionar una fecha.");
+                return;
+            }
             Date fecha = Date.valueOf(fechaPicker.getValue());
             String estado = estadoComboBox.getValue();
 
-            if (motivo.isEmpty() || estado == null || estado.isEmpty()) {
+            if (estado == null || estado.isEmpty()) {
                 showAlert(Alert.AlertType.WARNING, "Campos vacíos", "Todos los campos deben estar completos.");
                 return;
             }
@@ -196,6 +216,41 @@ public class SancionController {
             stage.show();
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Error", "No se pudo regresar al menú.");
+        }
+    }
+
+    @FXML
+    public void eliminarSancionesInactivasDelMes(ActionEvent event) {
+        try {
+            LocalDate now = LocalDate.now();
+            int mes = now.getMonthValue();
+            int anio = now.getYear();
+            int eliminadas = sancionDAO.eliminarInactivasPorMes(mes, anio);
+            fetchSanciones();
+            showAlert(Alert.AlertType.INFORMATION, "Eliminación completada", eliminadas + " sanciones inactivas eliminadas para este mes.");
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "No se pudieron eliminar las sanciones inactivas.");
+        }
+    }
+
+    @FXML
+    public void filtrarPorUsuario(ActionEvent event) {
+        try {
+            String cedulaText = cedulaUsuarioField.getText().trim();
+            if (cedulaText.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Campo vacío", "Ingrese una cédula para filtrar.");
+                return;
+            }
+            long cedula = Long.parseLong(cedulaText);
+            List<Sancion> sanciones = sancionDAO.buscarPorCedula(cedula);
+            if (sanciones.isEmpty()) {
+                showAlert(Alert.AlertType.INFORMATION, "Sin resultados", "No se encontraron sanciones para la cédula ingresada.");
+            }
+            sancionList.setAll(sanciones);
+        } catch (NumberFormatException e) {
+            showAlert(Alert.AlertType.ERROR, "Error de formato", "La cédula debe ser numérica.");
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Ocurrió un error al filtrar las sanciones.");
         }
     }
 
