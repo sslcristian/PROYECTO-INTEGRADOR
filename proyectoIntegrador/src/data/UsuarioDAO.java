@@ -211,4 +211,18 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
         }
         return 0.0;
     }
+    public boolean NotificacionReserva(long cedula) {
+        String sql = "SELECT FROM proyecto343.TBL_PRESTAMO WHERE CEDULA_USUARIO = ? AND ESTADO = 'Aceptada'";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, cedula);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; 
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }
