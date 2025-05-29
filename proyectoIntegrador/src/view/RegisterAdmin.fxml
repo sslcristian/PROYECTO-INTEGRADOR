@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
@@ -18,26 +19,17 @@
 
     <Label styleClass="header-label" text="REGISTRO DEL ADMINISTRADOR" />
 
-    <Label text="Nombre completo" />
-    <TextField fx:id="txtNombre" promptText="Ej. Juan Pérez" styleClass="text-field" />
+    <TextField fx:id="txtNombre" promptText="Nombre completo" styleClass="text-field" />
+    <TextField fx:id="txtCedula" promptText="Cédula" styleClass="text-field" />
+    <TextField fx:id="txtCorreo" promptText="Correo electrónico (UDI)" styleClass="text-field" />
+    <TextField fx:id="txtTelefono" promptText="Teléfono" styleClass="text-field" />
 
-    <Label text="Cédula" />
-    <TextField fx:id="txtCedula" promptText="Ej. 123456789" styleClass="text-field" />
+    <!-- ComboBox para Departamento -->
+    <ComboBox fx:id="cbDepartamento" promptText="Departamento" styleClass="text-field" />
 
-    <Label text="Correo electrónico (UDI)" />
-    <TextField fx:id="txtCorreo" promptText="Ej. juan.perez@udi.edu.co" styleClass="text-field" />
-
-    <Label text="Teléfono" />
-    <TextField fx:id="txtTelefono" promptText="Ej. 3001234567" styleClass="text-field" />
-
-    <Label text="Departamento" />
-    <TextField fx:id="txtDepartamento" promptText="Ej. Sistemas" styleClass="text-field" />
-
-    <Label text="Contraseña de inicio de sesión (para el nuevo administrador)" />
-    <PasswordField fx:id="txtContrasenaAdministrativo" promptText="Contraseña de login" styleClass="password-field" />
-
-    <Label text="Contraseña secreta de administradores (para registrar)" />
-    <PasswordField fx:id="txtContrasenaAdmin" promptText="" styleClass="password-field" />
+    <PasswordField fx:id="txtContrasenaAdministrativo" promptText="Contraseña de inicio de sesión" styleClass="password-field" />
+    <PasswordField fx:id="txtContrasenaAdmin" promptText="Contraseña secreta de administradores" styleClass="password-field" />
 
     <Button text="Registrar" onAction="#registrarAdmin" styleClass="button" />
 </VBox>
+

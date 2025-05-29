@@ -24,7 +24,7 @@
 
     <ComboBox fx:id="cbTipoUsuario" promptText="Tipo de usuario" styleClass="text-field" />
 
-    <TextField fx:id="txtDepartamento" promptText="Departamento" styleClass="text-field" />
+    <ComboBox fx:id="cbDepartamento" promptText="Departamento" styleClass="text-field" />
     <PasswordField fx:id="txtContrasena" promptText="Contraseña" styleClass="password-field" />
 
     <Button onAction="#registrarUsuario" styleClass="button" text="Registrar" />

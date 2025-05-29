@@ -5,31 +5,50 @@ import data.DBConnectionFactory;
 import data.DBConnection;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import model.Admin;
 import model.Session;
+import javafx.collections.FXCollections;
+import javafx.fxml.Initializable;
 
+import java.net.URL;
 import java.sql.Connection;
+import java.util.ResourceBundle;
 
-public class RegisterAdminController {
+public class RegisterAdminController implements Initializable {
 
     @FXML private TextField txtCedula;
     @FXML private TextField txtNombre;
     @FXML private TextField txtCorreo;
     @FXML private TextField txtTelefono;
     @FXML private PasswordField txtContrasenaAdmin;
-    @FXML private TextField txtDepartamento;
+    @FXML private ComboBox<String> cbDepartamento;
     @FXML private PasswordField txtContrasenaAdministrativo;
 
     private static final String CONTRASENA_ADMIN_VALIDA = "C12282025";
+
+    private static final String[] DEPARTAMENTOS = {
+        "Ingeniería",
+        "Administración",
+        "Ciencias Básicas",
+        "Humanidades",
+        "Sistemas",
+        "Finanzas"
+    };
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        cbDepartamento.setItems(FXCollections.observableArrayList(DEPARTAMENTOS));
+    }
 
     @FXML
     private void registrarAdmin() {
         try {
             if (txtCedula.getText().isEmpty() || txtNombre.getText().isEmpty() || txtCorreo.getText().isEmpty()
                     || txtTelefono.getText().isEmpty() || txtContrasenaAdmin.getText().isEmpty()
-                    || txtDepartamento.getText().isEmpty() || txtContrasenaAdministrativo.getText().isEmpty()) {
+                    || cbDepartamento.getValue() == null || txtContrasenaAdministrativo.getText().isEmpty()) {
                 showAlert("Campos incompletos", "Por favor, complete todos los campos.");
                 return;
             }
@@ -67,7 +86,7 @@ public class RegisterAdminController {
             }
 
             String nombre = txtNombre.getText();
-            String departamento = txtDepartamento.getText();
+            String departamento = cbDepartamento.getValue();
             String contrasenaAdministrativo = txtContrasenaAdministrativo.getText();
 
             // Obtener conexión como admin SIEMPRE, aunque no haya sesión activa
@@ -112,7 +131,7 @@ public class RegisterAdminController {
         txtCorreo.clear();
         txtTelefono.clear();
         txtContrasenaAdmin.clear();
-        txtDepartamento.clear();
+        cbDepartamento.setValue(null);
         txtContrasenaAdministrativo.clear();
     }
 

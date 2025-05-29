@@ -23,14 +23,22 @@ public class RegisterUserController implements Initializable {
     @FXML private TextField txtCorreo;
     @FXML private TextField txtTelefono;
     @FXML private ComboBox<String> cbTipoUsuario;
-    @FXML private TextField txtDepartamento;
+    @FXML private ComboBox<String> cbDepartamento;
     @FXML private PasswordField txtContrasena;
 
     private final Pattern emailPattern = Pattern.compile("^[\\w.-]+@udi\\.edu\\.co$");
 
+    private static final String[] DEPARTAMENTOS = {
+        "Administración de Empresas", "Comunicación Social", "Criminalística", "Derecho",
+        "Diseño Gráfico", "Diseño Industrial", "Ingeniería Civil", "Ingeniería Electrónica",
+        "Ingeniería Industrial", "Ingeniería de Sistemas", "Negocios Internacionales",
+        "Psicología", "Publicidad y Marketing Digital", "Licenciatura en Educación Infantil"
+    };
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         cbTipoUsuario.setItems(FXCollections.observableArrayList("Docente", "Usuario"));
+        cbDepartamento.setItems(FXCollections.observableArrayList(DEPARTAMENTOS));
     }
 
     @FXML
@@ -72,6 +80,11 @@ public class RegisterUserController implements Initializable {
                 return;
             }
 
+            if (cbDepartamento.getValue() == null || cbDepartamento.getValue().trim().isEmpty()) {
+                mostrarAlerta("Departamento", "Debe seleccionar un departamento.");
+                return;
+            }
+
             Connection conn = Session.getConnection();
             UsuarioDAO dao = new UsuarioDAO(conn);
 
@@ -80,13 +93,16 @@ public class RegisterUserController implements Initializable {
                 return;
             }
 
+            // Guardar el nombre en mayúsculas
+            String nombreEnMayusculas = txtNombre.getText().trim().toUpperCase();
+
             Usuario usuario = new Usuario(
                 Long.parseLong(txtCedula.getText()),
-                txtNombre.getText().trim(),
+                nombreEnMayusculas,
                 correo,
                 txtTelefono.getText().trim(),
                 cbTipoUsuario.getValue().trim(),
-                txtDepartamento.getText().trim(),
+                cbDepartamento.getValue().trim(),
                 txtContrasena.getText()
             );
 
@@ -102,7 +118,7 @@ public class RegisterUserController implements Initializable {
     private boolean camposVacios() {
         return txtCedula.getText().isEmpty() || txtNombre.getText().isEmpty() ||
                txtCorreo.getText().isEmpty() || txtTelefono.getText().isEmpty() ||
-               cbTipoUsuario.getValue() == null || txtDepartamento.getText().isEmpty() ||
+               cbTipoUsuario.getValue() == null || cbDepartamento.getValue() == null ||
                txtContrasena.getText().isEmpty();
     }
 
@@ -116,7 +132,7 @@ public class RegisterUserController implements Initializable {
         txtCorreo.clear();
         txtTelefono.clear();
         cbTipoUsuario.setValue(null);
-        txtDepartamento.clear();
+        cbDepartamento.setValue(null);
         txtContrasena.clear();
     }
 
