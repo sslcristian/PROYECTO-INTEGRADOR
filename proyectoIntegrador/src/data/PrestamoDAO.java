@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.SolicitudInfo;
 public class PrestamoDAO {
     private final Connection connection;
 
@@ -178,4 +179,100 @@ public class PrestamoDAO {
         }
         return false; // Si hay error, no disponible
     }
-}
+    
+
+    public List<SolicitudInfo> obtenerSolicitudesVigentes(long cedulaUsuario) {
+        List<SolicitudInfo> solicitudes = new ArrayList<>();
+        String sql =
+            "SELECT s.id_solicitud, s.fecha_inicio, s.fecha_fin, s.estado, " +
+            "sal.nombre_sala, sal.ubicacion as ubicacion_sala, " +
+            "eq.nombre as nombre_equipo, eq.tipo as tipo_equipo, eq.ubicacion as ubicacion_equipo " +
+            "FROM proyecto343.TBL_SOLICITUD s " +
+            "LEFT JOIN proyecto343.TBL_SALA_INFORMATICA sal ON s.id_sala = sal.id_sala " +
+            "LEFT JOIN proyecto343.TBL_EQUIPO eq ON s.id_equipo = eq.id_equipo " +
+            "WHERE s.cedula_usuario = ? " +
+            "AND s.estado = 'Aceptada' " +
+            "AND s.fecha_fin >= TRUNC(SYSDATE)";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, cedulaUsuario);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                SolicitudInfo info = new SolicitudInfo();
+                info.setIdSolicitud(rs.getLong("id_solicitud"));
+                info.setFechaInicio(rs.getDate("fecha_inicio"));
+                info.setFechaFin(rs.getDate("fecha_fin"));
+                info.setEstado(rs.getString("estado"));
+                info.setNombreSala(rs.getString("nombre_sala"));
+                info.setUbicacionSala(rs.getString("ubicacion_sala"));
+                info.setNombreEquipo(rs.getString("nombre_equipo"));
+                info.setTipoEquipo(rs.getString("tipo_equipo"));
+                info.setUbicacionEquipo(rs.getString("ubicacion_equipo"));
+                solicitudes.add(info);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return solicitudes;
+    }
+
+    /**
+     * Marca la solicitud como 'Finalizada' (aceptada por el usuario o docente).
+     * Ya no se volverá a mostrar ni aparecerá como pendiente.
+     */
+    public boolean aceptarSolicitud(long idSolicitud) {
+        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET estado = 'Finalizada' WHERE id_solicitud = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, idSolicitud);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Elimina la solicitud de la base de datos si el usuario o docente la rechaza.
+     */
+    public boolean cancelarSolicitud(long idSolicitud) {
+        String sql = "DELETE FROM proyecto343.TBL_SOLICITUD WHERE id_solicitud = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, idSolicitud);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public List<String[]> obtenerDetallesPrestamosVigentes(long cedulaUsuario) {
+        List<String[]> prestamos = new ArrayList<>();
+        String sql =
+            "SELECT " +
+            "  CASE WHEN s.id_sala IS NOT NULL THEN sal.nombre_sala ELSE eq.nombre END AS nombre, " +
+            "  CASE WHEN s.id_sala IS NOT NULL THEN sal.ubicacion ELSE eq.ubicacion END AS ubicacion, " +
+            "  TO_CHAR(s.fecha_inicio, 'YYYY-MM-DD') AS fecha_inicio, " +
+            "  TO_CHAR(s.fecha_fin, 'YYYY-MM-DD') AS fecha_fin " +
+            "FROM proyecto343.TBL_SOLICITUD s " +
+            "LEFT JOIN proyecto343.TBL_SALA_INFORMATICA sal ON s.id_sala = sal.id_sala " +
+            "LEFT JOIN proyecto343.TBL_EQUIPO eq ON s.id_equipo = eq.id_equipo " +
+            "WHERE s.cedula_usuario = ? " +
+            "  AND s.estado = 'Aceptada' " +
+            "  AND s.fecha_fin >= TRUNC(SYSDATE)";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, cedulaUsuario);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String[] info = new String[4];
+                info[0] = rs.getString("nombre");
+                info[1] = rs.getString("ubicacion");
+                info[2] = rs.getString("fecha_inicio");
+                info[3] = rs.getString("fecha_fin");
+                prestamos.add(info);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return prestamos;
+    }
+    }

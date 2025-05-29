@@ -1,19 +1,25 @@
 package controller;
 
+import data.PrestamoDAO;
 import data.UsuarioDAO;
 import data.DBConnectionFactory;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.Session;
 import model.Usuario;
+import model.SolicitudInfo;
 
 import java.sql.Connection;
+import java.util.List;
+import java.util.Optional;
 
 public class LoginUserController {
 
@@ -39,7 +45,6 @@ public class LoginUserController {
             // Consultar el tipo de usuario antes de iniciar sesión
             String tipoUsuario = null;
             try {
-                // Usa una conexión temporal (puedes usar la de usuario por defecto para consultar el tipo)
                 Connection tempConn = DBConnectionFactory.getConnectionByRole("usuario").getConnection();
                 UsuarioDAO tempDao = new UsuarioDAO(tempConn);
                 Usuario userTemp = tempDao.findByCedula(cedula);
@@ -48,6 +53,7 @@ public class LoginUserController {
                     return;
                 }
                 tipoUsuario = userTemp.getTipoUsuario();
+                tempConn.close();
             } catch (Exception e) {
                 showAlert("Error", "No se pudo determinar el tipo de usuario: " + e.getMessage());
                 return;
@@ -76,11 +82,16 @@ public class LoginUserController {
                 return;
             }
 
-            UsuarioDAO dao = new UsuarioDAO(conn);
+            UsuarioDAO usuarioDao = new UsuarioDAO(conn);
+            PrestamoDAO prestamoDao = new PrestamoDAO(conn);
             Usuario usuario = null;
 
+            // --- NUEVO: Verifica si hay una solicitud aceptada vigente antes de autenticar completamente ---
+            List<SolicitudInfo> solicitudesVigentes = prestamoDao.obtenerSolicitudesVigentes(cedula);
+            mostrarResumenSolicitudesVigentes(solicitudesVigentes, prestamoDao);
+
             try {
-                usuario = dao.autenticar(cedula, contrasena);
+                usuario = usuarioDao.autenticar(cedula, contrasena);
             } catch (IllegalStateException ex) {
                 showAlert("Sanción Activa", ex.getMessage());
                 return;
@@ -89,6 +100,7 @@ public class LoginUserController {
             if (usuario != null) {
                 Session.setUsuarioActual(usuario);
 
+                // Cargar menú principal
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/UserMenu.fxml"));
                 Parent userMenu = loader.load();
 
@@ -107,6 +119,46 @@ public class LoginUserController {
         } catch (Exception e) {
             showAlert("Error", "Ocurrió un error inesperado: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    // Método para mostrar resumen de solicitudes vigentes, cada una con Aceptar y Rechazar
+    private void mostrarResumenSolicitudesVigentes(List<SolicitudInfo> solicitudesVigentes, PrestamoDAO prestamoDao) {
+        if (solicitudesVigentes != null && !solicitudesVigentes.isEmpty()) {
+            for (SolicitudInfo solicitud : solicitudesVigentes) {
+                String resumen = "Nombre: " + 
+                        (solicitud.getNombreSala() != null ? solicitud.getNombreSala() : solicitud.getNombreEquipo()) + "\n" +
+                        "Ubicación: " + 
+                        (solicitud.getUbicacionSala() != null ? solicitud.getUbicacionSala() : solicitud.getUbicacionEquipo()) + "\n" +
+                        "Fecha Inicio: " + solicitud.getFechaInicio() + "\n" +
+                        "Fecha Fin: " + solicitud.getFechaFin();
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Solicitud Vigente");
+                alert.setHeaderText("Resumen de tu solicitud");
+                alert.setContentText(resumen);
+
+                ButtonType btnAceptar = new ButtonType("Aceptar");
+                ButtonType btnRechazar = new ButtonType("Rechazar");
+                ButtonType btnCerrar = new ButtonType("Cerrar", ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(btnAceptar, btnRechazar, btnCerrar);
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent()) {
+                    if (result.get() == btnAceptar) {
+                        if (prestamoDao.aceptarSolicitud(solicitud.getIdSolicitud())) {
+                            showAlert("Préstamo", "Solicitud aceptada exitosamente.");
+                        } else {
+                            showAlert("Error", "No se pudo aceptar la solicitud.");
+                        }
+                    } else if (result.get() == btnRechazar) {
+                        if (prestamoDao.cancelarSolicitud(solicitud.getIdSolicitud())) {
+                            showAlert("Préstamo", "Solicitud rechazada exitosamente.");
+                        } else {
+                            showAlert("Error", "No se pudo rechazar la solicitud.");
+                        }
+                    }
+                }
+            }
         }
     }
 
