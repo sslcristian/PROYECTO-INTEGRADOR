@@ -3,6 +3,7 @@ package data;
 import model.Sancion;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
     private final Connection connection;
@@ -31,7 +32,39 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
             e.printStackTrace();
         }
     }
-
+    public int eliminarInactivasPorMes(int mes, int anio) {
+        String query = "DELETE FROM proyecto343.TBL_SANCION WHERE estado = 'Inactiva' AND EXTRACT(MONTH FROM fecha) = ? AND EXTRACT(YEAR FROM fecha) = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, mes);
+            stmt.setInt(2, anio);
+            return stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    public List<Sancion> buscarPorCedula(long cedula) {
+        List<Sancion> lista = new ArrayList<>();
+        String query = "SELECT * FROM proyecto343.TBL_SANCION WHERE cedula_usuario = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setLong(1, cedula);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Sancion s = new Sancion(
+                    rs.getInt("id_sancion"),
+                    rs.getLong("cedula_usuario"),
+                    rs.getDouble("monto"),
+                    rs.getString("motivo"),
+                    rs.getDate("fecha"),
+                    rs.getString("estado")
+                );
+                lista.add(s);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
     @Override
     public ArrayList<Sancion> fetch() {
         ArrayList<Sancion> lista = new ArrayList<>();
