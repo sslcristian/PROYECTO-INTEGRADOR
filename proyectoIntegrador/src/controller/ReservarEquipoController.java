@@ -50,6 +50,21 @@ public class ReservarEquipoController {
             equipoDAO = new EquipoAudiovisualDAO(conn);
             cargarEquiposDisponibles();
             configurarColumnas();
+
+            // Agregado: no permitir seleccionar fechas pasadas en los DatePicker
+            fechaInicioPicker.setDayCellFactory(picker -> new DateCell() {
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || date.isBefore(LocalDate.now()));
+                }
+            });
+            fechaFinPicker.setDayCellFactory(picker -> new DateCell() {
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || date.isBefore(LocalDate.now()));
+                }
+            });
+
         } catch (Exception e) {
             mostrarAlerta("No se pudo conectar a la base de datos: " + e.getMessage());
         }
@@ -101,6 +116,13 @@ public class ReservarEquipoController {
             horaFin = LocalTime.parse(horaFinStr);
         } catch (DateTimeParseException e) {
             mostrarAlerta("Hora inválida. Usa el formato HH:mm (ejemplo: 07:00, 14:30, 18:00).");
+            return;
+        }
+
+        // Agregado: Validación de que la fecha de inicio y fin no sean anteriores a la fecha de hoy
+        LocalDate hoy = LocalDate.now();
+        if (fechaInicio.isBefore(hoy) || fechaFin.isBefore(hoy)) {
+            mostrarAlerta("No puedes reservar para fechas que ya pasaron.");
             return;
         }
 
