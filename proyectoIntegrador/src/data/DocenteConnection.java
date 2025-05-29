@@ -24,7 +24,9 @@ public class DocenteConnection implements DBConnection {
     }
 
     public static DocenteConnection getInstance() {
-        if (instance == null) instance = new DocenteConnection();
+        if (instance == null || instance.connection == null || isConnectionClosed(instance.connection)) {
+            instance = new DocenteConnection();
+        }
         return instance;
     }
 
@@ -46,5 +48,13 @@ public class DocenteConnection implements DBConnection {
 
     private String getConnectionString() {
         return String.format("jdbc:oracle:thin:@%s:%s:%s", this.host, this.port, this.service);
+    }
+
+    private static boolean isConnectionClosed(Connection conn) {
+        try {
+            return conn == null || conn.isClosed();
+        } catch (SQLException e) {
+            return true;
+        }
     }
 }

@@ -24,7 +24,9 @@ public class UserConnection implements DBConnection {
     }
 
     public static UserConnection getInstance() {
-        if (instance == null) instance = new UserConnection();
+        if (instance == null || instance.connection == null || isConnectionClosed(instance.connection)) {
+            instance = new UserConnection();
+        }
         return instance;
     }
 
@@ -46,5 +48,13 @@ public class UserConnection implements DBConnection {
 
     private String getConnectionString() {
         return String.format("jdbc:oracle:thin:@%s:%s:%s", this.host, this.port, this.service);
+    }
+
+    private static boolean isConnectionClosed(Connection conn) {
+        try {
+            return conn == null || conn.isClosed();
+        } catch (SQLException e) {
+            return true;
+        }
     }
 }

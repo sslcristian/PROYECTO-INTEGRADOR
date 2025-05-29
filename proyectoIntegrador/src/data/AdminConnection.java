@@ -8,7 +8,7 @@ public class AdminConnection implements DBConnection {
 
     private static AdminConnection instance;
     private Connection connection;
-    private final String username = " subadmin";
+    private final String username = "subadmin";
     private final String password = "admin123";
     private final String host = "192.168.254.215";
     private final String port = "1521";
@@ -24,7 +24,9 @@ public class AdminConnection implements DBConnection {
     }
 
     public static AdminConnection getInstance() {
-        if (instance == null) instance = new AdminConnection();
+        if (instance == null || instance.connection == null || isConnectionClosed(instance.connection)) {
+            instance = new AdminConnection();
+        }
         return instance;
     }
 
@@ -46,5 +48,13 @@ public class AdminConnection implements DBConnection {
 
     private String getConnectionString() {
         return String.format("jdbc:oracle:thin:@%s:%s:%s", this.host, this.port, this.service);
+    }
+
+    private static boolean isConnectionClosed(Connection conn) {
+        try {
+            return conn == null || conn.isClosed();
+        } catch (SQLException e) {
+            return true;
+        }
     }
 }

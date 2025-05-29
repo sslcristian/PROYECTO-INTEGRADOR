@@ -20,6 +20,8 @@ import model.SolicitudInfo;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class LoginUserController {
 
@@ -125,13 +127,25 @@ public class LoginUserController {
     // Método para mostrar resumen de solicitudes vigentes, cada una con Aceptar y Rechazar
     private void mostrarResumenSolicitudesVigentes(List<SolicitudInfo> solicitudesVigentes, PrestamoDAO prestamoDao) {
         if (solicitudesVigentes != null && !solicitudesVigentes.isEmpty()) {
+            SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             for (SolicitudInfo solicitud : solicitudesVigentes) {
+                String fechaInicioStr = "";
+                String fechaFinStr = "";
+                Date fechaInicio = solicitud.getFechaInicio();
+                Date fechaFin = solicitud.getFechaFin();
+                if (fechaInicio != null) {
+                    fechaInicioStr = formato.format(fechaInicio);
+                }
+                if (fechaFin != null) {
+                    fechaFinStr = formato.format(fechaFin);
+                }
+
                 String resumen = "Nombre: " + 
                         (solicitud.getNombreSala() != null ? solicitud.getNombreSala() : solicitud.getNombreEquipo()) + "\n" +
                         "Ubicación: " + 
                         (solicitud.getUbicacionSala() != null ? solicitud.getUbicacionSala() : solicitud.getUbicacionEquipo()) + "\n" +
-                        "Fecha Inicio: " + solicitud.getFechaInicio() + "\n" +
-                        "Fecha Fin: " + solicitud.getFechaFin();
+                        "Fecha Inicio: " + fechaInicioStr + "\n" +
+                        "Fecha Fin: " + fechaFinStr;
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Solicitud Vigente");
                 alert.setHeaderText("Resumen de tu solicitud");
