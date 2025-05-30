@@ -10,6 +10,12 @@ public class EquipoPrestado {
     private Timestamp fechaFin;     
     private String observaciones;
 
+    // Nuevos campos para mostrar en la tabla
+    private String nombreEquipo;
+    private String cedulaUsuario;
+    private String nombreUsuario;
+
+    // Constructor original
     public EquipoPrestado(int idPrestamoE, int idSolicitudE, int idEquipo, Timestamp fechaInicio, Timestamp fechaFin, String observaciones) {
         this.idPrestamoE = idPrestamoE;
         this.idSolicitudE = idSolicitudE;
@@ -17,6 +23,29 @@ public class EquipoPrestado {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.observaciones = observaciones;
+    }
+
+    // Nuevo constructor para cuando se obtiene el join con nombres
+    public EquipoPrestado(
+            int idPrestamoE,
+            int idSolicitudE,
+            int idEquipo,
+            Timestamp fechaInicio,
+            Timestamp fechaFin,
+            String observaciones,
+            String nombreEquipo,
+            String cedulaUsuario,
+            String nombreUsuario
+    ) {
+        this.idPrestamoE = idPrestamoE;
+        this.idSolicitudE = idSolicitudE;
+        this.idEquipo = idEquipo;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.observaciones = observaciones;
+        this.nombreEquipo = nombreEquipo;
+        this.cedulaUsuario = cedulaUsuario;
+        this.nombreUsuario = nombreUsuario;
     }
 
     // Getters y setters
@@ -66,5 +95,30 @@ public class EquipoPrestado {
 
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+
+    // Getters y setters para los nuevos campos
+    public String getNombreEquipo() {
+        return nombreEquipo;
+    }
+
+    public void setNombreEquipo(String nombreEquipo) {
+        this.nombreEquipo = nombreEquipo;
+    }
+
+    public String getCedulaUsuario() {
+        return cedulaUsuario;
+    }
+
+    public void setCedulaUsuario(String cedulaUsuario) {
+        this.cedulaUsuario = cedulaUsuario;
+    }
+
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
     }
 }

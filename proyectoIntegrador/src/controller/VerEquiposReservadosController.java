@@ -22,8 +22,9 @@ import java.text.SimpleDateFormat;
 public class VerEquiposReservadosController {
 
     @FXML private TableView<EquipoPrestado> tablaEquiposReservados;
-    @FXML private TableColumn<EquipoPrestado, String> colEquipo;
-    @FXML private TableColumn<EquipoPrestado, String> colUsuario;
+    @FXML private TableColumn<EquipoPrestado, String> colNombreEquipo;
+    @FXML private TableColumn<EquipoPrestado, String> colCedula;
+    @FXML private TableColumn<EquipoPrestado, String> colNombreUsuario;
     @FXML private TableColumn<EquipoPrestado, String> colInicio;
     @FXML private TableColumn<EquipoPrestado, String> colFin;
     @FXML private TableColumn<EquipoPrestado, String> colEstado;
@@ -38,8 +39,9 @@ public class VerEquiposReservadosController {
     public void initialize() {
         SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-        colEquipo.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdEquipo())));
-        colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudE())));
+        colNombreEquipo.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNombreEquipo()));
+        colCedula.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCedulaUsuario()));
+        colNombreUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNombreUsuario()));
         colInicio.setCellValueFactory(cellData -> {
             Timestamp fecha = cellData.getValue().getFechaInicio();
             return new SimpleStringProperty(formatoCompleto.format(fecha));
@@ -64,16 +66,12 @@ public class VerEquiposReservadosController {
         fetchEquiposReservados();
     }
 
-    /**
-     * Solo se mostrarán reservas EN USO o FUTURAS, ocultando cualquier reserva terminada (fechaFin < ahora).
-     */
     @FXML
     public void fetchEquiposReservados() {
         try {
             ObservableList<EquipoPrestado> allEquipos = FXCollections.observableArrayList(equipoPrestadoDAO.fetch());
             Timestamp now = new Timestamp(System.currentTimeMillis());
 
-            // Filtra solo los equipos cuya fecha fin es igual o posterior a ahora (en uso o futuros)
             ObservableList<EquipoPrestado> vigentes = allEquipos.filtered(ep -> ep.getFechaFin().after(now));
             equipoReservadoList.setAll(vigentes);
             tablaEquiposReservados.setItems(equipoReservadoList);

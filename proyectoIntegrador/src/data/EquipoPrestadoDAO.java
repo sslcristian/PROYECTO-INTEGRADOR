@@ -164,5 +164,47 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
         return historialFiltrado;
     }
-    
+    public List<EquipoPrestado> fetchWithNames() {
+        List<EquipoPrestado> lista = new ArrayList<>();
+        String query = """
+            SELECT 
+                ep.id_prestamo_e,
+                ep.id_solicitud_e,
+                ep.id_equipo,
+                ep.fecha_inicio,
+                ep.fecha_fin,
+                ep.observaciones,
+                eq.nombre_equipo,
+                u.cedula AS cedula_usuario,
+                u.nombre AS nombre_usuario
+            FROM 
+                proyecto343.TBL_EQUIPO_PRESTADO ep
+            INNER JOIN 
+                proyecto343.TBL_EQUIPO eq ON ep.id_equipo = eq.id_equipo
+            INNER JOIN 
+                proyecto343.TBL_SOLICITUD_E s ON ep.id_solicitud_e = s.id_solicitud_e
+            INNER JOIN 
+                proyecto343.TBL_USUARIO u ON s.cedula = u.cedula
+            """;
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                EquipoPrestado equipo = new EquipoPrestado(
+                    rs.getInt("id_prestamo_e"),
+                    rs.getInt("id_solicitud_e"),
+                    rs.getInt("id_equipo"),
+                    rs.getTimestamp("fecha_inicio"),
+                    rs.getTimestamp("fecha_fin"),
+                    rs.getString("observaciones"),
+                    rs.getString("nombre_equipo"),
+                    rs.getString("cedula_usuario"),
+                    rs.getString("nombre_usuario")
+                );
+                lista.add(equipo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
 }
