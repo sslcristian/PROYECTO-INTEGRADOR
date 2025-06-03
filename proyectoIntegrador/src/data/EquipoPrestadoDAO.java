@@ -174,7 +174,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
                 ep.fecha_inicio,
                 ep.fecha_fin,
                 ep.observaciones,
-                eq.nombre_equipo,
+                eq.nombre AS nombre_equipo,
                 u.cedula AS cedula_usuario,
                 u.nombre AS nombre_usuario
             FROM 
@@ -182,9 +182,9 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
             INNER JOIN 
                 proyecto343.TBL_EQUIPO eq ON ep.id_equipo = eq.id_equipo
             INNER JOIN 
-                proyecto343.TBL_SOLICITUD_E s ON ep.id_solicitud_e = s.id_solicitud_e
+                proyecto343.TBL_SOLICITUD s ON ep.id_solicitud_e = s.id_solicitud
             INNER JOIN 
-                proyecto343.TBL_USUARIO u ON s.cedula = u.cedula
+                proyecto343.TBL_USUARIO u ON s.cedula_usuario = u.cedula
             """;
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
