@@ -16,7 +16,8 @@
     <TableView fx:id="tablaEquiposReservados" prefHeight="400" prefWidth="750">
         <columns>
             <TableColumn fx:id="colNombreEquipo" text="Nombre del Equipo" />
-            <TableColumn fx:id="colCedula" text="Cédula Usuario" />
+            <TableColumn fx:id="colCedulaUsuario" text="Cédula Usuario" />
+
             <TableColumn fx:id="colNombreUsuario" text="Nombre Usuario" />
             <TableColumn fx:id="colInicio" prefWidth="111.0" text="Fecha Inicio" />
             <TableColumn fx:id="colFin" prefWidth="90.0" text="Fecha Fin" />

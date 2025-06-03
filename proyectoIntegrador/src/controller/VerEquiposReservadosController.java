@@ -23,7 +23,7 @@ public class VerEquiposReservadosController {
 
     @FXML private TableView<EquipoPrestado> tablaEquiposReservados;
     @FXML private TableColumn<EquipoPrestado, String> colNombreEquipo;
-    @FXML private TableColumn<EquipoPrestado, String> colCedula;
+    @FXML private TableColumn<EquipoPrestado, String> colCedulaUsuario;
     @FXML private TableColumn<EquipoPrestado, String> colNombreUsuario;
     @FXML private TableColumn<EquipoPrestado, String> colInicio;
     @FXML private TableColumn<EquipoPrestado, String> colFin;
@@ -40,7 +40,7 @@ public class VerEquiposReservadosController {
         SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         colNombreEquipo.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNombreEquipo()));
-        colCedula.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCedulaUsuario()));
+        colCedulaUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCedulaUsuario()));
         colNombreUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNombreUsuario()));
         colInicio.setCellValueFactory(cellData -> {
             Timestamp fecha = cellData.getValue().getFechaInicio();
@@ -69,7 +69,7 @@ public class VerEquiposReservadosController {
     @FXML
     public void fetchEquiposReservados() {
         try {
-            ObservableList<EquipoPrestado> allEquipos = FXCollections.observableArrayList(equipoPrestadoDAO.fetch());
+        	ObservableList<EquipoPrestado> allEquipos = FXCollections.observableArrayList(equipoPrestadoDAO.fetchWithNames());
             Timestamp now = new Timestamp(System.currentTimeMillis());
 
             ObservableList<EquipoPrestado> vigentes = allEquipos.filtered(ep -> ep.getFechaFin().after(now));
