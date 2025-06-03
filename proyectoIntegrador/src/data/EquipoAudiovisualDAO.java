@@ -14,64 +14,66 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
 
     @Override
     public void save(EquipoAudiovisual equipo) {
-        String query = "INSERT INTO proyecto343.TBL_EQUIPO (id_equipo, nombre, tipo, estado, ubicacion, marca, modelo, fecha_adquisicion) " +
-                       "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            // Asegúrate de que estás pasando el id correctamente, ya que no es autoincremental
-            pstmt.setInt(1, equipo.getIdEquipo());  // Aquí es donde el id debe ser proporcionado
-            pstmt.setString(2, equipo.getNombre());
-            pstmt.setString(3, equipo.getTipo());
-            pstmt.setString(4, equipo.getEstado());
-            pstmt.setString(5, equipo.getUbicacion());
-            pstmt.setString(6, equipo.getMarca());
-            pstmt.setString(7, equipo.getModelo());
-            pstmt.setDate(8, equipo.getFechaAdquisicion());
-
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("✅ Equipo audiovisual registrado correctamente con ID: " + equipo.getIdEquipo());
-            }
+        if (equipo == null) {
+            System.out.println("El objeto EquipoAudiovisual es nulo. No se puede guardar.");
+            return;
+        }
+        if (exists(equipo.getIdEquipo())) {
+            System.out.println("El ID de equipo ya está registrado en la base de datos.");
+            return;
+        }
+        String call = "{call proyecto343.SP_INSERT_EQUIPO(?,?,?,?,?,?,?,?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, equipo.getIdEquipo());
+            cs.setString(2, equipo.getNombre());
+            cs.setString(3, equipo.getTipo());
+            cs.setString(4, equipo.getEstado());
+            cs.setString(5, equipo.getUbicacion());
+            cs.setString(6, equipo.getMarca());
+            cs.setString(7, equipo.getModelo());
+            cs.setDate(8, equipo.getFechaAdquisicion());
+            cs.execute();
+            System.out.println("✅ Equipo audiovisual registrado correctamente con ID: " + equipo.getIdEquipo());
         } catch (SQLException e) {
             System.err.println("❌ Error al registrar el equipo: " + e.getMessage());
-            e.printStackTrace();
         }
     }
-
 
     @Override
     public ArrayList<EquipoAudiovisual> fetch() {
         ArrayList<EquipoAudiovisual> equipos = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_EQUIPO";
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
+        String call = "{call proyecto343.SP_FETCH_EQUIPOS(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, Types.REF_CURSOR); 
+            cs.execute();
+            ResultSet rs = (ResultSet) cs.getObject(1);
             while (rs.next()) {
                 EquipoAudiovisual equipo = new EquipoAudiovisual(
-                        rs.getInt("id_equipo"),
-                        rs.getString("nombre"),
-                        rs.getString("tipo"),
-                        rs.getString("estado"),
-                        rs.getString("ubicacion"),
-                        rs.getString("marca"),
-                        rs.getString("modelo"),
-                        rs.getDate("fecha_adquisicion")
+                    rs.getInt("id_equipo"),
+                    rs.getString("nombre"),
+                    rs.getString("tipo"),
+                    rs.getString("estado"),
+                    rs.getString("ubicacion"),
+                    rs.getString("marca"),
+                    rs.getString("modelo"),
+                    rs.getDate("fecha_adquisicion")
                 );
                 equipos.add(equipo);
             }
+            rs.close();
         } catch (SQLException e) {
             System.err.println("❌ Error al obtener equipos: " + e.getMessage());
-            e.printStackTrace();
         }
-
         return equipos;
     }
+
     public ArrayList<EquipoAudiovisual> fetchDisponibles() {
         ArrayList<EquipoAudiovisual> equipos = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_EQUIPO WHERE estado = 'Disponible'";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+        String call = "{call proyecto343.SP_FETCH_EQUIPOS_DISPONIBLES(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, Types.REF_CURSOR);
+            cs.execute();
+            ResultSet rs = (ResultSet) cs.getObject(1);
             while (rs.next()) {
                 equipos.add(new EquipoAudiovisual(
                     rs.getInt("id_equipo"),
@@ -84,65 +86,89 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
                     rs.getDate("fecha_adquisicion")
                 ));
             }
+            rs.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("❌ Error al obtener equipos disponibles: " + e.getMessage());
         }
         return equipos;
     }
 
     @Override
     public void update(EquipoAudiovisual equipo) {
-        String sql = "UPDATE proyecto343.TBL_EQUIPO SET nombre=?, tipo=?, estado=?, ubicacion=?, marca=?, modelo=?, fecha_adquisicion=? WHERE id_equipo=?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, equipo.getNombre());
-            stmt.setString(2, equipo.getTipo());
-            stmt.setString(3, equipo.getEstado());
-            stmt.setString(4, equipo.getUbicacion());
-            stmt.setString(5, equipo.getMarca());
-            stmt.setString(6, equipo.getModelo());
-            stmt.setDate(7, equipo.getFechaAdquisicion());
-            stmt.setInt(8, equipo.getIdEquipo());
-            stmt.executeUpdate();
-
+        if (equipo == null) {
+            System.out.println("El objeto EquipoAudiovisual es nulo. No se puede actualizar.");
+            return;
+        }
+        String call = "{call proyecto343.SP_UPDATE_EQUIPO(?,?,?,?,?,?,?,?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, equipo.getIdEquipo());
+            cs.setString(2, equipo.getNombre());
+            cs.setString(3, equipo.getTipo());
+            cs.setString(4, equipo.getEstado());
+            cs.setString(5, equipo.getUbicacion());
+            cs.setString(6, equipo.getMarca());
+            cs.setString(7, equipo.getModelo());
+            cs.setDate(8, equipo.getFechaAdquisicion());
+            cs.execute();
             System.out.println("✅ Equipo actualizado con ID: " + equipo.getIdEquipo());
         } catch (SQLException e) {
             System.err.println("❌ Error al actualizar el equipo: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
     @Override
     public void delete(Integer id) {
-        String sql = "DELETE FROM proyecto343.TBL_EQUIPO WHERE id_equipo=?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("✅ Equipo con ID " + id + " eliminado correctamente.");
-            } else {
-                System.out.println("⚠️ No se encontró un equipo con el ID: " + id);
-            }
+        String call = "{call proyecto343.SP_DELETE_EQUIPO(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, id);
+            cs.execute();
+            System.out.println("✅ Equipo con ID " + id + " eliminado correctamente.");
         } catch (SQLException e) {
             System.err.println("❌ Error al eliminar el equipo: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
     @Override
     public boolean authenticate(Integer id) {
-        String sql = "SELECT id_equipo FROM proyecto343.TBL_EQUIPO WHERE id_equipo=?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
+        String call = "{? = call proyecto343.FN_EQUIPO_EXISTS(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, Types.INTEGER);
+            cs.setInt(2, id);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
-            System.err.println("❌ Error al autenticar equipo: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("❌ Error en authenticate: " + e.getMessage());
         }
         return false;
+    }
+
+    public boolean exists(Integer idEquipo) {
+        // Alias de authenticate para evitar duplicados
+        return authenticate(idEquipo);
+    }
+
+    public EquipoAudiovisual findById(Integer idEquipo) {
+        String query = "SELECT * FROM proyecto343.TBL_EQUIPO WHERE id_equipo=?";
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, idEquipo);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return new EquipoAudiovisual(
+                        rs.getInt("id_equipo"),
+                        rs.getString("nombre"),
+                        rs.getString("tipo"),
+                        rs.getString("estado"),
+                        rs.getString("ubicacion"),
+                        rs.getString("marca"),
+                        rs.getString("modelo"),
+                        rs.getDate("fecha_adquisicion")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error en findById: " + e.getMessage());
+        }
+        return null;
     }
     
 }
