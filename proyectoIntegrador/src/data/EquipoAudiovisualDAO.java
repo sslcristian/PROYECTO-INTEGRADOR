@@ -143,7 +143,7 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
     }
 
     public boolean exists(Integer idEquipo) {
-        // Alias de authenticate para evitar duplicados
+     
         return authenticate(idEquipo);
     }
 

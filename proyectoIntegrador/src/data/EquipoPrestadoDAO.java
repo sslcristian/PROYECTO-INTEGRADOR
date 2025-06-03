@@ -15,22 +15,18 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public void save(EquipoPrestado equipoPrestado) {
-        String query = "INSERT INTO proyecto343.TBL_EQUIPO_PRESTADO (id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones) " +
-                       "VALUES (?, ?, ?, ?, ?)";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, equipoPrestado.getIdSolicitudE());
-            pstmt.setInt(2, equipoPrestado.getIdEquipo());
-            pstmt.setTimestamp(3, equipoPrestado.getFechaInicio());
-            pstmt.setTimestamp(4, equipoPrestado.getFechaFin());
-            pstmt.setString(5, equipoPrestado.getObservaciones());
-
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Equipo prestado registrado correctamente.");
-            }
+        // Usando el procedimiento almacenado
+        String call = "{call proyecto343.SP_INSERT_EQUIPO_PRESTADO(?, ?, ?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, equipoPrestado.getIdSolicitudE());
+            cs.setInt(2, equipoPrestado.getIdEquipo());
+            cs.setTimestamp(3, equipoPrestado.getFechaInicio());
+            cs.setTimestamp(4, equipoPrestado.getFechaFin());
+            cs.setString(5, equipoPrestado.getObservaciones());
+            cs.execute();
+            System.out.println("Equipo prestado registrado correctamente.");
         } catch (SQLException e) {
-            System.err.println("Error al insertar el equipo prestado.");
+            System.err.println("Error al registrar el equipo prestado.");
             e.printStackTrace();
         }
     }
@@ -66,61 +62,53 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public void update(EquipoPrestado equipoPrestado) {
-        String query = "UPDATE proyecto343.TBL_EQUIPO_PRESTADO SET id_solicitud_e=?, id_equipo=?, fecha_inicio=?, fecha_fin=?, observaciones=? " +
-                       "WHERE id_prestamo_e=?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, equipoPrestado.getIdSolicitudE());
-            pstmt.setInt(2, equipoPrestado.getIdEquipo());
-            pstmt.setTimestamp(3, equipoPrestado.getFechaInicio());
-            pstmt.setTimestamp(4, equipoPrestado.getFechaFin());
-            pstmt.setString(5, equipoPrestado.getObservaciones());
-            pstmt.setInt(6, equipoPrestado.getIdPrestamoE());
-
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Equipo prestado actualizado correctamente.");
-            } else {
-                System.out.println("No se encontró un equipo prestado con el ID: " + equipoPrestado.getIdPrestamoE());
-            }
+        // Usando el procedimiento almacenado
+        String call = "{call proyecto343.SP_UPDATE_EQUIPO_PRESTADO(?, ?, ?, ?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, equipoPrestado.getIdPrestamoE());
+            cs.setInt(2, equipoPrestado.getIdSolicitudE());
+            cs.setInt(3, equipoPrestado.getIdEquipo());
+            cs.setTimestamp(4, equipoPrestado.getFechaInicio());
+            cs.setTimestamp(5, equipoPrestado.getFechaFin());
+            cs.setString(6, equipoPrestado.getObservaciones());
+            cs.execute();
+            System.out.println("Equipo prestado actualizado correctamente.");
         } catch (SQLException e) {
             System.err.println("Error al actualizar el equipo prestado.");
             e.printStackTrace();
         }
     }
-
     @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM proyecto343.TBL_EQUIPO_PRESTADO WHERE id_prestamo_e=?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Equipo prestado con ID " + id + " eliminado correctamente.");
-            } else {
-                System.out.println("No se encontró un equipo prestado con el ID: " + id);
-            }
+        // Usando el procedimiento almacenado
+        String call = "{call proyecto343.SP_DELETE_EQUIPO_PRESTADO(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, id);
+            cs.execute();
+            System.out.println("Equipo prestado con ID " + id + " eliminado correctamente.");
         } catch (SQLException e) {
             System.err.println("Error al eliminar el equipo prestado.");
             e.printStackTrace();
         }
     }
 
+
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_prestamo_e FROM proyecto343.TBL_EQUIPO_PRESTADO WHERE id_prestamo_e=?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+        // Usando la función almacenada
+        String call = "{? = call proyecto343.FN_EQUIPO_PRESTADO_EXISTS(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, Types.INTEGER);
+            cs.setInt(2, id);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             System.err.println("Error al autenticar el equipo prestado.");
             e.printStackTrace();
         }
         return false;
     }
+
     public List<EquipoPrestado> obtenerHistorialEquipos() throws SQLException {
         List<EquipoPrestado> historial = new ArrayList<>();
         String query = "SELECT * FROM proyecto343.TBL_EQUIPO_PRESTADO ORDER BY fecha_inicio DESC";
