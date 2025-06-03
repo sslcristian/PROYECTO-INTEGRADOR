@@ -14,29 +14,20 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public void save(Mantenimiento_Sala mantenimientoSala) {
-        String query = "INSERT INTO proyecto343.TBL_MANTENIMIENTO_S (id_mantenimiento, id_sala, fecha_mantenimiento, detalle, tecnico_responsable) " +
-                       "VALUES (proyecto343.SEQ_MANTENIMIENTO_S.NEXTVAL, ?, ?, ?, ?)";
-        String[] returnCols = { "id_mantenimiento" };
+        String call = "{call proyecto343.SP_INSERT_MANTENIMIENTO_S(?, ?, ?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, mantenimientoSala.getIdSala());
+            cs.setDate(2, mantenimientoSala.getFechaMantenimiento());
+            cs.setString(3, mantenimientoSala.getDetalle());
+            cs.setString(4, mantenimientoSala.getTecnicoResponsable());
+            cs.registerOutParameter(5, Types.INTEGER);
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query, returnCols)) {
-            pstmt.setInt(1, mantenimientoSala.getIdSala());
-            pstmt.setDate(2, mantenimientoSala.getFechaMantenimiento());
-            pstmt.setString(3, mantenimientoSala.getDetalle());
-            pstmt.setString(4, mantenimientoSala.getTecnicoResponsable());
+            cs.execute();
 
-            int rowsAffected = pstmt.executeUpdate();
+            int newId = cs.getInt(5);
+            mantenimientoSala.setIdMantenimiento(newId);
 
-            if (rowsAffected > 0) {
-                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        mantenimientoSala.setIdMantenimiento(generatedKeys.getInt(1));
-                    }
-                }
-                System.out.println("Mantenimiento de sala registrado correctamente.");
-
-                // Actualizar estado de la sala a "mantenimiento"
-                actualizarEstadoSala(mantenimientoSala.getIdSala(), "mantenimiento");
-            }
+            System.out.println("Mantenimiento de sala registrado correctamente (ID: " + newId + ").");
         } catch (SQLException e) {
             System.err.println("Error al registrar el mantenimiento de la sala.");
             e.printStackTrace();
@@ -71,20 +62,16 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public void update(Mantenimiento_Sala mantenimientoSala) {
-        String query = "UPDATE proyecto343.TBL_MANTENIMIENTO_S SET id_sala=?, fecha_mantenimiento=?, detalle=?, tecnico_responsable=? " +
-                       "WHERE id_mantenimiento=?";
+        String call = "{call proyecto343.SP_UPDATE_MANTENIMIENTO_S(?, ?, ?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, mantenimientoSala.getIdMantenimiento());
+            cs.setInt(2, mantenimientoSala.getIdSala());
+            cs.setDate(3, mantenimientoSala.getFechaMantenimiento());
+            cs.setString(4, mantenimientoSala.getDetalle());
+            cs.setString(5, mantenimientoSala.getTecnicoResponsable());
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, mantenimientoSala.getIdSala());
-            pstmt.setDate(2, mantenimientoSala.getFechaMantenimiento());
-            pstmt.setString(3, mantenimientoSala.getDetalle());
-            pstmt.setString(4, mantenimientoSala.getTecnicoResponsable());
-            pstmt.setInt(5, mantenimientoSala.getIdMantenimiento());
-
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Mantenimiento de sala actualizado correctamente.");
-            }
+            cs.execute();
+            System.out.println("Mantenimiento de sala actualizado correctamente.");
         } catch (SQLException e) {
             System.err.println("Error al actualizar el mantenimiento de la sala.");
             e.printStackTrace();
@@ -93,29 +80,11 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public void delete(Integer id) {
-        // Primero obtenemos el id de la sala asociada al mantenimiento a eliminar
-        String query = "SELECT id_sala FROM proyecto343.TBL_MANTENIMIENTO_S WHERE id_mantenimiento = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                int idSala = rs.getInt("id_sala");
-
-                // Eliminamos el mantenimiento
-                String deleteQuery = "DELETE FROM proyecto343.TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?";
-                try (PreparedStatement deleteStmt = connection.prepareStatement(deleteQuery)) {
-                    deleteStmt.setInt(1, id);
-                    int rowsAffected = deleteStmt.executeUpdate();
-
-                    if (rowsAffected > 0) {
-                        System.out.println("Mantenimiento de sala con ID " + id + " eliminado correctamente.");
-
-                        // Actualizamos el estado de la sala a "disponible"
-                        actualizarEstadoSala(idSala, "disponible");
-                    }
-                }
-            }
+        String call = "{call proyecto343.SP_DELETE_MANTENIMIENTO_S(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, id);
+            cs.execute();
+            System.out.println("Mantenimiento de sala con ID " + id + " eliminado correctamente.");
         } catch (SQLException e) {
             System.err.println("Error al eliminar el mantenimiento de la sala.");
             e.printStackTrace();
@@ -124,12 +93,13 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_mantenimiento FROM proyecto343.TBL_MANTENIMIENTO_S WHERE id_mantenimiento=?" ;
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+        String call = "{? = call proyecto343.FN_MANTENIMIENTO_S_EXISTS(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, Types.INTEGER);
+            cs.setInt(2, id);
+            cs.execute();
+            int existe = cs.getInt(1);
+            return existe > 0;
         } catch (SQLException e) {
             System.err.println("Error al autenticar el mantenimiento de sala.");
             e.printStackTrace();
@@ -138,14 +108,30 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
     }
 
     public void actualizarEstadoSala(int idSala, String estado) {
-        String sql = "UPDATE proyecto343.TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, estado);   // Establecer el nuevo estado de la sala
-            pstmt.setInt(2, idSala);      // Establecer el ID de la sala a actualizar
-            pstmt.executeUpdate();        // Ejecutar la actualización en la base de datos
+        String call = "{call proyecto343.SP_ACTUALIZAR_ESTADO_SALA(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idSala);
+            cs.setString(2, estado);
+            cs.execute();
         } catch (SQLException e) {
-            e.printStackTrace();          // Manejo de la excepción si ocurre un error
+            System.err.println("Error al actualizar el estado de la sala.");
+            e.printStackTrace();
         }
+    }
+
+    public boolean estaEnMantenimientoOcupada(int idSala) {
+        String call = "{? = call proyecto343.FN_SALA_MTO_OCUPADA(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, Types.INTEGER);
+            cs.setInt(2, idSala);
+            cs.execute();
+            int result = cs.getInt(1);
+            return result == 1;
+        } catch (SQLException e) {
+            System.err.println("Error al verificar si la sala está en mantenimiento u ocupada.");
+            e.printStackTrace();
+        }
+        return false;
     }
 
 
@@ -166,19 +152,6 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
         return salasDisponibles;
     }
-    public boolean estaEnMantenimientoOcupada(int idSala) {
-        String query = "SELECT estado FROM proyecto343.TBL_SALA_INFORMATICA WHERE id_sala = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, idSala);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                String estado = rs.getString("estado");
-                return "mantenimiento".equals(estado) || "ocupada".equals(estado);  // No permitir mantenimiento si está en mantenimiento o ocupada
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+   
 
 }

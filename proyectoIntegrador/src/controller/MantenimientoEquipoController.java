@@ -176,7 +176,7 @@ public class MantenimientoEquipoController {
             Optional<ButtonType> resultado = mostrarConfirmacion("¿Eliminar?", "¿Estás seguro de eliminar este mantenimiento?");
             if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
                 dao.delete(seleccionado.getIdMantenimiento());
-                dao.actualizarEstadoEquipo(seleccionado.getIdEquipo(), "disponible");
+                dao.actualizarEstadoEquipo(seleccionado.getIdEquipo(), "Disponible");
 
                 mostrarAlerta("Eliminado", "El mantenimiento ha sido eliminado correctamente.", Alert.AlertType.INFORMATION);
                 cargarMantenimientos();
