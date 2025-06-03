@@ -179,7 +179,7 @@ public class DevolucionController {
             return;
         }
         try {
-            devolucionDAO.eliminarDevolucion(seleccionada.getIdDevolucion());
+            devolucionDAO.delete(seleccionada.getIdDevolucion());
             mostrarAlerta("Éxito", "Devolución eliminada correctamente");
             cargarDevoluciones();
         } catch (Exception e) {

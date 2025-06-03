@@ -12,56 +12,30 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
         this.connection = connection;
     }
 
-    /**
-     * Guarda una devolución en la base de datos usando la secuencia para id_devolucion.
-     */
+    
     @Override
     public void save(Devolucion devolucion) {
-        int nextId = 0;
-        // Paso 1: Obtener el siguiente valor de la secuencia
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT proyecto343.seq_id_devolucion.NEXTVAL FROM dual")) {
-            if (rs.next()) {
-                nextId = rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        // Paso 2: Insertar el registro usando ese id
-        String query = "INSERT INTO proyecto343.tbl_devolucion " +
-                "(id_devolucion, id_solicitud, fecha_devolucion, hora_devolucion, estado_recurso, observaciones) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, nextId);
-            pstmt.setInt(2, devolucion.getIdSolicitud());
-            pstmt.setDate(3, devolucion.getFechaDevolucion());
-            pstmt.setTime(4, devolucion.getHoraDevolucion());
-            pstmt.setString(5, devolucion.getEstadoRecurso());
-            pstmt.setString(6, devolucion.getObservaciones());
-
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Devolución registrada correctamente.");
-            }
+        // Usar el procedimiento almacenado para insertar devolución
+        String call = "{call proyecto343.sp_insert_devolucion(?,?,?,?,?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, devolucion.getIdSolicitud());
+            cs.setDate(2, devolucion.getFechaDevolucion());
+            cs.setString(3, devolucion.getHoraDevolucion().toString()); // O ajusta formato si necesario
+            cs.setString(4, devolucion.getEstadoRecurso());
+            cs.setString(5, devolucion.getObservaciones());
+            cs.execute();
+            System.out.println("Devolución registrada correctamente (procedimiento almacenado).");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Lista todas las devoluciones de la base de datos.
-     */
     @Override
     public ArrayList<Devolucion> fetch() {
         ArrayList<Devolucion> devoluciones = new ArrayList<>();
         String query = "SELECT * FROM proyecto343.tbl_devolucion";
-
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
-
             while (rs.next()) {
                 int idDevolucion = rs.getInt("id_devolucion");
                 int idSolicitud = rs.getInt("id_solicitud");
@@ -71,90 +45,85 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
                 String observaciones = rs.getString("observaciones");
 
                 Devolucion devolucion = new Devolucion(
-                        idDevolucion, idSolicitud, fechaDevolucion, horaDevolucion, estadoRecurso, observaciones
-                );
+                        idDevolucion, idSolicitud, fechaDevolucion, horaDevolucion, estadoRecurso, observaciones);
                 devoluciones.add(devolucion);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return devoluciones;
     }
 
-    /**
-     * Actualiza una devolución existente.
-     */
     @Override
     public void update(Devolucion devolucion) {
-        String sql = "UPDATE proyecto343.tbl_devolucion " +
-                "SET fecha_devolucion=?, hora_devolucion=?, estado_recurso=?, observaciones=? " +
-                "WHERE id_devolucion=?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setDate(1, devolucion.getFechaDevolucion());
-            stmt.setTime(2, devolucion.getHoraDevolucion());
-            stmt.setString(3, devolucion.getEstadoRecurso());
-            stmt.setString(4, devolucion.getObservaciones());
-            stmt.setInt(5, devolucion.getIdDevolucion());
-            stmt.executeUpdate();
+        // Usar procedimiento almacenado para actualizar devolución
+        String call = "{call proyecto343.sp_update_devolucion(?,?,?,?,?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, devolucion.getIdDevolucion());
+            cs.setDate(2, devolucion.getFechaDevolucion());
+            cs.setString(3, devolucion.getHoraDevolucion().toString()); // O ajusta formato si necesario
+            cs.setString(4, devolucion.getEstadoRecurso());
+            cs.setString(5, devolucion.getObservaciones());
+            cs.execute();
+            System.out.println("Devolución actualizada correctamente (procedimiento almacenado).");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Elimina una devolución por su ID.
-     */
     @Override
     public void delete(Integer id) {
-        String sql = "DELETE FROM proyecto343.tbl_devolucion WHERE id_devolucion=?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Devolución con ID " + id + " eliminada correctamente.");
-            } else {
-                System.out.println("No se encontró una devolución con el ID: " + id);
-            }
+        // Usar procedimiento almacenado para eliminar devolución
+        String call = "{call proyecto343.sp_delete_devolucion(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, id);
+            cs.execute();
+            System.out.println("Devolución eliminada correctamente (procedimiento almacenado).");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Verifica si existe una devolución con el ID dado.
-     */
     @Override
     public boolean authenticate(Integer id) {
-        String sql = "SELECT id_devolucion FROM proyecto343.tbl_devolucion WHERE id_devolucion=?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
+        // Usar función almacenada para verificar existencia
+        String call = "{? = call proyecto343.fn_devolucion_exists(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setInt(2, id);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    /**
-     * Método adicional para listar devoluciones (útil para JavaFX TableView o conveniencia).
-     */
-    public ArrayList<Devolucion> listarDevoluciones() {
-        return fetch();
+    // Función adicional: verificar existencia por id_solicitud
+    public boolean existePorSolicitud(int idSolicitud) {
+        String call = "{? = call proyecto343.fn_dev_sol_exists(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setInt(2, idSolicitud);
+            cs.execute();
+            return cs.getInt(1) > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
-    /**
-     * Método adicional para registrar devolución (más expresivo para tu controlador).
-     */
-    public void registrarDevolucion(Devolucion devolucion) {
-        save(devolucion);
-    }
-    public void eliminarDevolucion(int idDevolucion) throws Exception {
-        String sql = "DELETE FROM proyecto343.TBL_DEVOLUCION WHERE ID_DEVOLUCION = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, idDevolucion);
-            stmt.executeUpdate();
+    // Función adicional: obtener estado del recurso por id_devolucion
+    public String obtenerEstadoPorId(int idDevolucion) {
+        String call = "{? = call proyecto343.fn_dev_estado_by_id(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.VARCHAR);
+            cs.setInt(2, idDevolucion);
+            cs.execute();
+            return cs.getString(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 }
