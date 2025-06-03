@@ -84,24 +84,30 @@ public class DevolucionController {
             return;
         }
         int idSolicitud = seleccion.getIdSolicitud();
-        
 
         String horaTxt = horaDevolucion.getText() != null ? horaDevolucion.getText().trim() : "";
 
-        // Solo necesitas verificar si fechaDevolucion, hora y estado están vacíos
         if (fechaDevolucion.getValue() == null ||
             horaTxt.isEmpty() || estadoRecurso.getText().trim().isEmpty()) {
             mostrarAlerta("Campos obligatorios", "Todos los campos menos observaciones son obligatorios.");
             return;
         }
 
+        // Validar fecha >= hoy
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        if (fechaDevolucion.getValue().isBefore(hoy)) {
+            mostrarAlerta("Fecha inválida", "No se pueden registrar devoluciones con fecha anterior a hoy.");
+            return;
+        }
+
+        // Validar hora formato 24h (HH:mm o HH:mm:ss y dentro de rango)
         String horaFormateada;
-        if (horaTxt.matches("\\d{2}:\\d{2}")) {
+        if (horaTxt.matches("([01]\\d|2[0-3]):[0-5]\\d")) {
             horaFormateada = horaTxt + ":00";
-        } else if (horaTxt.matches("\\d{2}:\\d{2}:\\d{2}")) {
+        } else if (horaTxt.matches("([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d")) {
             horaFormateada = horaTxt;
         } else {
-            mostrarAlerta("Formato incorrecto", "La hora debe tener formato HH:mm o HH:mm:ss");
+            mostrarAlerta("Formato incorrecto", "La hora debe tener formato HH:mm o HH:mm:ss en formato 24 horas (ej: 09:30 o 14:45:00).");
             return;
         }
 
@@ -111,7 +117,6 @@ public class DevolucionController {
             String estado = estadoRecurso.getText().trim();
             String obs = observaciones.getText() != null ? observaciones.getText().trim() : "";
 
-            // idDevolucion se genera en el DAO usando la secuencia
             Devolucion devolucion = new Devolucion(
                 0,
                 idSolicitud,
@@ -121,13 +126,8 @@ public class DevolucionController {
                 obs
             );
             devolucionDAO.save(devolucion);
-
-            // Cambia el estado de la solicitud a "Expirada"
             prestamoDAO.marcarSolicitudComoExpirada(idSolicitud);
-
-            // Refresca el ComboBox para que la solicitud devuelta ya no aparezca
             cargarSolicitudes();
-
             mostrarAlerta("Éxito", "Devolución registrada correctamente");
             cargarDevoluciones();
         } catch (IllegalArgumentException e) {
