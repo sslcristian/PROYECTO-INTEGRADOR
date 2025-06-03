@@ -13,28 +13,21 @@ public class PrestamoDAO {
         this.connection = connection;
     }
 
-    // Guarda una nueva solicitud usando la secuencia SEQ_TBL_SOLICITUD para el id
     public void save(SolicitudPrestamo solicitud) throws SQLException {
-        String sql = "INSERT INTO proyecto343.TBL_SOLICITUD (" +
-                "id_solicitud, cedula_usuario, detalle_recurso, fecha_inicio, fecha_fin, estado, id_sala, id_equipo" +
-                ") VALUES (proyecto343.SEQ_TBL_SOLICITUD.NEXTVAL, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setLong(1, solicitud.getCedulaUsuario());
-            ps.setString(2, solicitud.getDetalleRecurso());
-            ps.setTimestamp(3, solicitud.getFechaInicio());
-            ps.setTimestamp(4, solicitud.getFechaFin());
-            ps.setString(5, solicitud.getEstado());
-            if (solicitud.getIdSala() != null) {
-                ps.setInt(6, solicitud.getIdSala());
-            } else {
-                ps.setNull(6, Types.INTEGER);
-            }
-            if (solicitud.getIdEquipo() != null) {
-                ps.setInt(7, solicitud.getIdEquipo());
-            } else {
-                ps.setNull(7, Types.INTEGER);
-            }
-            ps.executeUpdate();
+        String call = "{call proyecto343.SP_INSERT_SOLICITUD(?, ?, ?, ?, ?, ?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, solicitud.getCedulaUsuario());
+            cs.setString(2, solicitud.getDetalleRecurso());
+            cs.setTimestamp(3, solicitud.getFechaInicio());
+            cs.setTimestamp(4, solicitud.getFechaFin());
+            cs.setString(5, solicitud.getEstado());
+            if (solicitud.getIdSala() != null) cs.setInt(6, solicitud.getIdSala());
+            else cs.setNull(6, Types.INTEGER);
+            if (solicitud.getIdEquipo() != null) cs.setInt(7, solicitud.getIdEquipo());
+            else cs.setNull(7, Types.INTEGER);
+            cs.registerOutParameter(8, Types.INTEGER);
+            cs.execute();
+            solicitud.setIdSolicitud(cs.getInt(8)); // Recupera el id generado
         }
     }
 
@@ -86,37 +79,28 @@ public class PrestamoDAO {
         return null;
     }
 
-    // Actualiza una solicitud existente
     public void update(SolicitudPrestamo solicitud) throws SQLException {
-        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET cedula_usuario=?, detalle_recurso=?, fecha_inicio=?, fecha_fin=?, estado=?, id_sala=?, id_equipo=? " +
-                     "WHERE id_solicitud=?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setLong(1, solicitud.getCedulaUsuario());
-            ps.setString(2, solicitud.getDetalleRecurso());
-            ps.setTimestamp(3, solicitud.getFechaInicio());
-            ps.setTimestamp(4, solicitud.getFechaFin());
-            ps.setString(5, solicitud.getEstado());
-            if (solicitud.getIdSala() != null) {
-                ps.setInt(6, solicitud.getIdSala());
-            } else {
-                ps.setNull(6, Types.INTEGER);
-            }
-            if (solicitud.getIdEquipo() != null) {
-                ps.setInt(7, solicitud.getIdEquipo());
-            } else {
-                ps.setNull(7, Types.INTEGER);
-            }
-            ps.setInt(8, solicitud.getIdSolicitud());
-            ps.executeUpdate();
+        String call = "{call proyecto343.SP_UPDATE_SOLICITUD(?, ?, ?, ?, ?, ?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, solicitud.getIdSolicitud());
+            cs.setLong(2, solicitud.getCedulaUsuario());
+            cs.setString(3, solicitud.getDetalleRecurso());
+            cs.setTimestamp(4, solicitud.getFechaInicio());
+            cs.setTimestamp(5, solicitud.getFechaFin());
+            cs.setString(6, solicitud.getEstado());
+            if (solicitud.getIdSala() != null) cs.setInt(7, solicitud.getIdSala());
+            else cs.setNull(7, Types.INTEGER);
+            if (solicitud.getIdEquipo() != null) cs.setInt(8, solicitud.getIdEquipo());
+            else cs.setNull(8, Types.INTEGER);
+            cs.execute();
         }
     }
 
-    // Elimina una solicitud por id
     public void delete(int id) throws SQLException {
-        String sql = "DELETE FROM proyecto343.TBL_SOLICITUD WHERE id_solicitud=?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ps.executeUpdate();
+        String call = "{call proyecto343.SP_DELETE_SOLICITUD(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, id);
+            cs.execute();
         }
     }
 
@@ -135,49 +119,44 @@ public class PrestamoDAO {
         return lista;
     }
 
-    // Cambia el estado de una solicitud a "Aceptada".
     public void aceptarSolicitud(int idSolicitud) throws SQLException {
-        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET estado = 'Aceptada' WHERE id_solicitud = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, idSolicitud);
-            ps.executeUpdate();
+        String call = "{call proyecto343.SP_ACEPTAR_SOLICITUD(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idSolicitud);
+            cs.execute();
         }
     }
 
     // Cambia el estado de una solicitud a "Rechazada".
     public void rechazarSolicitud(int idSolicitud) throws SQLException {
-        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET estado = 'Rechazada' WHERE id_solicitud = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, idSolicitud);
-            ps.executeUpdate();
+        String call = "{call proyecto343.SP_RECHAZAR_SOLICITUD(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idSolicitud);
+            cs.execute();
         }
     }
 
     // Marca una solicitud como expirada
     public void marcarSolicitudComoExpirada(int idSolicitud) throws SQLException {
-        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET estado = 'Expirada' WHERE id_solicitud = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, idSolicitud);
-            stmt.executeUpdate();
+        String call = "{call proyecto343.SP_EXPIRAR_SOLICITUD(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idSolicitud);
+            cs.execute();
         }
     }
     public boolean equipoDisponible(int idEquipo, Timestamp inicio, Timestamp fin) {
-        String query = "SELECT COUNT(*) FROM proyecto343.TBL_SOLICITUD " +
-                       "WHERE id_equipo = ? " +
-                       "AND estado IN ('Pendiente', 'Aprobada') " +
-                       "AND (? > fecha_inicio AND ? < fecha_fin)";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, idEquipo);
-            ps.setTimestamp(2, fin);
-            ps.setTimestamp(3, inicio);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) == 0; // Si es 0, el equipo está disponible
-            }
+        String call = "{? = call proyecto343.FN_EQUIPO_DISPONIBLE(?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setInt(2, idEquipo);
+            cs.setTimestamp(3, inicio);
+            cs.setTimestamp(4, fin);
+            cs.execute();
+            return cs.getInt(1) == 1; // 1=disponible, 0=no disponible
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false; // Si hay error, no disponible
+        return false;
     }
     
 
@@ -216,29 +195,25 @@ public class PrestamoDAO {
         return solicitudes;
     }
 
-    /**
-     * Marca la solicitud como 'Finalizada' (aceptada por el usuario o docente).
-     * Ya no se volverá a mostrar ni aparecerá como pendiente.
-     */
-    public boolean aceptarSolicitud(long idSolicitud) {
-        String sql = "UPDATE proyecto343.TBL_SOLICITUD SET estado = 'Finalizada' WHERE id_solicitud = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, idSolicitud);
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+ public boolean aceptarSolicitud(long idSolicitud) {
+	    String call = "{call proyecto343.SP_ACEPTAR_SOLICITUD(?)}";
+	    try (CallableStatement cs = connection.prepareCall(call)) {
+	        cs.setLong(1, idSolicitud);
+	        cs.execute();
+	        return true;
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
 
-    /**
-     * Elimina la solicitud de la base de datos si el usuario o docente la rechaza.
-     */
+    // Elimina la solicitud de la base de datos si el usuario o docente la rechaza.
     public boolean cancelarSolicitud(long idSolicitud) {
-        String sql = "DELETE FROM proyecto343.TBL_SOLICITUD WHERE id_solicitud = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, idSolicitud);
-            return stmt.executeUpdate() > 0;
+        String call = "{call proyecto343.SP_CANCELAR_SOLICITUD(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, idSolicitud);
+            cs.execute();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }
