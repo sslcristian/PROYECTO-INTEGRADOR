@@ -19,21 +19,17 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
             System.err.println("⚠️ No se pudo guardar: ya existe una sala con ID " + sala.getIdSala());
             return;
         }
-
-        String insertQuery = "INSERT INTO proyecto343.TBL_SALA_INFORMATICA " +
-                "(id_sala, nombre_sala, capacidad, software_disponible, hardware_especial, ubicacion, estado) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
-            pstmt.setInt(1, sala.getIdSala());
-            pstmt.setString(2, sala.getNombreSala());
-            pstmt.setInt(3, sala.getCapacidad());
-            pstmt.setString(4, sala.getSoftwareDisponible());
-            pstmt.setString(5, sala.getHardwareEspecial());
-            pstmt.setString(6, sala.getUbicacion());
-            pstmt.setString(7, sala.getEstado());
-
-            pstmt.executeUpdate();
+        // Procedimiento almacenado: SP_INSERT_SALA
+        String call = "{call proyecto343.SP_INSERT_SALA(?, ?, ?, ?, ?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, sala.getIdSala());
+            cs.setString(2, sala.getNombreSala());
+            cs.setInt(3, sala.getCapacidad());
+            cs.setString(4, sala.getSoftwareDisponible());
+            cs.setString(5, sala.getHardwareEspecial());
+            cs.setString(6, sala.getUbicacion());
+            cs.setString(7, sala.getEstado());
+            cs.execute();
             System.out.println("✅ Sala insertada correctamente.");
         } catch (SQLException e) {
             System.err.println("❌ Error al insertar sala: " + e.getMessage());
@@ -42,6 +38,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public void actualizarEstadoSegunReservas(int idSala) throws SQLException {
+        // Este método puede quedarse igual si depende de lógica de negocio local
         String sql = "SELECT COUNT(*) FROM proyecto343.TBL_SALA_PRESTADA "
                    + "WHERE id_sala = ? "
                    + "AND SYSDATE BETWEEN fecha_inicio AND fecha_fin";
@@ -62,13 +59,14 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         }
     }
 
-
     public boolean actualizarEstadoSala(int idSala, String estado) {
-        String sql = "UPDATE proyecto343.TBL_SALA_INFORMATICA SET estado = ? WHERE id_sala = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, estado);
-            ps.setInt(2, idSala);
-            return ps.executeUpdate() > 0;
+        // Procedimiento almacenado: SP_ACTUALIZAR_ESTADO_SALA
+        String call = "{call proyecto343.SP_ACTUALIZAR_ESTADO_SALA(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idSala);
+            cs.setString(2, estado);
+            cs.execute();
+            return true;
         } catch (SQLException e) {
             System.err.println("❌ Error al actualizar estado de sala: " + e.getMessage());
             e.printStackTrace();
@@ -105,21 +103,18 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
     @Override
     public void update(SalaInformatica sala) {
-        String query = "UPDATE proyecto343.TBL_SALA_INFORMATICA SET nombre_sala=?, capacidad=?, software_disponible=?, hardware_especial=?, ubicacion=?, estado=? WHERE id_sala=?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setString(1, sala.getNombreSala());
-            pstmt.setInt(2, sala.getCapacidad());
-            pstmt.setString(3, sala.getSoftwareDisponible());
-            pstmt.setString(4, sala.getHardwareEspecial());
-            pstmt.setString(5, sala.getUbicacion());
-            pstmt.setString(6, sala.getEstado());
-            pstmt.setInt(7, sala.getIdSala());
-
-            int rows = pstmt.executeUpdate();
-            System.out.println(rows > 0
-                    ? "✅ Sala actualizada correctamente."
-                    : "⚠️ No se encontró una sala con ID: " + sala.getIdSala());
+        // Procedimiento almacenado: SP_UPDATE_SALA
+        String call = "{call proyecto343.SP_UPDATE_SALA(?, ?, ?, ?, ?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, sala.getIdSala());
+            cs.setString(2, sala.getNombreSala());
+            cs.setInt(3, sala.getCapacidad());
+            cs.setString(4, sala.getSoftwareDisponible());
+            cs.setString(5, sala.getHardwareEspecial());
+            cs.setString(6, sala.getUbicacion());
+            cs.setString(7, sala.getEstado());
+            cs.execute();
+            System.out.println("✅ Sala actualizada correctamente.");
         } catch (SQLException e) {
             System.err.println("❌ Error al actualizar sala: " + e.getMessage());
             e.printStackTrace();
@@ -128,14 +123,12 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
     @Override
     public void delete(Integer idSala) {
-        String query = "DELETE FROM proyecto343.TBL_SALA_INFORMATICA WHERE id_sala = ?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, idSala);
-            int rows = pstmt.executeUpdate();
-            System.out.println(rows > 0
-                    ? "✅ Sala eliminada correctamente."
-                    : "⚠️ No se encontró una sala con ID: " + idSala);
+        // Procedimiento almacenado: SP_DELETE_SALA
+        String call = "{call proyecto343.SP_DELETE_SALA(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idSala);
+            cs.execute();
+            System.out.println("✅ Sala eliminada correctamente.");
         } catch (SQLException e) {
             System.err.println("❌ Error al eliminar sala: " + e.getMessage());
             e.printStackTrace();
@@ -148,13 +141,13 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public boolean exists(Integer idSala) {
-        String query = "SELECT 1 FROM proyecto343.TBL_SALA_INFORMATICA WHERE id_sala = ?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, idSala);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next(); // Retorna true si hay algún registro
-            }
+        // Función almacenada: FN_SALA_EXISTS
+        String call = "{? = call proyecto343.FN_SALA_EXISTS(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, Types.INTEGER);
+            cs.setInt(2, idSala);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             System.err.println("❌ Error al verificar existencia de sala: " + e.getMessage());
             e.printStackTrace();
@@ -163,6 +156,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public SalaInformatica findById(int idSala) {
+        // Consulta SELECT, no requiere procedimiento
         String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA WHERE id_sala = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(query)) {
             pstmt.setInt(1, idSala);
@@ -185,7 +179,9 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         }
         return null;
     }
+
     public ArrayList<SalaInformatica> fetchDisponibles() throws SQLException {
+        // Consulta SELECT, no requiere procedimiento
         ArrayList<SalaInformatica> salas = new ArrayList<>();
         String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA WHERE estado = 'disponible'";
         try (Statement stmt = connection.createStatement();
@@ -204,25 +200,25 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
         }
         return salas;
     }
+
     public boolean salaDisponible(int idSala, Timestamp inicio, Timestamp fin) {
-        String query = "SELECT COUNT(*) FROM proyecto343.TBL_SOLICITUD " +
-                       "WHERE id_sala = ? " +
-                       "AND estado IN ('Pendiente', 'Aprobada') " +
-                       "AND (? > fecha_inicio AND ? < fecha_fin)";
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setInt(1, idSala);
-            ps.setTimestamp(2, fin);
-            ps.setTimestamp(3, inicio);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) == 0; // Si es 0, la sala está disponible
-            }
+        // Función almacenada: FN_SALA_DISPONIBLE
+        String call = "{? = call proyecto343.FN_SALA_DISPONIBLE(?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, Types.INTEGER);
+            cs.setInt(2, idSala);
+            cs.setTimestamp(3, inicio);
+            cs.setTimestamp(4, fin);
+            cs.execute();
+            return cs.getInt(1) == 1;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false; // Si hay error, no disponible
+        return false;
     }
+
     public ArrayList<SalaInformatica> fetchAll() throws SQLException {
+        // Consulta SELECT, no requiere procedimiento
         ArrayList<SalaInformatica> salas = new ArrayList<>();
         String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA";
         try (Statement stmt = connection.createStatement();
