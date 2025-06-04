@@ -253,6 +253,18 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
         }
         return false;
     }
-
+    public boolean salaInformaticaExiste(int idSala) {
+        String call = "{ call proyecto343.VERIFICAR_SALA_INFORMATICA(?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idSala);
+            cs.registerOutParameter(2, java.sql.Types.INTEGER);
+            cs.execute();
+            int existe = cs.getInt(2);
+            return existe > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
    
 }

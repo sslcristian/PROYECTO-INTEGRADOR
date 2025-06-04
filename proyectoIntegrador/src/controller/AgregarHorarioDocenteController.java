@@ -134,6 +134,15 @@ public class AgregarHorarioDocenteController {
         int errores = 0;
 
         for (SalaPrestada sp : tableTemplate.getItems()) {
+            // Validar si la sala existe antes de todo
+            if (!salaPrestadaDAO.salaInformaticaExiste(sp.getIdSala())) {
+                errores++;
+                mostrarAlerta("Sala inexistente",
+                    "La sala con ID " + sp.getIdSala() + " no existe. Corrige el ID e intenta de nuevo.",
+                    Alert.AlertType.WARNING);
+                continue;
+            }
+
             boolean conflicto = salaPrestadaDAO.existeConflictoHorario(
                 sp.getIdSala(), sp.getFechaInicio(), sp.getFechaFin());
 
@@ -154,13 +163,9 @@ public class AgregarHorarioDocenteController {
                 errores++;
                 System.err.println("❌ Error al guardar sala prestada: " + sp);
                 e.printStackTrace();
-                if ("La sala no existe.".equals(e.getMessage())) {
-                    mostrarAlerta("Advertencia", "La sala no existe.", Alert.AlertType.WARNING);
-                } else {
-                    mostrarAlerta("Error de guardado",
-                        "No se pudo guardar la reserva para la sala con ID " + sp.getIdSala() + ".",
-                        Alert.AlertType.ERROR);
-                }
+                mostrarAlerta("Error de guardado",
+                    "No se pudo guardar la reserva para la sala con ID " + sp.getIdSala() + ".",
+                    Alert.AlertType.ERROR);
             }
         }
 
