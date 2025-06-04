@@ -12,19 +12,17 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
         this.connection = connection;
     }
 
-    @Override
     public void save(Usuario usuario) {
-        String query = "INSERT INTO proyecto343.TBL_USUARIO (CEDULA, NOMBRE, CORREO, TELEFONO, TIPO_USUARIO, DEPARTAMENTO, CONTRASEÑA) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setLong(1, usuario.getCedula());
-            pstmt.setString(2, usuario.getNombre());
-            pstmt.setString(3, usuario.getCorreo());
-            pstmt.setString(4, usuario.getTelefono());
-            pstmt.setString(5, usuario.getTipoUsuario());
-            pstmt.setString(6, usuario.getDepartamento());
-            pstmt.setString(7, usuario.getContraseña());
-            pstmt.executeUpdate();
-            System.out.println("Usuario guardado exitosamente.");
+        String call = "{ call proyecto343.SP_INSERTAR_USUARIO(?, ?, ?, ?, ?, ?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, usuario.getCedula());
+            cs.setString(2, usuario.getNombre());
+            cs.setString(3, usuario.getCorreo());
+            cs.setString(4, usuario.getTelefono());
+            cs.setString(5, usuario.getTipoUsuario());
+            cs.setString(6, usuario.getDepartamento());
+            cs.setString(7, usuario.getContraseña());
+            cs.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -54,89 +52,69 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
         return usuarios;
     }
 
-    @Override
     public void update(Usuario usuario) {
-        String query = "UPDATE proyecto343.TBL_USUARIO SET NOMBRE=?, CORREO=?, TELEFONO=?, TIPO_USUARIO=?, DEPARTAMENTO=?, CONTRASEÑA=? WHERE CEDULA=?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setString(1, usuario.getNombre());
-            pstmt.setString(2, usuario.getCorreo());
-            pstmt.setString(3, usuario.getTelefono());
-            pstmt.setString(4, usuario.getTipoUsuario());
-            pstmt.setString(5, usuario.getDepartamento());
-            pstmt.setString(6, usuario.getContraseña());
-            pstmt.setLong(7, usuario.getCedula());
-            pstmt.executeUpdate();
-            System.out.println("Usuario actualizado correctamente.");
+        String call = "{ call proyecto343.SP_ACTUALIZAR_USUARIO(?, ?, ?, ?, ?, ?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, usuario.getCedula());
+            cs.setString(2, usuario.getNombre());
+            cs.setString(3, usuario.getCorreo());
+            cs.setString(4, usuario.getTelefono());
+            cs.setString(5, usuario.getTipoUsuario());
+            cs.setString(6, usuario.getDepartamento());
+            cs.setString(7, usuario.getContraseña());
+            cs.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
     public void delete(Long cedula) {
-        String query = "DELETE FROM proyecto343.TBL_USUARIO WHERE CEDULA=?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setLong(1, cedula);
-            pstmt.executeUpdate();
-            System.out.println("Usuario eliminado correctamente.");
+        String call = "{ call proyecto343.SP_ELIMINAR_USUARIO(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, cedula);
+            cs.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
     public boolean authenticate(Long cedula) {
-        String query = "SELECT CEDULA FROM proyecto343.TBL_USUARIO WHERE CEDULA=?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setLong(1, cedula);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
+        String call = "{ ? = call proyecto343.FN_AUTENTICAR_USUARIO(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setLong(2, cedula);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
-
     public boolean correoExiste(String correo) {
-        String sql = "SELECT COUNT(*) FROM proyecto343.TBL_USUARIO WHERE CORREO = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, correo);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
+        String call = "{ ? = call proyecto343.FN_CORREO_EXISTE(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setString(2, correo);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    public Usuario autenticar(long cedula, String contrasena) {
-        String sql = "SELECT * FROM proyecto343.TBL_USUARIO WHERE CEDULA = ? AND CONTRASEÑA = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, cedula);
-            stmt.setString(2, contrasena);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                if (tieneSancionActiva(cedula)) {
-                    double monto = obtenerMontoSancionActiva(cedula);
-                    throw new IllegalStateException("Tienes una sanción activa, comunícate con los administradores. Monto: COP" + monto);
-                }
-                return new Usuario(
-                    rs.getLong("CEDULA"),
-                    rs.getString("NOMBRE"),
-                    rs.getString("CORREO"),
-                    rs.getString("TELEFONO"),
-                    rs.getString("TIPO_USUARIO"),
-                    rs.getString("DEPARTAMENTO"),
-                    rs.getString("CONTRASEÑA")
-                );
-            }
+    public boolean autenticar(long cedula, String contrasena) {
+        String call = "{ ? = call proyecto343.FN_AUTENTICAR_USUARIO_LOGIN(?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setLong(2, cedula);
+            cs.setString(3, contrasena);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
     public Usuario findByCedula(long cedula) {
@@ -185,13 +163,12 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
     }
 
     public boolean tieneSancionActiva(long cedula) {
-        String sql = "SELECT COUNT(*) FROM proyecto343.TBL_SANCION WHERE CEDULA_USUARIO = ? AND ESTADO = 'Activa'";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, cedula);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0; 
-            }
+        String call = "{ ? = call proyecto343.FN_TIENE_SANCION_ACTIVA(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setLong(2, cedula);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -199,26 +176,24 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
     }
 
     public double obtenerMontoSancionActiva(long cedula) {
-        String sql = "SELECT MONTO FROM proyecto343.TBL_SANCION WHERE CEDULA_USUARIO = ? AND ESTADO = 'Activa'";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, cedula);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getDouble("MONTO");
-            }
+        String call = "{ ? = call proyecto343.FN_MONTO_SANCION_ACTIVA(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.DOUBLE);
+            cs.setLong(2, cedula);
+            cs.execute();
+            return cs.getDouble(1);
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return 0.0;
     }
     public boolean NotificacionReserva(long cedula) {
-        String sql = "SELECT FROM proyecto343.TBL_PRESTAMO WHERE CEDULA_USUARIO = ? AND ESTADO = 'Aceptada'";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, cedula);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0; 
-            }
+        String call = "{ ? = call proyecto343.FN_NOTIFICACION_RESERVA(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setLong(2, cedula);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }

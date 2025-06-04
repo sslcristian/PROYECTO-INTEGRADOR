@@ -83,17 +83,18 @@ public class LoginUserController {
             PrestamoDAO prestamoDao = new PrestamoDAO(conn);
             Usuario usuario = null;
 
-          
-            List<SolicitudInfo> solicitudesVigentes = prestamoDao.obtenerSolicitudesVigentes(cedula);
-
+            // Validar usuario y contraseña
+            boolean autenticado;
             try {
-                usuario = usuarioDao.autenticar(cedula, contrasena);
+                autenticado = usuarioDao.autenticar(cedula, contrasena);
             } catch (IllegalStateException ex) {
                 showAlert("Sanción Activa", ex.getMessage());
                 return;
             }
 
-            if (usuario != null) {
+            if (autenticado) {
+                usuario = usuarioDao.findByCedula(cedula); // O usuarioDao.obtenerUsuarioPorCedula(cedula)
+                List<SolicitudInfo> solicitudesVigentes = prestamoDao.obtenerSolicitudesVigentes(cedula);
                 Session.setUsuarioActual(usuario);
 
                 // Cargar menu principal
