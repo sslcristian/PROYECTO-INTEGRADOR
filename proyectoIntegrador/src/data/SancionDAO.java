@@ -12,41 +12,29 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
         this.connection = connection;
     }
 
-    @Override
     public void save(Sancion sancion) {
-        try {
-            // 1. Obtener el siguiente valor de la secuencia
-            String sqlSeq = "SELECT proyecto343.SANCION_SEQ.NEXTVAL FROM DUAL";
-            int nextId = -1;
-            try (PreparedStatement seqStmt = connection.prepareStatement(sqlSeq)) {
-                ResultSet rs = seqStmt.executeQuery();
-                if (rs.next()) {
-                    nextId = rs.getInt(1);
-                }
-            }
-            sancion.setIdSancion(nextId);
-
-            // 2. Insertar el registro con el id previamente obtenido
-            String query = "INSERT INTO proyecto343.TBL_SANCION (id_sancion, cedula_usuario, monto, motivo, fecha, estado) VALUES (?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = connection.prepareStatement(query)) {
-                stmt.setInt(1, nextId);
-                stmt.setLong(2, sancion.getCedulaUsuario());
-                stmt.setDouble(3, sancion.getMonto());
-                stmt.setString(4, sancion.getMotivo());
-                stmt.setDate(5, sancion.getFecha());
-                stmt.setString(6, sancion.getEstado());
-                stmt.executeUpdate();
-            }
+        String call = "{ call proyecto343.SP_INSERTAR_SANCION(?, ?, ?, ?, ?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, sancion.getCedulaUsuario());
+            cs.setDouble(2, sancion.getMonto());
+            cs.setString(3, sancion.getMotivo());
+            cs.setDate(4, sancion.getFecha());
+            cs.setString(5, sancion.getEstado());
+            cs.registerOutParameter(6, java.sql.Types.INTEGER);
+            cs.execute();
+            sancion.setIdSancion(cs.getInt(6));
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
     public int eliminarInactivasPorMes(int mes, int anio) {
-        String query = "DELETE FROM proyecto343.TBL_SANCION WHERE estado = 'Inactiva' AND EXTRACT(MONTH FROM fecha) = ? AND EXTRACT(YEAR FROM fecha) = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, mes);
-            stmt.setInt(2, anio);
-            return stmt.executeUpdate();
+    	String call = "{ call proyecto343.SP_ELIMINAR_SANCION_INA(?, ?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, mes);
+            cs.setInt(2, anio);
+            cs.registerOutParameter(3, java.sql.Types.INTEGER);
+            cs.execute();
+            return cs.getInt(3);
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
@@ -103,43 +91,37 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
         return lista;
     }
 
-    @Override
     public void update(Sancion sancion) {
-        String query = "UPDATE proyecto343.TBL_SANCION SET cedula_usuario=?, monto=?, motivo=?, fecha=?, estado=? WHERE id_sancion=?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setLong(1, sancion.getCedulaUsuario());
-            stmt.setDouble(2, sancion.getMonto());
-            stmt.setString(3, sancion.getMotivo());
-            stmt.setDate(4, sancion.getFecha());
-            stmt.setString(5, sancion.getEstado());
-            stmt.setInt(6, sancion.getIdSancion());
-
-            stmt.executeUpdate();
+        String call = "{ call proyecto343.SP_ACTUALIZAR_SANCION(?, ?, ?, ?, ?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, sancion.getIdSancion());
+            cs.setLong(2, sancion.getCedulaUsuario());
+            cs.setDouble(3, sancion.getMonto());
+            cs.setString(4, sancion.getMotivo());
+            cs.setDate(5, sancion.getFecha());
+            cs.setString(6, sancion.getEstado());
+            cs.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
-    @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM proyecto343.TBL_SANCION WHERE id_sancion=?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
+        String call = "{ call proyecto343.SP_ELIMINAR_SANCION(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, id);
+            cs.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_sancion FROM proyecto343.TBL_SANCION WHERE id_sancion=?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, id);
-            return stmt.executeQuery().next();
+        String call = "{ ? = call proyecto343.FN_AUTENTICAR_SANCION(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setInt(2, id);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -147,22 +129,24 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
     }
 
     public boolean isUsuarioExistente(Long cedula) {
-        String query = "SELECT CEDULA FROM proyecto343.TBL_USUARIO WHERE CEDULA = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setLong(1, cedula);
-            return stmt.executeQuery().next();
+        String call = "{ ? = call proyecto343.FN_USUARIO_EXISTENTE(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setLong(2, cedula);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
-
     public boolean hasActiveSancion(long cedulaUsuario) {
-        String query = "SELECT COUNT(*) FROM proyecto343.TBL_SANCION WHERE cedula_usuario = ? AND estado = 'Activa'";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setLong(1, cedulaUsuario);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next() && rs.getInt(1) > 0;
+        String call = "{ ? = call proyecto343.FN_USUARIO_CON_SANCION_ACTIVA(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setLong(2, cedulaUsuario);
+            cs.execute();
+            return cs.getInt(1) > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -14,24 +14,15 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     }
 
     public void save(SalaPrestada salaPrestada) {
-        String query = "INSERT INTO proyecto343.TBL_SALA_PRESTADA " +
-                       "(id_prestamo_s, id_solicitud_s, id_sala, fecha_inicio, fecha_fin, observaciones) " +
-                       "VALUES (proyecto343.seq_id_prestamo_s.NEXTVAL, NULL, ?, ?, ?, ?)";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, salaPrestada.getIdSala());
-
-            pstmt.setTimestamp(2, new Timestamp(salaPrestada.getFechaInicio().getTime()));
-            pstmt.setTimestamp(3, new Timestamp(salaPrestada.getFechaFin().getTime()));
-
-            pstmt.setString(4, salaPrestada.getObservaciones());
-
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Sala prestada registrada correctamente.");
-            } else {
-                System.err.println("No se pudo registrar la sala prestada.");
-            }
+        String call = "{ call proyecto343.SP_INSERTAR_SALA_PRESTADA(?, ?, ?, ?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setObject(1, salaPrestada.getIdSolicitudS(), java.sql.Types.INTEGER);
+            cs.setInt(2, salaPrestada.getIdSala());
+            cs.setTimestamp(3, new Timestamp(salaPrestada.getFechaInicio().getTime()));
+            cs.setTimestamp(4, new Timestamp(salaPrestada.getFechaFin().getTime()));
+            cs.setString(5, salaPrestada.getObservaciones());
+            cs.execute();
+            System.out.println("Sala prestada registrada correctamente.");
         } catch (SQLException e) {
             System.err.println("Error al insertar la sala prestada.");
             e.printStackTrace();
@@ -116,52 +107,43 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
         }
         return lista;
     }
-    @Override
     public void update(SalaPrestada salaPrestada) {
-        String query = "UPDATE proyecto343.TBL_SALA_PRESTADA SET id_solicitud_s=?, id_sala=?, fecha_inicio=?, fecha_fin=?, observaciones=? WHERE id_prestamo_s=?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, salaPrestada.getIdSolicitudS());
-            pstmt.setInt(2, salaPrestada.getIdSala());
-            pstmt.setDate(3, salaPrestada.getFechaInicio());
-            pstmt.setDate(4, salaPrestada.getFechaFin());
-            pstmt.setString(5, salaPrestada.getObservaciones());
-            pstmt.setInt(6, salaPrestada.getIdPrestamoS());
-
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Sala prestada actualizada correctamente.");
-            }
+        String call = "{ call proyecto343.SP_ACTUALIZAR_SALA_PRESTADA(?, ?, ?, ?, ?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, salaPrestada.getIdPrestamoS());
+            cs.setObject(2, salaPrestada.getIdSolicitudS(), java.sql.Types.INTEGER);
+            cs.setInt(3, salaPrestada.getIdSala());
+            cs.setDate(4, salaPrestada.getFechaInicio());
+            cs.setDate(5, salaPrestada.getFechaFin());
+            cs.setString(6, salaPrestada.getObservaciones());
+            cs.execute();
+            System.out.println("Sala prestada actualizada correctamente.");
         } catch (SQLException e) {
             System.err.println("Error al actualizar la sala prestada.");
             e.printStackTrace();
         }
     }
 
-    @Override
     public void delete(Integer id) {
-        String query = "DELETE FROM proyecto343.TBL_SALA_PRESTADA WHERE id_prestamo_s=?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Sala prestada eliminada correctamente.");
-            }
+        String call = "{ call proyecto343.SP_ELIMINAR_SALA_PRESTADA(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, id);
+            cs.execute();
+            System.out.println("Sala prestada eliminada correctamente.");
         } catch (SQLException e) {
             System.err.println("Error al eliminar la sala prestada.");
             e.printStackTrace();
         }
     }
 
-    @Override
     public boolean authenticate(Integer id) {
-        String query = "SELECT id_prestamo_s FROM proyecto343.TBL_SALA_PRESTADA WHERE id_prestamo_s=?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+        String call = "{ ? = call proyecto343.FN_AUTENTICAR_SALA_PRESTADA(?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setInt(2, id);
+            cs.execute();
+            int existe = cs.getInt(1);
+            return existe > 0;
         } catch (SQLException e) {
             System.err.println("Error al autenticar la sala prestada.");
             e.printStackTrace();
@@ -233,33 +215,27 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     }
 
     public boolean existeConflictoHorario(int idSala, Date nuevoFechaInicio, Date nuevoFechaFin) {
-        String sql = "SELECT COUNT(*) FROM proyecto343.TBL_SALA_PRESTADA "
-                   + "WHERE id_sala = ? "
-                   + "AND fecha_inicio < ? "  // inicio existente < fin nuevo
-                   + "AND fecha_fin > ?";     // fin existente > inicio nuevo
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, idSala);
-            ps.setTimestamp(2, new Timestamp(nuevoFechaFin.getTime()));
-            ps.setTimestamp(3, new Timestamp(nuevoFechaInicio.getTime()));
-
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int count = rs.getInt(1);
-                return count > 0;
-            }
+        String call = "{ ? = call proyecto343.FN_CONFLICTO_HORARIO(?, ?, ?) }";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setInt(2, idSala);
+            cs.setTimestamp(3, new Timestamp(nuevoFechaInicio.getTime()));
+            cs.setTimestamp(4, new Timestamp(nuevoFechaFin.getTime()));
+            cs.execute();
+            int count = cs.getInt(1);
+            return count > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
     public boolean salaInformaticaExiste(int idSala) {
-        String call = "{ call proyecto343.VERIFICAR_SALA_INFORMATICA(?, ?) }";
+        String call = "{ ? = call proyecto343.FN_SALA_INFORMATICA_EXISTE(?) }";
         try (CallableStatement cs = connection.prepareCall(call)) {
-            cs.setInt(1, idSala);
-            cs.registerOutParameter(2, java.sql.Types.INTEGER);
+            cs.registerOutParameter(1, java.sql.Types.INTEGER);
+            cs.setInt(2, idSala);
             cs.execute();
-            int existe = cs.getInt(2);
+            int existe = cs.getInt(1);
             return existe > 0;
         } catch (SQLException e) {
             e.printStackTrace();
