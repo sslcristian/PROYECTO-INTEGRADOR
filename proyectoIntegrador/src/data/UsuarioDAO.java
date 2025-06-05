@@ -31,20 +31,23 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
     @Override
     public ArrayList<Usuario> fetch() {
         ArrayList<Usuario> usuarios = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_USUARIO";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                Usuario u = new Usuario(
-                    rs.getLong("CEDULA"),
-                    rs.getString("NOMBRE"),
-                    rs.getString("CORREO"),
-                    rs.getString("TELEFONO"),
-                    rs.getString("TIPO_USUARIO"),
-                    rs.getString("DEPARTAMENTO"),
-                    rs.getString("CONTRASENA")
-                );
-                usuarios.add(u);
+        String call = "{call proyecto343.sp_fetch_usuarios(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    Usuario u = new Usuario(
+                        rs.getLong("CEDULA"),
+                        rs.getString("NOMBRE"),
+                        rs.getString("CORREO"),
+                        rs.getString("TELEFONO"),
+                        rs.getString("TIPO_USUARIO"),
+                        rs.getString("DEPARTAMENTO"),
+                        rs.getString("CONTRASENA")
+                    );
+                    usuarios.add(u);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -118,20 +121,23 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
     }
 
     public Usuario findByCedula(long cedula) {
-        String sql = "SELECT * FROM proyecto343.TBL_USUARIO WHERE CEDULA = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, cedula);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new Usuario(
-                    rs.getLong("CEDULA"),
-                    rs.getString("NOMBRE"),
-                    rs.getString("CORREO"),
-                    rs.getString("TELEFONO"),
-                    rs.getString("TIPO_USUARIO"),
-                    rs.getString("DEPARTAMENTO"),
-                    rs.getString("CONTRASEÑA")
-                );
+        String call = "{call proyecto343.sp_find_usuario_by_cedula(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, cedula);
+            cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
+                if (rs.next()) {
+                    return new Usuario(
+                        rs.getLong("CEDULA"),
+                        rs.getString("NOMBRE"),
+                        rs.getString("CORREO"),
+                        rs.getString("TELEFONO"),
+                        rs.getString("TIPO_USUARIO"),
+                        rs.getString("DEPARTAMENTO"),
+                        rs.getString("CONTRASEÑA") 
+                    );
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -141,20 +147,23 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
 
     public Usuario obtenerUsuarioPorCedula(long cedula) {
         Usuario usuario = null;
-        String query = "SELECT * FROM proyecto343.TBL_USUARIO WHERE CEDULA = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setLong(1, cedula);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                usuario = new Usuario(
-                    rs.getLong("CEDULA"),
-                    rs.getString("NOMBRE"),
-                    rs.getString("CORREO"),
-                    rs.getString("TELEFONO"),
-                    rs.getString("TIPO_USUARIO"),
-                    rs.getString("DEPARTAMENTO"),
-                    rs.getString("CONTRASEÑA")
-                );
+        String call = "{call proyecto343.sp_obtener_usuario_por_cedula(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, cedula);
+            cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
+                if (rs.next()) {
+                    usuario = new Usuario(
+                        rs.getLong("CEDULA"),
+                        rs.getString("NOMBRE"),
+                        rs.getString("CORREO"),
+                        rs.getString("TELEFONO"),
+                        rs.getString("TIPO_USUARIO"),
+                        rs.getString("DEPARTAMENTO"),
+                        rs.getString("CONTRASEÑA") // O "CONTRASENA" según tu base
+                    );
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -202,20 +211,23 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
 
     public ArrayList<Usuario> fetchAllCedulaNombre() {
         ArrayList<Usuario> usuarios = new ArrayList<>();
-        String query = "SELECT CEDULA, NOMBRE FROM proyecto343.TBL_USUARIO";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                Usuario u = new Usuario(
-                    rs.getLong("CEDULA"),
-                    rs.getString("NOMBRE"),
-                    null, // correo
-                    null, // telefono
-                    null, // tipoUsuario
-                    null, // departamento
-                    null  // contraseña
-                );
-                usuarios.add(u);
+        String call = "{call proyecto343.sp_cedula_nombre(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    Usuario u = new Usuario(
+                        rs.getLong("CEDULA"),
+                        rs.getString("NOMBRE"),
+                        null, // correo
+                        null, // telefono
+                        null, // tipoUsuario
+                        null, // departamento
+                        null  // contraseña
+                    );
+                    usuarios.add(u);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -225,11 +237,14 @@ public class UsuarioDAO implements CRUD_Operation<Usuario, Long> {
 
     public java.util.HashMap<Long, String> fetchCedulaNombreMap() {
         java.util.HashMap<Long, String> mapa = new java.util.HashMap<>();
-        String query = "SELECT CEDULA, NOMBRE FROM proyecto343.TBL_USUARIO";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                mapa.put(rs.getLong("CEDULA"), rs.getString("NOMBRE"));
+        String call = "{call proyecto343.sp_cedula_nombre_map(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    mapa.put(rs.getLong("CEDULA"), rs.getString("NOMBRE"));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

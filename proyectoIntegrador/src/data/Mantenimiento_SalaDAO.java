@@ -37,26 +37,26 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
     @Override
     public ArrayList<Mantenimiento_Sala> fetch() {
         ArrayList<Mantenimiento_Sala> mantenimientos = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_MANTENIMIENTO_S";
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                Mantenimiento_Sala mantenimiento = new Mantenimiento_Sala(
+        String call = "{call proyecto343.sp_fetch_mantenimientos_sala(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    Mantenimiento_Sala mantenimiento = new Mantenimiento_Sala(
                         rs.getInt("id_mantenimiento"),
                         rs.getInt("id_sala"),
                         rs.getDate("fecha_mantenimiento"),
                         rs.getString("detalle"),
                         rs.getString("tecnico_responsable")
-                );
-                mantenimientos.add(mantenimiento);
+                    );
+                    mantenimientos.add(mantenimiento);
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener los mantenimientos de sala.");
             e.printStackTrace();
         }
-
         return mantenimientos;
     }
 
@@ -137,19 +137,19 @@ public class Mantenimiento_SalaDAO implements CRUD_Operation<Mantenimiento_Sala,
 
     public ArrayList<Integer> obtenerSalasDisponibles() {
         ArrayList<Integer> salasDisponibles = new ArrayList<>();
-        String query = "SELECT id_sala FROM proyecto343.TBL_SALA_INFORMATICA WHERE estado = 'disponible'";  // Consulta a salas disponibles
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                salasDisponibles.add(rs.getInt("id_sala"));  // Obtener los IDs de las salas
+        String call = "{call proyecto343.sp_fetch_salas_disponibles(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    salasDisponibles.add(rs.getInt("id_sala"));
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener las salas disponibles.");
             e.printStackTrace();
         }
-
         return salasDisponibles;
     }
    

@@ -76,14 +76,14 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
             ResultSet rs = (ResultSet) cs.getObject(1);
             while (rs.next()) {
                 equipos.add(new EquipoAudiovisual(
-                    rs.getInt("id_equipo"),
-                    rs.getString("nombre"),
-                    rs.getString("tipo"),
-                    rs.getString("estado"),
-                    rs.getString("ubicacion"),
-                    rs.getString("marca"),
-                    rs.getString("modelo"),
-                    rs.getDate("fecha_adquisicion")
+                    rs.getInt("ID_EQUIPO"),
+                    rs.getString("NOMBRE"),
+                    rs.getString("TIPO"),
+                    rs.getString("ESTADO"),
+                    rs.getString("UBICACION"),
+                    rs.getString("MARCA"),
+                    rs.getString("MODELO"),
+                    rs.getDate("FECHA_ADQUISICION")
                 ));
             }
             rs.close();
@@ -148,10 +148,12 @@ public class EquipoAudiovisualDAO implements CRUD_Operation<EquipoAudiovisual, I
     }
 
     public EquipoAudiovisual findById(Integer idEquipo) {
-        String query = "SELECT * FROM proyecto343.TBL_EQUIPO WHERE id_equipo=?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, idEquipo);
-            try (ResultSet rs = pstmt.executeQuery()) {
+        String call = "{call proyecto343.sp_find_equipo_by_id(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idEquipo);
+            cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
                 if (rs.next()) {
                     return new EquipoAudiovisual(
                         rs.getInt("id_equipo"),

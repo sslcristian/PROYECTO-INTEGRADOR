@@ -30,23 +30,25 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
         }
     }
 
-    @Override
     public ArrayList<Devolucion> fetch() {
         ArrayList<Devolucion> devoluciones = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.tbl_devolucion";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                int idDevolucion = rs.getInt("id_devolucion");
-                int idSolicitud = rs.getInt("id_solicitud");
-                Date fechaDevolucion = rs.getDate("fecha_devolucion");
-                Time horaDevolucion = rs.getTime("hora_devolucion");
-                String estadoRecurso = rs.getString("estado_recurso");
-                String observaciones = rs.getString("observaciones");
+        String call = "{call proyecto343.sp_fetch_devoluciones(?)}";
+        try (CallableStatement stmt = connection.prepareCall(call)) {
+            stmt.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            stmt.execute();
+            try (ResultSet rs = (ResultSet) stmt.getObject(1)) {
+                while (rs.next()) {
+                    int idDevolucion = rs.getInt("id_devolucion");
+                    int idSolicitud = rs.getInt("id_solicitud");
+                    Date fechaDevolucion = rs.getDate("fecha_devolucion");
+                    Time horaDevolucion = rs.getTime("hora_devolucion");
+                    String estadoRecurso = rs.getString("estado_recurso");
+                    String observaciones = rs.getString("observaciones");
 
-                Devolucion devolucion = new Devolucion(
-                        idDevolucion, idSolicitud, fechaDevolucion, horaDevolucion, estadoRecurso, observaciones);
-                devoluciones.add(devolucion);
+                    Devolucion devolucion = new Devolucion(
+                            idDevolucion, idSolicitud, fechaDevolucion, horaDevolucion, estadoRecurso, observaciones);
+                    devoluciones.add(devolucion);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

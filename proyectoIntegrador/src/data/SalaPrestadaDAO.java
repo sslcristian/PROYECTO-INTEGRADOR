@@ -32,75 +32,73 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
     @Override
     public ArrayList<SalaPrestada> fetch() {
         ArrayList<SalaPrestada> salasPrestadas = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_SALA_PRESTADA WHERE fecha_fin >= SYSDATE";
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                SalaPrestada salaPrestada = new SalaPrestada(
-                    rs.getInt("id_prestamo_s"),
-                    rs.getInt("id_solicitud_s"),
-                    rs.getInt("id_sala"),
-                    rs.getDate("fecha_inicio"),
-                    rs.getDate("fecha_fin"),
-                    rs.getString("observaciones")
-                );
-                salasPrestadas.add(salaPrestada);
+        String call = "{call proyecto343.sp_fetch_salas_prestadas_vi(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    SalaPrestada salaPrestada = new SalaPrestada(
+                        rs.getInt("id_prestamo_s"),
+                        rs.getInt("id_solicitud_s"),
+                        rs.getInt("id_sala"),
+                        rs.getDate("fecha_inicio"),
+                        rs.getDate("fecha_fin"),
+                        rs.getString("observaciones")
+                    );
+                    salasPrestadas.add(salaPrestada);
+                }
             }
-
         } catch (SQLException e) {
             System.err.println("Error al obtener las salas prestadas: " + e.getMessage());
             e.printStackTrace();
         }
-
         return salasPrestadas;
     }
     public ArrayList<SalaPrestada> fetchTodas() {
         ArrayList<SalaPrestada> salasPrestadas = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_SALA_PRESTADA";
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                salasPrestadas.add(new SalaPrestada(
-                    rs.getInt("id_prestamo_s"),
-                    rs.getInt("id_solicitud_s"),
-                    rs.getInt("id_sala"),
-                    rs.getDate("fecha_inicio"),
-                    rs.getDate("fecha_fin"),
-                    rs.getString("observaciones")
-                ));
+        String call = "{call proyecto343.sp_fetch_todas_salas_prestadas(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    salasPrestadas.add(new SalaPrestada(
+                        rs.getInt("id_prestamo_s"),
+                        rs.getInt("id_solicitud_s"),
+                        rs.getInt("id_sala"),
+                        rs.getDate("fecha_inicio"),
+                        rs.getDate("fecha_fin"),
+                        rs.getString("observaciones")
+                    ));
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener todas las reservas: " + e.getMessage());
             e.printStackTrace();
         }
-
         return salasPrestadas;
     }
     public List<SalaPrestadaConCedula> fetchConCedulaUsuario() {
         List<SalaPrestadaConCedula> lista = new ArrayList<>();
-        String query = "SELECT sp.*, s.cedula_usuario FROM proyecto343.TBL_SALA_PRESTADA sp " +
-                       "JOIN proyecto343.TBL_SOLICITUD s ON sp.id_solicitud_s = s.id_solicitud " +
-                       "WHERE sp.fecha_fin >= SYSDATE";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                SalaPrestadaConCedula sala = new SalaPrestadaConCedula(
-                    rs.getInt("id_prestamo_s"),
-                    rs.getInt("id_solicitud_s"),
-                    rs.getInt("id_sala"),
-                    rs.getDate("fecha_inicio"),
-                    rs.getDate("fecha_fin"),
-                    rs.getString("observaciones"),
-                    rs.getLong("cedula_usuario")
-                );
-                lista.add(sala);
+        String call = "{call proyecto343.sp_salas_prestadas_cedula(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    SalaPrestadaConCedula sala = new SalaPrestadaConCedula(
+                        rs.getInt("id_prestamo_s"),
+                        rs.getInt("id_solicitud_s"),
+                        rs.getInt("id_sala"),
+                        rs.getDate("fecha_inicio"),
+                        rs.getDate("fecha_fin"),
+                        rs.getString("observaciones"),
+                        rs.getLong("cedula_usuario")
+                    );
+                    lista.add(sala);
+                }
             }
-
         } catch (SQLException e) {
             System.err.println("Error al obtener reservas con cédula: " + e.getMessage());
             e.printStackTrace();
@@ -153,20 +151,21 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
     public List<SalaPrestada> obtenerHistorialSalas() throws SQLException {
         List<SalaPrestada> historial = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_SALA_PRESTADA ORDER BY fecha_inicio DESC";
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                historial.add(new SalaPrestada(
-                    rs.getInt("id_prestamo_s"),
-                    rs.getInt("id_solicitud_s"),
-                    rs.getInt("id_sala"),
-                    rs.getDate("fecha_inicio"),
-                    rs.getDate("fecha_fin"),
-                    rs.getString("observaciones")
-                ));
+        String call = "{call proyecto343.sp_historial_salas_prestadas(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    historial.add(new SalaPrestada(
+                        rs.getInt("id_prestamo_s"),
+                        rs.getInt("id_solicitud_s"),
+                        rs.getInt("id_sala"),
+                        rs.getDate("fecha_inicio"),
+                        rs.getDate("fecha_fin"),
+                        rs.getString("observaciones")
+                    ));
+                }
             }
         }
         return historial;
@@ -188,29 +187,28 @@ public class SalaPrestadaDAO implements CRUD_Operation<SalaPrestada, Integer> {
 
     public List<SalaPrestada> obtenerHistorialSalasPorFecha(Date fechaInicio, Date fechaFin) {
         List<SalaPrestada> historialSalas = new ArrayList<>();
-        String sql = "SELECT id_prestamo_s, id_solicitud_s, id_sala, fecha_inicio, fecha_fin, observaciones " +
-                     "FROM proyecto343.TBL_SALA_PRESTADA WHERE fecha_inicio >= ? AND fecha_fin <= ?";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setDate(1, fechaInicio);
-            ps.setDate(2, fechaFin);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                SalaPrestada salaPrestada = new SalaPrestada(
-                    rs.getInt("id_prestamo_s"),
-                    rs.getInt("id_solicitud_s"),
-                    rs.getInt("id_sala"),
-                    rs.getDate("fecha_inicio"),
-                    rs.getDate("fecha_fin"),
-                    rs.getString("observaciones")
-                );
-                historialSalas.add(salaPrestada);
+        String call = "{call proyecto343.sp_historial_salas_por_fecha(?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setDate(1, fechaInicio);
+            cs.setDate(2, fechaFin);
+            cs.registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(3)) {
+                while (rs.next()) {
+                    SalaPrestada salaPrestada = new SalaPrestada(
+                        rs.getInt("id_prestamo_s"),
+                        rs.getInt("id_solicitud_s"),
+                        rs.getInt("id_sala"),
+                        rs.getDate("fecha_inicio"),
+                        rs.getDate("fecha_fin"),
+                        rs.getString("observaciones")
+                    );
+                    historialSalas.add(salaPrestada);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return historialSalas;
     }
 

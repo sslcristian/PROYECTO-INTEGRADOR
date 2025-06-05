@@ -42,20 +42,23 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
 
     public ArrayList<Admin> fetch() {
         ArrayList<Admin> admins = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_ADMIN";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                Admin admin = new Admin(
-                    rs.getLong("CEDULA"),
-                    rs.getString("NOMBRE"),
-                    rs.getString("CORREO"),
-                    rs.getString("TELEFONO"),
-                    rs.getString("CONTRASEÑA_ADMIN"),
-                    rs.getString("DEPARTAMENTO"),
-                    rs.getString("CONTRASEÑA_ADMVO")
-                );
-                admins.add(admin);
+        String call = "{call proyecto343.sp_fetch_admins(?)}";
+        try (CallableStatement stmt = connection.prepareCall(call)) {
+            stmt.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            stmt.execute();
+            try (ResultSet rs = (ResultSet) stmt.getObject(1)) {
+                while (rs.next()) {
+                    Admin admin = new Admin(
+                        rs.getLong("CEDULA"),
+                        rs.getString("NOMBRE"),
+                        rs.getString("CORREO"),
+                        rs.getString("TELEFONO"),
+                        rs.getString("CONTRASEÑA_ADMIN"),
+                        rs.getString("DEPARTAMENTO"),
+                        rs.getString("CONTRASEÑA_ADMVO")
+                    );
+                    admins.add(admin);
+                }
             }
         } catch (SQLException e) {
             System.out.println("Error al obtener admins: " + e.getMessage());
@@ -154,10 +157,12 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
     }
 
     public Admin findByCedula(Long cedula) {
-        String query = "SELECT * FROM proyecto343.TBL_ADMIN WHERE CEDULA = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setLong(1, cedula);
-            try (ResultSet rs = pstmt.executeQuery()) {
+        String call = "{call proyecto343.sp_find_admin_by_cedula(?, ?)}";
+        try (CallableStatement stmt = connection.prepareCall(call)) {
+            stmt.setLong(1, cedula);
+            stmt.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+            stmt.execute();
+            try (ResultSet rs = (ResultSet) stmt.getObject(2)) {
                 if (rs.next()) {
                     return new Admin(
                         rs.getLong("CEDULA"),

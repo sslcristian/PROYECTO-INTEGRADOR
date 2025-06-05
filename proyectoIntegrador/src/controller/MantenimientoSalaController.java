@@ -17,6 +17,9 @@ import java.util.Optional;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.control.Alert;
+import java.time.LocalDate;
+import javafx.scene.control.DateCell;
+import javafx.util.Callback;
 
 public class MantenimientoSalaController {
     
@@ -46,19 +49,19 @@ public class MantenimientoSalaController {
     private Mantenimiento_SalaDAO dao;
 
     public MantenimientoSalaController() {
-        // Constructor vacío requerido por FXMLLoader
+
     }
 
     public void init(Connection connection) {
         this.dao = new Mantenimiento_SalaDAO(connection);
-        System.out.println("Conexión establecida: " + connection);  // Verificar conexión
+        System.out.println("Conexión establecida: " + connection);  
         cargarSalas();
         cargarMantenimientos();
     }
 
     @FXML
     private void initialize() {
-        // Configuración de las columnas
+       
         colIdSala.setCellValueFactory(cellData -> cellData.getValue().idSalaProperty().asObject());
         colFechaMantenimiento.setCellValueFactory(cellData -> cellData.getValue().fechaMantenimientoProperty());
         colDetalles.setCellValueFactory(cellData -> cellData.getValue().detalleProperty());
@@ -85,8 +88,25 @@ public class MantenimientoSalaController {
                 limpiarCampos();
             }
         });
-    }
 
+        // --------- BLOQUEAR FECHAS ANTERIORES A HOY EN EL DATEPICKER ----------
+        fechaMantenimiento.setDayCellFactory(new Callback<DatePicker, DateCell>() {
+            @Override
+            public DateCell call(final DatePicker datePicker) {
+                return new DateCell() {
+                    @Override
+                    public void updateItem(LocalDate item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item.isBefore(LocalDate.now())) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;"); // color opcional para mostrar fechas bloqueadas
+                        }
+                    }
+                };
+            }
+        });
+        // ----------------------------------------------------------------------
+    }
 
     private void seleccionarMantenimiento() {
         Mantenimiento_Sala seleccionado = tablaMantenimientoSala.getSelectionModel().getSelectedItem();
@@ -203,6 +223,11 @@ public class MantenimientoSalaController {
         if (comboSala.getValue() == null || fechaMantenimiento.getValue() == null ||
                 detalleMantenimiento.getText().trim().isEmpty() || tecnicoResponsable.getText().trim().isEmpty()) {
             mostrarAlerta("Error", "Todos los campos deben estar completos.", Alert.AlertType.ERROR);
+            return false;
+        }
+        // Validación adicional: no permitir fechas anteriores a hoy
+        if (fechaMantenimiento.getValue() != null && fechaMantenimiento.getValue().isBefore(LocalDate.now())) {
+            mostrarAlerta("Error", "No puedes seleccionar una fecha anterior a hoy.", Alert.AlertType.ERROR);
             return false;
         }
         return true;

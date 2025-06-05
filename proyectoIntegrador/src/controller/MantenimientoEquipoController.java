@@ -17,6 +17,9 @@ import java.util.Optional;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.control.Alert;
+import java.time.LocalDate;
+import javafx.scene.control.DateCell;
+import javafx.util.Callback;
 
 public class MantenimientoEquipoController {
     
@@ -56,8 +59,6 @@ public class MantenimientoEquipoController {
         cargarMantenimientos();
     }
 
-
-
     @FXML
     public void initialize() {
         // Configuración de las columnas
@@ -87,8 +88,25 @@ public class MantenimientoEquipoController {
                 limpiarCampos();
             }
         });
-    }
 
+        // --------- BLOQUEAR FECHAS ANTERIORES A HOY EN EL DATEPICKER ----------
+        fechaMantenimiento.setDayCellFactory(new Callback<DatePicker, DateCell>() {
+            @Override
+            public DateCell call(final DatePicker datePicker) {
+                return new DateCell() {
+                    @Override
+                    public void updateItem(LocalDate item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item.isBefore(LocalDate.now())) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;"); // color opcional para mostrar fechas bloqueadas
+                        }
+                    }
+                };
+            }
+        });
+        // ----------------------------------------------------------------------
+    }
 
     private void seleccionarMantenimiento() {
         Mantenimiento_Equipo seleccionado = tablaMantenimientoEquipo.getSelectionModel().getSelectedItem();
@@ -117,8 +135,6 @@ public class MantenimientoEquipoController {
 
         System.out.println("Items en el ComboBox: " + comboEquipo.getItems());  // Verificar los items en el ComboBox
     }
-
-
 
     private void cargarMantenimientos() {
         ArrayList<Mantenimiento_Equipo> lista = dao.fetch();
@@ -155,7 +171,6 @@ public class MantenimientoEquipoController {
             cargarMantenimientos();
         }
     }
-
 
     public void actualizarMantenimientoEquipo() {
         Mantenimiento_Equipo seleccionado = tablaMantenimientoEquipo.getSelectionModel().getSelectedItem();
@@ -207,6 +222,11 @@ public class MantenimientoEquipoController {
         if (comboEquipo.getValue() == null || fechaMantenimiento.getValue() == null ||
                 detalleMantenimiento.getText().trim().isEmpty() || tecnicoResponsable.getText().trim().isEmpty()) {
             mostrarAlerta("Error", "Todos los campos deben estar completos.", Alert.AlertType.ERROR);
+            return false;
+        }
+        // Validación adicional: no permitir fechas anteriores a hoy
+        if (fechaMantenimiento.getValue() != null && fechaMantenimiento.getValue().isBefore(LocalDate.now())) {
+            mostrarAlerta("Error", "No puedes seleccionar una fecha anterior a hoy.", Alert.AlertType.ERROR);
             return false;
         }
         return true;

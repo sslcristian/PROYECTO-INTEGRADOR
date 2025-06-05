@@ -37,25 +37,25 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
     @Override
     public ArrayList<Mantenimiento_Equipo> fetch() {
         ArrayList<Mantenimiento_Equipo> mantenimientos = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_MANTENIMIENTO_E";
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                Mantenimiento_Equipo mantenimiento = new Mantenimiento_Equipo(
+        String call = "{call proyecto343.sp_fetch_mantenimientos_equipo(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    Mantenimiento_Equipo mantenimiento = new Mantenimiento_Equipo(
                         rs.getInt("id_mantenimiento"),
                         rs.getInt("id_equipo"),
                         rs.getDate("fecha_mantenimiento"),
                         rs.getString("detalle"),
                         rs.getString("tecnico_responsable")
-                );
-                mantenimientos.add(mantenimiento);
+                    );
+                    mantenimientos.add(mantenimiento);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return mantenimientos;
     }
 
@@ -116,24 +116,23 @@ public class Mantenimiento_EquipoDAO implements CRUD_Operation<Mantenimiento_Equ
     }
 }
 
-    // Método para obtener los equipos disponibles
-    public ArrayList<Integer> obtenerEquiposDisponibles() {
-        ArrayList<Integer> equiposDisponibles = new ArrayList<>();
-        String query = "SELECT id_equipo FROM proyecto343.TBL_EQUIPO WHERE estado = 'Disponible'";  // Consulta a equipos disponibles
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                equiposDisponibles.add(rs.getInt("id_equipo"));  // Obtener los IDs de los equipos disponibles
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al obtener los equipos disponibles.");
-            e.printStackTrace();
-        }
-
-        return equiposDisponibles;
-    }
+ public ArrayList<Integer> obtenerEquiposDisponibles() {
+	    ArrayList<Integer> equiposDisponibles = new ArrayList<>();
+	    String call = "{call proyecto343.sp_fetch_equipos_disponibles(?)}";
+	    try (CallableStatement cs = connection.prepareCall(call)) {
+	        cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+	        cs.execute();
+	        try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+	            while (rs.next()) {
+	                equiposDisponibles.add(rs.getInt("id_equipo"));
+	            }
+	        }
+	    } catch (SQLException e) {
+	        System.err.println("Error al obtener los equipos disponibles.");
+	        e.printStackTrace();
+	    }
+	    return equiposDisponibles;
+	}
     public boolean estaEnMantenimiento(int idEquipo) {
         String call = "{? = call proyecto343.FN_ESTA_EN_MANTENIMIENTO(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {

@@ -3,8 +3,7 @@ package data;
 import model.SolicitudPrestamo;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
-import oracle.jdbc.OracleTypes; 
+import java.util.List; 
 import model.SolicitudInfo;
 public class PrestamoDAO {
     private final Connection connection;
@@ -27,19 +26,20 @@ public class PrestamoDAO {
             else cs.setNull(7, Types.INTEGER);
             cs.registerOutParameter(8, Types.INTEGER);
             cs.execute();
-            solicitud.setIdSolicitud(cs.getInt(8)); // Recupera el id generado
+            solicitud.setIdSolicitud(cs.getInt(8)); 
         }
     }
 
     // Lista todas las solicitudes
     public List<SolicitudPrestamo> fetchAll() throws SQLException {
         List<SolicitudPrestamo> solicitudes = new ArrayList<>();
-        String sql = "SELECT id_solicitud, cedula_usuario, detalle_recurso, fecha_inicio, fecha_fin, estado, id_sala, id_equipo " +
-                     "FROM proyecto343.TBL_SOLICITUD";
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) {
-                SolicitudPrestamo solicitud = new SolicitudPrestamo(
+        String call = "{call proyecto343.sp_fetch_all_solicitudes(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    SolicitudPrestamo solicitud = new SolicitudPrestamo(
                         rs.getInt("id_solicitud"),
                         rs.getLong("cedula_usuario"),
                         rs.getString("detalle_recurso"),
@@ -48,20 +48,21 @@ public class PrestamoDAO {
                         rs.getString("estado"),
                         rs.getObject("id_sala") == null ? null : rs.getInt("id_sala"),
                         rs.getObject("id_equipo") == null ? null : rs.getInt("id_equipo")
-                );
-                solicitudes.add(solicitud);
+                    );
+                    solicitudes.add(solicitud);
+                }
             }
         }
         return solicitudes;
     }
 
-    // Busca una solicitud por id
     public SolicitudPrestamo fetchById(int id) throws SQLException {
-        String sql = "SELECT id_solicitud, cedula_usuario, detalle_recurso, fecha_inicio, fecha_fin, estado, id_sala, id_equipo " +
-                     "FROM proyecto343.TBL_SOLICITUD WHERE id_solicitud = ?";
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
+        String call = "{call proyecto343.sp_fetch_solicitud_by_id(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, id);
+            cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
                 if (rs.next()) {
                     return new SolicitudPrestamo(
                         rs.getInt("id_solicitud"),
@@ -78,7 +79,6 @@ public class PrestamoDAO {
         }
         return null;
     }
-
     public void update(SolicitudPrestamo solicitud) throws SQLException {
         String call = "{call proyecto343.SP_UPDATE_SOLICITUD(?, ?, ?, ?, ?, ?, ?, ?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
@@ -106,19 +106,22 @@ public class PrestamoDAO {
 
     public ArrayList<model.SolicitudComboDTO> fetchSolicitudesAceptadas() throws SQLException {
         ArrayList<model.SolicitudComboDTO> lista = new ArrayList<>();
-        String sql = "SELECT id_solicitud, cedula_usuario FROM proyecto343.TBL_SOLICITUD WHERE estado = 'Aceptada'";
-        try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) {
-                lista.add(new model.SolicitudComboDTO(
-                    rs.getInt("id_solicitud"),
-                    rs.getInt("cedula_usuario")
-                ));
+        String call = "{call proyecto343.sp_fetch_solicitudes_aceptadas(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    lista.add(new model.SolicitudComboDTO(
+                        rs.getInt("id_solicitud"),
+                        rs.getInt("cedula_usuario")
+                    ));
+                }
             }
         }
         return lista;
     }
-
+  //marca una solicitud como Aceptada
     public void aceptarSolicitud(int idSolicitud) throws SQLException {
         String call = "{call proyecto343.SP_ACEPTAR_SOLICITUD(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
@@ -162,32 +165,25 @@ public class PrestamoDAO {
 
     public List<SolicitudInfo> obtenerSolicitudesVigentes(long cedulaUsuario) {
         List<SolicitudInfo> solicitudes = new ArrayList<>();
-        String sql =
-            "SELECT s.id_solicitud, s.fecha_inicio, s.fecha_fin, s.estado, " +
-            "sal.nombre_sala, sal.ubicacion as ubicacion_sala, " +
-            "eq.nombre as nombre_equipo, eq.tipo as tipo_equipo, eq.ubicacion as ubicacion_equipo " +
-            "FROM proyecto343.TBL_SOLICITUD s " +
-            "LEFT JOIN proyecto343.TBL_SALA_INFORMATICA sal ON s.id_sala = sal.id_sala " +
-            "LEFT JOIN proyecto343.TBL_EQUIPO eq ON s.id_equipo = eq.id_equipo " +
-            "WHERE s.cedula_usuario = ? " +
-            "AND s.estado = 'Aceptada' " +
-            "AND s.fecha_fin >= TRUNC(SYSDATE)";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, cedulaUsuario);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                SolicitudInfo info = new SolicitudInfo();
-                info.setIdSolicitud(rs.getLong("id_solicitud"));
-                info.setFechaInicio(rs.getDate("fecha_inicio"));
-                info.setFechaFin(rs.getDate("fecha_fin"));
-                info.setEstado(rs.getString("estado"));
-                info.setNombreSala(rs.getString("nombre_sala"));
-                info.setUbicacionSala(rs.getString("ubicacion_sala"));
-                info.setNombreEquipo(rs.getString("nombre_equipo"));
-                info.setTipoEquipo(rs.getString("tipo_equipo"));
-                info.setUbicacionEquipo(rs.getString("ubicacion_equipo"));
-                solicitudes.add(info);
+        String call = "{call proyecto343.sp_solicitudes_vigentes(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, cedulaUsuario);
+            cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
+                while (rs.next()) {
+                    SolicitudInfo info = new SolicitudInfo();
+                    info.setIdSolicitud(rs.getLong("id_solicitud"));
+                    info.setFechaInicio(rs.getDate("fecha_inicio"));
+                    info.setFechaFin(rs.getDate("fecha_fin"));
+                    info.setEstado(rs.getString("estado"));
+                    info.setNombreSala(rs.getString("nombre_sala"));
+                    info.setUbicacionSala(rs.getString("ubicacion_sala"));
+                    info.setNombreEquipo(rs.getString("nombre_equipo"));
+                    info.setTipoEquipo(rs.getString("tipo_equipo"));
+                    info.setUbicacionEquipo(rs.getString("ubicacion_equipo"));
+                    solicitudes.add(info);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -221,29 +217,20 @@ public class PrestamoDAO {
     }
     public List<String[]> obtenerDetallesPrestamosVigentes(long cedulaUsuario) {
         List<String[]> prestamos = new ArrayList<>();
-        String sql =
-            "SELECT " +
-            "  CASE WHEN s.id_sala IS NOT NULL THEN sal.nombre_sala ELSE eq.nombre END AS nombre, " +
-            "  CASE WHEN s.id_sala IS NOT NULL THEN sal.ubicacion ELSE eq.ubicacion END AS ubicacion, " +
-            "  TO_CHAR(s.fecha_inicio, 'YYYY-MM-DD') AS fecha_inicio, " +
-            "  TO_CHAR(s.fecha_fin, 'YYYY-MM-DD') AS fecha_fin " +
-            "FROM proyecto343.TBL_SOLICITUD s " +
-            "LEFT JOIN proyecto343.TBL_SALA_INFORMATICA sal ON s.id_sala = sal.id_sala " +
-            "LEFT JOIN proyecto343.TBL_EQUIPO eq ON s.id_equipo = eq.id_equipo " +
-            "WHERE s.cedula_usuario = ? " +
-            "  AND s.estado = 'Aceptada' " +
-            "  AND s.fecha_fin >= TRUNC(SYSDATE)";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, cedulaUsuario);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                String[] info = new String[4];
-                info[0] = rs.getString("nombre");
-                info[1] = rs.getString("ubicacion");
-                info[2] = rs.getString("fecha_inicio");
-                info[3] = rs.getString("fecha_fin");
-                prestamos.add(info);
+        String call = "{call proyecto343.sp_detalles_prestamos_vigentes(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, cedulaUsuario);
+            cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
+                while (rs.next()) {
+                    String[] info = new String[4];
+                    info[0] = rs.getString("nombre");
+                    info[1] = rs.getString("ubicacion");
+                    info[2] = rs.getString("fecha_inicio");
+                    info[3] = rs.getString("fecha_fin");
+                    prestamos.add(info);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -34,29 +34,29 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
     @Override
     public ArrayList<EquipoPrestado> fetch() {
         ArrayList<EquipoPrestado> equipoPrestados = new ArrayList<>();
-        String query = "SELECT id_prestamo_e, id_solicitud_e, id_equipo, fecha_inicio, fecha_fin, observaciones FROM proyecto343.TBL_EQUIPO_PRESTADO";
+        String call = "{call proyecto343.sp_fetch_equipo_prestado(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    int idPrestamoE = rs.getInt("id_prestamo_e");
+                    int idSolicitudE = rs.getInt("id_solicitud_e");
+                    int idEquipo = rs.getInt("id_equipo");
+                    Timestamp fechaInicio = rs.getTimestamp("fecha_inicio");
+                    Timestamp fechaFin = rs.getTimestamp("fecha_fin");
+                    String observaciones = rs.getString("observaciones");
 
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                int idPrestamoE = rs.getInt("id_prestamo_e");
-                int idSolicitudE = rs.getInt("id_solicitud_e");
-                int idEquipo = rs.getInt("id_equipo");
-                Timestamp fechaInicio = rs.getTimestamp("fecha_inicio");
-                Timestamp fechaFin = rs.getTimestamp("fecha_fin");
-                String observaciones = rs.getString("observaciones");
-
-                EquipoPrestado equipoPrestado = new EquipoPrestado(
+                    EquipoPrestado equipoPrestado = new EquipoPrestado(
                         idPrestamoE, idSolicitudE, idEquipo, fechaInicio, fechaFin, observaciones
-                );
-                equipoPrestados.add(equipoPrestado);
+                    );
+                    equipoPrestados.add(equipoPrestado);
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al obtener los equipos prestados.");
             e.printStackTrace();
         }
-
         return equipoPrestados;
     }
 
@@ -111,84 +111,69 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     public List<EquipoPrestado> obtenerHistorialEquipos() throws SQLException {
         List<EquipoPrestado> historial = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_EQUIPO_PRESTADO ORDER BY fecha_inicio DESC";
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                historial.add(new EquipoPrestado(
-                    rs.getInt("id_prestamo_e"),
-                    rs.getInt("id_solicitud_e"),
-                    rs.getInt("id_equipo"),
-                    rs.getTimestamp("fecha_inicio"),
-                    rs.getTimestamp("fecha_fin"),
-                    rs.getString("observaciones")
-                ));
+        String call = "{call proyecto343.sp_historial_equipo_prestado(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    historial.add(new EquipoPrestado(
+                        rs.getInt("id_prestamo_e"),
+                        rs.getInt("id_solicitud_e"),
+                        rs.getInt("id_equipo"),
+                        rs.getTimestamp("fecha_inicio"),
+                        rs.getTimestamp("fecha_fin"),
+                        rs.getString("observaciones")
+                    ));
+                }
             }
         }
-
-        return historial;}
+        return historial;
+    }
     public List<EquipoPrestado> obtenerHistorialEquiposPorFecha(Timestamp desde, Timestamp hasta) throws SQLException {
         List<EquipoPrestado> historialFiltrado = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_EQUIPO_PRESTADO WHERE fecha_inicio BETWEEN ? AND ? ORDER BY fecha_inicio DESC";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setTimestamp(1, desde);
-            pstmt.setTimestamp(2, hasta);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                historialFiltrado.add(new EquipoPrestado(
-                    rs.getInt("id_prestamo_e"),
-                    rs.getInt("id_solicitud_e"),
-                    rs.getInt("id_equipo"),
-                    rs.getTimestamp("fecha_inicio"),
-                    rs.getTimestamp("fecha_fin"),
-                    rs.getString("observaciones")
-                ));
+        String call = "{call proyecto343.sp_historiale_por_fecha(?, ?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setTimestamp(1, desde);
+            cs.setTimestamp(2, hasta);
+            cs.registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(3)) {
+                while (rs.next()) {
+                    historialFiltrado.add(new EquipoPrestado(
+                        rs.getInt("id_prestamo_e"),
+                        rs.getInt("id_solicitud_e"),
+                        rs.getInt("id_equipo"),
+                        rs.getTimestamp("fecha_inicio"),
+                        rs.getTimestamp("fecha_fin"),
+                        rs.getString("observaciones")
+                    ));
+                }
             }
         }
-
         return historialFiltrado;
     }
     public List<EquipoPrestado> fetchWithNames() {
         List<EquipoPrestado> lista = new ArrayList<>();
-        String query = """
-            SELECT 
-                ep.id_prestamo_e,
-                ep.id_solicitud_e,
-                ep.id_equipo,
-                ep.fecha_inicio,
-                ep.fecha_fin,
-                ep.observaciones,
-                eq.nombre AS nombre_equipo,
-                u.cedula AS cedula_usuario,
-                u.nombre AS nombre_usuario
-            FROM 
-                proyecto343.TBL_EQUIPO_PRESTADO ep
-            INNER JOIN 
-                proyecto343.TBL_EQUIPO eq ON ep.id_equipo = eq.id_equipo
-            INNER JOIN 
-                proyecto343.TBL_SOLICITUD s ON ep.id_solicitud_e = s.id_solicitud
-            INNER JOIN 
-                proyecto343.TBL_USUARIO u ON s.cedula_usuario = u.cedula
-            """;
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                EquipoPrestado equipo = new EquipoPrestado(
-                    rs.getInt("id_prestamo_e"),
-                    rs.getInt("id_solicitud_e"),
-                    rs.getInt("id_equipo"),
-                    rs.getTimestamp("fecha_inicio"),
-                    rs.getTimestamp("fecha_fin"),
-                    rs.getString("observaciones"),
-                    rs.getString("nombre_equipo"),
-                    rs.getString("cedula_usuario"),
-                    rs.getString("nombre_usuario")
-                );
-                lista.add(equipo);
+        String call = "{call proyecto343.sp_fetch_equipo_prestado_names(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    EquipoPrestado equipo = new EquipoPrestado(
+                        rs.getInt("id_prestamo_e"),
+                        rs.getInt("id_solicitud_e"),
+                        rs.getInt("id_equipo"),
+                        rs.getTimestamp("fecha_inicio"),
+                        rs.getTimestamp("fecha_fin"),
+                        rs.getString("observaciones"),
+                        rs.getString("nombre_equipo"),
+                        rs.getString("cedula_usuario"),
+                        rs.getString("nombre_usuario")
+                    );
+                    lista.add(equipo);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
