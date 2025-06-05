@@ -1,4 +1,4 @@
-module proyectoIntegrador {
+module enrollmentSoftware {
 	requires javafx.controls;
 	requires javafx.fxml;
 	requires java.sql;

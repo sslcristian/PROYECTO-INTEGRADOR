@@ -4,7 +4,7 @@ import model.SolicitudPrestamo;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+import oracle.jdbc.OracleTypes; 
 import model.SolicitudInfo;
 public class PrestamoDAO {
     private final Connection connection;
