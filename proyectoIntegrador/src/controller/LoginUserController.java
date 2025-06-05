@@ -26,6 +26,7 @@ public class LoginUserController {
     @FXML
     private void iniciarSesion() {
         try {
+  
             if (txtCedula.getText().isEmpty() || txtContrasena.getText().isEmpty()) {
                 showAlert("Campos vacíos", "Por favor, complete todos los campos.");
                 return;
@@ -41,8 +42,7 @@ public class LoginUserController {
 
             // Consultar el tipo de usuario antes de iniciar sesión
             String tipoUsuario = null;
-            try {
-                Connection tempConn = DBConnectionFactory.getConnectionByRole("usuario").getConnection();
+            try (Connection tempConn = DBConnectionFactory.getConnectionByRole("usuario").getConnection()) {
                 UsuarioDAO tempDao = new UsuarioDAO(tempConn);
                 Usuario userTemp = tempDao.findByCedula(cedula);
                 if (userTemp == null) {
@@ -50,7 +50,6 @@ public class LoginUserController {
                     return;
                 }
                 tipoUsuario = userTemp.getTipoUsuario();
-                tempConn.close();
             } catch (Exception e) {
                 showAlert("Error", "No se pudo determinar el tipo de usuario: " + e.getMessage());
                 return;
@@ -63,6 +62,18 @@ public class LoginUserController {
 
             tipoUsuario = tipoUsuario.trim().toLowerCase();
             String rolConexion = tipoUsuario.equals("docente") ? "docente" : "usuario";
+
+            //  VERIFICAR SANCIÓN ACTIVA ANTES DE INICIAR SESIÓN 
+            try (Connection sancionConn = DBConnectionFactory.getConnectionByRole("usuario").getConnection()) {
+                data.SancionDAO sancionDao = new data.SancionDAO(sancionConn);
+                if (sancionDao.hasActiveSancion(cedula)) {
+                    showAlert("Sanción activa", "No puede iniciar sesión porque tiene una sanción activa (comunicate con los administradores).");
+                    return;
+                }
+            } catch (Exception e) {
+                showAlert("Error", "No se pudo verificar sanción activa: " + e.getMessage());
+                return;
+            }
 
             // Inicializa la sesión y la conexión SOLO si no existe
             if (Session.getConnection() == null) {
@@ -81,7 +92,6 @@ public class LoginUserController {
 
             UsuarioDAO usuarioDao = new UsuarioDAO(conn);
             PrestamoDAO prestamoDao = new PrestamoDAO(conn);
-            Usuario usuario = null;
 
             // Validar usuario y contraseña
             boolean autenticado;
@@ -93,7 +103,7 @@ public class LoginUserController {
             }
 
             if (autenticado) {
-                usuario = usuarioDao.findByCedula(cedula); // O usuarioDao.obtenerUsuarioPorCedula(cedula)
+                Usuario usuario = usuarioDao.findByCedula(cedula);
                 List<SolicitudInfo> solicitudesVigentes = prestamoDao.obtenerSolicitudesVigentes(cedula);
                 Session.setUsuarioActual(usuario);
 
@@ -101,7 +111,7 @@ public class LoginUserController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/UserMenu.fxml"));
                 Parent userMenu = loader.load();
 
-                // Pasa las solicitudes vigentes al UserMenuController
+                // Pasa las solicitudes vigentes 
                 controller.UserMenuController userMenuController = loader.getController();
                 userMenuController.setSolicitudesVigentes(solicitudesVigentes, prestamoDao);
 
