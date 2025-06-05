@@ -42,39 +42,40 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
     }
     public List<Sancion> buscarPorCedula(long cedula) {
         List<Sancion> lista = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_SANCION WHERE cedula_usuario = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setLong(1, cedula);
-            ResultSet rs = stmt.executeQuery();
+        String call = "{call proyecto343.SP_SANCIONES_POR_CEDULA(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setLong(1, cedula); 
+            cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            ResultSet rs = (ResultSet) cs.getObject(2);
             while (rs.next()) {
                 Sancion s = new Sancion(
-                    rs.getInt("id_sancion"),
-                    rs.getLong("cedula_usuario"),
-                    rs.getDouble("monto"),
-                    rs.getString("motivo"),
-                    rs.getDate("fecha"),
-                    rs.getString("estado")
+                    rs.getInt("ID_SANCION"),
+                    rs.getLong("CEDULA_USUARIO"),
+                    rs.getDouble("MONTO"),
+                    rs.getString("MOTIVO"),
+                    rs.getDate("FECHA"),
+                    rs.getString("ESTADO")
                 );
                 lista.add(s);
             }
+            rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return lista;
     }
-    @Override
     public ArrayList<Sancion> fetch() {
         ArrayList<Sancion> lista = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_SANCION";
-
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
+        String call = "{call proyecto343.SP_FETCH_SANCIONES(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            ResultSet rs = (ResultSet) cs.getObject(1);
             while (rs.next()) {
                 String motivo = rs.getClob("MOTIVO") != null
                     ? rs.getClob("MOTIVO").getSubString(1, (int) rs.getClob("MOTIVO").length())
                     : null;
-
                 lista.add(new Sancion(
                     rs.getInt("ID_SANCION"),
                     rs.getLong("CEDULA_USUARIO"),
@@ -84,10 +85,10 @@ public class SancionDAO implements CRUD_Operation<Sancion, Integer> {
                     rs.getString("ESTADO")
                 ));
             }
+            rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return lista;
     }
 

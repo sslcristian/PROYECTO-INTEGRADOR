@@ -78,7 +78,7 @@ public class AdminMenuController {
         }
     }
 
-    // Método para mostrar alertas de error
+   
     private void mostrarAlerta(String titulo, String mensaje) {
         Alert alerta = new Alert(Alert.AlertType.ERROR);
         alerta.setTitle(titulo);

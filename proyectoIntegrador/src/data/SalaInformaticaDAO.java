@@ -19,7 +19,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
             System.err.println("⚠️ No se pudo guardar: ya existe una sala con ID " + sala.getIdSala());
             return;
         }
-        // Procedimiento almacenado: SP_INSERT_SALA
+      
         String call = "{call proyecto343.SP_INSERT_SALA(?, ?, ?, ?, ?, ?, ?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, sala.getIdSala());
@@ -38,24 +38,10 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public void actualizarEstadoSegunReservas(int idSala) throws SQLException {
-        // Este método puede quedarse igual si depende de lógica de negocio local
-        String sql = "SELECT COUNT(*) FROM proyecto343.TBL_SALA_PRESTADA "
-                   + "WHERE id_sala = ? "
-                   + "AND SYSDATE BETWEEN fecha_inicio AND fecha_fin";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setInt(1, idSala);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    int count = rs.getInt(1);
-                    System.out.println("Reservas activas para sala " + idSala + ": " + count);
-                    if (count > 0) {
-                        actualizarEstadoSala(idSala, "Ocupada");
-                    } else {
-                        actualizarEstadoSala(idSala, "Disponible");
-                    }
-                }
-            }
+        String call = "{call proyecto343.SP_ACTUALIZAR_ESTADO_SALA(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idSala);
+            cs.execute();
         }
     }
 
@@ -77,10 +63,12 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     @Override
     public ArrayList<SalaInformatica> fetch() {
         ArrayList<SalaInformatica> salas = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA";
+        String call = "{call proyecto343.SP_FETCH_SALAS_INFORMATICA(?)}";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(query);
-             ResultSet rs = pstmt.executeQuery()) {
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            ResultSet rs = (ResultSet) cs.getObject(1);
 
             while (rs.next()) {
                 salas.add(new SalaInformatica(
@@ -93,11 +81,11 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
                         rs.getString("estado")
                 ));
             }
+            rs.close();
         } catch (SQLException e) {
             System.err.println("❌ Error al obtener salas: " + e.getMessage());
             e.printStackTrace();
         }
-
         return salas;
     }
 
@@ -156,11 +144,12 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public SalaInformatica findById(int idSala) {
-        // Consulta SELECT, no requiere procedimiento
-        String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA WHERE id_sala = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
-            pstmt.setInt(1, idSala);
-            try (ResultSet rs = pstmt.executeQuery()) {
+        String call = "{call proyecto343.SP_FIND_SALA_INFORMATICA_BY_ID(?, ?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.setInt(1, idSala);
+            cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(2)) {
                 if (rs.next()) {
                     return new SalaInformatica(
                         rs.getInt("id_sala"),
@@ -181,21 +170,23 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public ArrayList<SalaInformatica> fetchDisponibles() throws SQLException {
-        // Consulta SELECT, no requiere procedimiento
         ArrayList<SalaInformatica> salas = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA WHERE estado = 'disponible'";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                salas.add(new SalaInformatica(
-                        rs.getInt("id_sala"),
-                        rs.getString("nombre_sala"),
-                        rs.getInt("capacidad"),
-                        rs.getString("software_disponible"),
-                        rs.getString("hardware_especial"),
-                        rs.getString("ubicacion"),
-                        rs.getString("estado")
-                ));
+        String call = "{call proyecto343.SP_FETCH_SALAS_DISPONIBLES(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    salas.add(new SalaInformatica(
+                            rs.getInt("id_sala"),
+                            rs.getString("nombre_sala"),
+                            rs.getInt("capacidad"),
+                            rs.getString("software_disponible"),
+                            rs.getString("hardware_especial"),
+                            rs.getString("ubicacion"),
+                            rs.getString("estado")
+                    ));
+                }
             }
         }
         return salas;
@@ -218,21 +209,23 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public ArrayList<SalaInformatica> fetchAll() throws SQLException {
-        // Consulta SELECT, no requiere procedimiento
         ArrayList<SalaInformatica> salas = new ArrayList<>();
-        String query = "SELECT * FROM proyecto343.TBL_SALA_INFORMATICA";
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                salas.add(new SalaInformatica(
-                        rs.getInt("id_sala"),
-                        rs.getString("nombre_sala"),
-                        rs.getInt("capacidad"),
-                        rs.getString("software_disponible"),
-                        rs.getString("hardware_especial"),
-                        rs.getString("ubicacion"),
-                        rs.getString("estado")
-                ));
+        String call = "{call proyecto343.SP_FETCH_ALL_SALAS_INFORMATICA(?)}";
+        try (CallableStatement cs = connection.prepareCall(call)) {
+            cs.registerOutParameter(1, oracle.jdbc.OracleTypes.CURSOR);
+            cs.execute();
+            try (ResultSet rs = (ResultSet) cs.getObject(1)) {
+                while (rs.next()) {
+                    salas.add(new SalaInformatica(
+                            rs.getInt("id_sala"),
+                            rs.getString("nombre_sala"),
+                            rs.getInt("capacidad"),
+                            rs.getString("software_disponible"),
+                            rs.getString("hardware_especial"),
+                            rs.getString("ubicacion"),
+                            rs.getString("estado")
+                    ));
+                }
             }
         }
         return salas;
