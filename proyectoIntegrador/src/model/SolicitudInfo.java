@@ -19,7 +19,7 @@ public class SolicitudInfo {
     private String tipoEquipo;
     private String ubicacionEquipo;
 
-    // Getters y Setters
+
 
     public long getIdSolicitud() {
         return idSolicitud;

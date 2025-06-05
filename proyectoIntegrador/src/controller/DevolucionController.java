@@ -93,14 +93,14 @@ public class DevolucionController {
             return;
         }
 
-        // Validar fecha >= hoy
+
         java.time.LocalDate hoy = java.time.LocalDate.now();
         if (fechaDevolucion.getValue().isBefore(hoy)) {
             mostrarAlerta("Fecha inválida", "No se pueden registrar devoluciones con fecha anterior a hoy.");
             return;
         }
 
-        // Validar hora formato 24h (HH:mm o HH:mm:ss y dentro de rango)
+        
         String horaFormateada;
         if (horaTxt.matches("([01]\\d|2[0-3]):[0-5]\\d")) {
             horaFormateada = horaTxt + ":00";
@@ -170,7 +170,7 @@ public class DevolucionController {
             mostrarAlerta("Selecciona una devolución", "Debes seleccionar una devolución de la tabla para eliminar.");
             return;
         }
-        // Confirmación opcional
+       
         Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
         confirmacion.setTitle("Confirmar eliminación");
         confirmacion.setHeaderText(null);

@@ -66,21 +66,7 @@ public class GestionEquiposMenuController {
             FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
 
-            // Si necesitas pasar la conexión a los controladores hijos, puedes hacer algo como esto:
-            /*
-            if (fxmlPath.contains("GestionarEquipos.fxml")) {
-                GestionarEquiposController controller = loader.getController();
-                controller.init(connection);
-            }
-            if (fxmlPath.contains("VerEquiposReservados.fxml")) {
-                VerEquiposReservadosController controller = loader.getController();
-                controller.init(connection);
-            }
-            if (fxmlPath.contains("HistorialEquipos.fxml")) {
-                HistorialEquiposController controller = loader.getController();
-                controller.init(connection);
-            }
-            */
+           
 
             Stage stage = (Stage) boton.getScene().getWindow();
             double currentWidth = stage.getWidth();

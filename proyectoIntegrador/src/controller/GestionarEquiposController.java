@@ -59,7 +59,7 @@ public class GestionarEquiposController {
 
     @FXML
     public void initialize() {
-        // Configuración de las columnas de la tabla
+      
         idColumn.setCellValueFactory(new PropertyValueFactory<>("idEquipo"));
         nombreColumn.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         tipoColumn.setCellValueFactory(new PropertyValueFactory<>("tipo"));
@@ -69,7 +69,7 @@ public class GestionarEquiposController {
         modeloColumn.setCellValueFactory(new PropertyValueFactory<>("modelo"));
         fechaAdquisicionColumn.setCellValueFactory(new PropertyValueFactory<>("fechaAdquisicion"));
 
-        // Inicialización de ComboBox
+  
         tipoComboBox.setItems(FXCollections.observableArrayList("Proyector", "Pantalla", "Micrófono", "Otro"));
         estadoComboBox.setItems(FXCollections.observableArrayList("Disponible", "Mantenimiento", "Reservado"));
 

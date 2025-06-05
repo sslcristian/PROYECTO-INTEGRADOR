@@ -8,14 +8,14 @@ import java.util.List;
 public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer> {
     private Connection connection;
 
-    // Constructor
+
     public EquipoPrestadoDAO(Connection connection) {
         this.connection = connection;
     }
 
     @Override
     public void save(EquipoPrestado equipoPrestado) {
-        // Usando el procedimiento almacenado
+     
         String call = "{call proyecto343.SP_INSERT_EQUIPO_PRESTADO(?, ?, ?, ?, ?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, equipoPrestado.getIdSolicitudE());
@@ -62,7 +62,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public void update(EquipoPrestado equipoPrestado) {
-        // Usando el procedimiento almacenado
+     
         String call = "{call proyecto343.SP_UPDATE_EQUIPO_PRESTADO(?, ?, ?, ?, ?, ?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, equipoPrestado.getIdPrestamoE());
@@ -80,7 +80,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
     }
     @Override
     public void delete(Integer id) {
-        // Usando el procedimiento almacenado
+       
         String call = "{call proyecto343.SP_DELETE_EQUIPO_PRESTADO(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, id);
@@ -95,7 +95,7 @@ public class EquipoPrestadoDAO implements CRUD_Operation<EquipoPrestado, Integer
 
     @Override
     public boolean authenticate(Integer id) {
-        // Usando la función almacenada
+     
         String call = "{? = call proyecto343.FN_EQUIPO_PRESTADO_EXISTS(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.registerOutParameter(1, Types.INTEGER);

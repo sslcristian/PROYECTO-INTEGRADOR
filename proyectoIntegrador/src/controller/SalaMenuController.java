@@ -51,7 +51,6 @@ public class SalaMenuController {
             Parent root = loader.load();
             stage.setScene(new Scene(root));
 
-            // Mantener el tamaño actual
             stage.setWidth(currentWidth);
             stage.setHeight(currentHeight);
 

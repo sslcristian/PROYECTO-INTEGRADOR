@@ -53,7 +53,7 @@ public class GestionarSalasController {
         salaTable.setItems(salaList);
         fetchSalas();
 
-        // Configuración del ComboBox para el estado
+     
         estadoComboBox.setItems(FXCollections.observableArrayList("Disponible", "Ocupada", "Mantenimiento"));
         estadoComboBox.getSelectionModel().selectFirst();
         ubicacionComboBox.setItems(FXCollections.observableArrayList("JLB", "EF", "SB", "DC", "CLLE", "ES", "DB"));
@@ -71,7 +71,7 @@ public class GestionarSalasController {
             }
         });
 
-        // Doble clic para deseleccionar fila
+       
         salaTable.setRowFactory(tv -> {
             TableRow<SalaInformatica> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -82,7 +82,7 @@ public class GestionarSalasController {
             return row;
         });
 
-        // Permitir deselección con la tecla ESC
+      
         salaTable.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
                 FXUtils.clearSelectionAndFields(salaTable, idSalaField, nombreField, capacidadField, softwareField, hardwareField, ubicacionComboBox, estadoComboBox);

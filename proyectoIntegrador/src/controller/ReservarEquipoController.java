@@ -51,7 +51,7 @@ public class ReservarEquipoController {
             cargarEquiposDisponibles();
             configurarColumnas();
 
-            // Agregado: no permitir seleccionar fechas pasadas en los DatePicker
+            //  no permitir seleccionar fechas pasadas en los DatePicker
             fechaInicioPicker.setDayCellFactory(picker -> new DateCell() {
                 public void updateItem(LocalDate date, boolean empty) {
                     super.updateItem(date, empty);
@@ -105,7 +105,7 @@ public class ReservarEquipoController {
             return;
         }
 
-        // NUEVA VALIDACIÓN: Solo un día permitido
+        //  Solo un día permitido
         if (!fechaInicio.equals(fechaFin)) {
             mostrarAlerta("La reserva solo puede ser para un solo día. La fecha de inicio y fin deben ser iguales.");
             return;
@@ -125,7 +125,7 @@ public class ReservarEquipoController {
             return;
         }
 
-        // Agregado: Validación de que la fecha de inicio y fin no sean anteriores a la fecha de hoy
+        // Validación de que la fecha de inicio y fin no sean anteriores a la fecha de hoy
         LocalDate hoy = LocalDate.now();
         if (fechaInicio.isBefore(hoy) || fechaFin.isBefore(hoy)) {
             mostrarAlerta("No puedes reservar para fechas que ya pasaron.");
@@ -150,7 +150,7 @@ public class ReservarEquipoController {
             return;
         }
 
-        // Validar traslape de reservas
+      
         Timestamp fechaHoraInicio = Timestamp.valueOf(inicioDateTime);
         Timestamp fechaHoraFin = Timestamp.valueOf(finDateTime);
 

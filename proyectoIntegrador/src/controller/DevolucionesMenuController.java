@@ -65,21 +65,8 @@ public class DevolucionesMenuController {
             FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
 
-            // Si quieres inyectar la conexión a los controladores, descomenta y ajusta según el controlador:
-            /*
-            if (fxmlPath.contains("SolicitudesPrestamo.fxml")) {
-                SolicitudesPrestamoController controller = loader.getController();
-                controller.init(connection);
-            }
-            if (fxmlPath.contains("Devoluciones.fxml")) {
-                DevolucionesController controller = loader.getController();
-                controller.init(connection);
-            }
-            if (fxmlPath.contains("AgregarHorarioDocente.fxml")) {
-                AgregarHorarioDocenteController controller = loader.getController();
-                controller.init(connection);
-            }
-            */
+           
+            
 
             Stage stage = (Stage) boton.getScene().getWindow();
             double currentWidth = stage.getWidth();

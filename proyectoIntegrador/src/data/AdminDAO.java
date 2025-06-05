@@ -18,12 +18,12 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
             System.out.println("El objeto Admin es nulo. No se puede guardar.");
             return;
         }
-        // Verificar si la cédula ya existe en la base de datos
+        
         if (exists(admin.getCedula())) {
             System.out.println("La cédula ya está registrada en la base de datos.");
             return;
         }
-        // Usar procedimiento almacenado en esquema proyecto343
+        
         String call = "{call proyecto343.sp_insert_admin(?,?,?,?,?,?,?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setLong(1, admin.getCedula());
@@ -72,7 +72,7 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
             System.out.println("El objeto Admin es nulo. No se puede actualizar.");
             return;
         }
-        // Usar procedimiento almacenado en esquema proyecto343
+       
         String call = "{call proyecto343.sp_update_admin(?,?,?,?,?,?,?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setLong(1, admin.getCedula());
@@ -91,7 +91,7 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
 
     @Override
     public void delete(Long cedula) {
-        // Usar procedimiento almacenado en esquema proyecto343
+        
         String call = "{call proyecto343.sp_delete_admin(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setLong(1, cedula);
@@ -117,7 +117,7 @@ public class AdminDAO implements CRUD_Operation<Admin, Long> {
     }
 
     public boolean exists(Long cedula) {
-        // Usar función almacenada en esquema proyecto343
+        
         String call = "{? = call proyecto343.fn_admin_exists(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.registerOutParameter(1, Types.INTEGER);

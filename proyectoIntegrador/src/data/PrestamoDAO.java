@@ -30,7 +30,7 @@ public class PrestamoDAO {
         }
     }
 
-    // Lista todas las solicitudes
+ 
     public List<SolicitudPrestamo> fetchAll() throws SQLException {
         List<SolicitudPrestamo> solicitudes = new ArrayList<>();
         String call = "{call proyecto343.sp_fetch_all_solicitudes(?)}";
@@ -121,7 +121,7 @@ public class PrestamoDAO {
         }
         return lista;
     }
-  //marca una solicitud como Aceptada
+  
     public void aceptarSolicitud(int idSolicitud) throws SQLException {
         String call = "{call proyecto343.SP_ACEPTAR_SOLICITUD(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
@@ -130,7 +130,7 @@ public class PrestamoDAO {
         }
     }
 
-    // Cambia el estado de una solicitud a "Rechazada".
+   
     public void rechazarSolicitud(int idSolicitud) throws SQLException {
         String call = "{call proyecto343.SP_RECHAZAR_SOLICITUD(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
@@ -139,7 +139,7 @@ public class PrestamoDAO {
         }
     }
 
-    // Marca una solicitud como expirada
+   
     public void marcarSolicitudComoExpirada(int idSolicitud) throws SQLException {
         String call = "{call proyecto343.SP_EXPIRAR_SOLICITUD(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
@@ -155,7 +155,7 @@ public class PrestamoDAO {
             cs.setTimestamp(3, inicio);
             cs.setTimestamp(4, fin);
             cs.execute();
-            return cs.getInt(1) == 1; // 1=disponible, 0=no disponible
+            return cs.getInt(1) == 1; 
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -203,7 +203,7 @@ public class PrestamoDAO {
 	    return false;
 	}
 
-    // Elimina la solicitud de la base de datos si el usuario o docente la rechaza.
+    
     public boolean cancelarSolicitud(long idSolicitud) {
         String call = "{call proyecto343.SP_CANCELAR_SOLICITUD(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {

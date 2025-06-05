@@ -20,7 +20,7 @@ public class Mantenimiento_Sala {
         this.tecnicoResponsable = new SimpleStringProperty(tecnicoResponsable);
     }
 
-    // Getter y setter para idMantenimiento
+
     public IntegerProperty idMantenimientoProperty() {
         return idMantenimiento;
     }
@@ -33,7 +33,7 @@ public class Mantenimiento_Sala {
         this.idMantenimiento.set(idMantenimiento);
     }
 
-    // Getter y setter para idSala
+   
     public IntegerProperty idSalaProperty() {
         return idSala;
     }
@@ -46,7 +46,7 @@ public class Mantenimiento_Sala {
         this.idSala.set(idSala);
     }
 
-    // Getter y setter para fechaMantenimiento
+
     public ObjectProperty<Date> fechaMantenimientoProperty() {
         return fechaMantenimiento;
     }
@@ -59,7 +59,6 @@ public class Mantenimiento_Sala {
         this.fechaMantenimiento.set(fechaMantenimiento);
     }
 
-    // Getter y setter para detalle
     public StringProperty detalleProperty() {
         return detalle;
     }
@@ -72,7 +71,7 @@ public class Mantenimiento_Sala {
         this.detalle.set(detalle);
     }
 
-    // Getter y setter para tecnicoResponsable
+    
     public StringProperty tecnicoResponsableProperty() {
         return tecnicoResponsable;
     }

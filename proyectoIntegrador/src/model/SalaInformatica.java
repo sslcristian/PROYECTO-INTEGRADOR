@@ -19,7 +19,7 @@ public class SalaInformatica {
         this.estado = estado;
     }
 
-    // Getters y Setters
+
     public int getIdSala() { return idSala; }
     public void setIdSala(int idSala) { this.idSala = idSala; }
     public String getNombreSala() { return nombreSala; }

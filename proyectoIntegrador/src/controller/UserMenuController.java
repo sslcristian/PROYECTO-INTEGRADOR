@@ -41,15 +41,15 @@ public class UserMenuController {
     @FXML 
     private javafx.scene.control.Button btnCerrarSesion;
 
-    // Para solicitudes vigentes y DAO
+   
     private List<SolicitudInfo> solicitudesVigentes;
     private PrestamoDAO prestamoDao;
 
-    // Llama a este método desde LoginUserController después de cargar el menú y antes de mostrar la escena
+ 
     public void setSolicitudesVigentes(List<SolicitudInfo> solicitudes, PrestamoDAO dao) {
         this.solicitudesVigentes = solicitudes;
         this.prestamoDao = dao;
-        // Mostramos la notificación después de cargar el menú
+       
         Platform.runLater(this::mostrarResumenSolicitudesVigentes);
     }
 
@@ -139,7 +139,7 @@ public class UserMenuController {
         alerta.showAndWait();
     }
 
-    // --- Agregado: Mostrar notificación de solicitudes vigentes ---
+   
     private void mostrarResumenSolicitudesVigentes() {
         if (solicitudesVigentes != null && !solicitudesVigentes.isEmpty()) {
             SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");

@@ -47,7 +47,7 @@ public class ReservasSalasController {
         colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudS())));
         colInicio.setCellValueFactory(cellData -> new SimpleStringProperty(formatDateTime(cellData.getValue().getFechaInicio())));
         colFin.setCellValueFactory(cellData -> new SimpleStringProperty(formatDateTime(cellData.getValue().getFechaFin())));
-        colEstado.setCellValueFactory(cellData -> new SimpleStringProperty("Expirada")); // <-- SOLO "Expirada"
+        colEstado.setCellValueFactory(cellData -> new SimpleStringProperty("Expirada"));
     }
 
     @FXML
@@ -85,7 +85,6 @@ public class ReservasSalasController {
         Main.loadScene("/view/AdminMenu.fxml");
     }
 
-    // AHORA INCLUYE FECHA Y HORA
     private String formatDateTime(Date date) {
         return (date != null) ? new SimpleDateFormat("dd/MM/yyyy HH:mm").format(date) : "";
     }

@@ -15,12 +15,12 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
     
     @Override
     public void save(Devolucion devolucion) {
-        // Usar el procedimiento almacenado para insertar devolución
+   
         String call = "{call proyecto343.sp_insert_devolucion(?,?,?,?,?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, devolucion.getIdSolicitud());
             cs.setDate(2, devolucion.getFechaDevolucion());
-            cs.setString(3, devolucion.getHoraDevolucion().toString()); // O ajusta formato si necesario
+            cs.setString(3, devolucion.getHoraDevolucion().toString()); 
             cs.setString(4, devolucion.getEstadoRecurso());
             cs.setString(5, devolucion.getObservaciones());
             cs.execute();
@@ -58,13 +58,12 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
 
     @Override
     public void update(Devolucion devolucion) {
-        // Usar procedimiento almacenado para actualizar devolución
+      
         String call = "{call proyecto343.sp_update_devolucion(?,?,?,?,?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, devolucion.getIdDevolucion());
             cs.setDate(2, devolucion.getFechaDevolucion());
-            cs.setString(3, devolucion.getHoraDevolucion().toString()); // O ajusta formato si necesario
-            cs.setString(4, devolucion.getEstadoRecurso());
+            cs.setString(3, devolucion.getHoraDevolucion().toString());             cs.setString(4, devolucion.getEstadoRecurso());
             cs.setString(5, devolucion.getObservaciones());
             cs.execute();
             System.out.println("Devolución actualizada correctamente (procedimiento almacenado).");
@@ -75,7 +74,7 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
 
     @Override
     public void delete(Integer id) {
-        // Usar procedimiento almacenado para eliminar devolución
+       
         String call = "{call proyecto343.sp_delete_devolucion(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, id);
@@ -88,7 +87,7 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
 
     @Override
     public boolean authenticate(Integer id) {
-        // Usar función almacenada para verificar existencia
+        
         String call = "{? = call proyecto343.fn_devolucion_exists(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.registerOutParameter(1, java.sql.Types.INTEGER);
@@ -101,7 +100,7 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
         return false;
     }
 
-    // Función adicional: verificar existencia por id_solicitud
+    
     public boolean existePorSolicitud(int idSolicitud) {
         String call = "{? = call proyecto343.fn_dev_sol_exists(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
@@ -115,7 +114,7 @@ public class DevolucionDAO implements CRUD_Operation<Devolucion, Integer> {
         return false;
     }
 
-    // Función adicional: obtener estado del recurso por id_devolucion
+    
     public String obtenerEstadoPorId(int idDevolucion) {
         String call = "{? = call proyecto343.fn_dev_estado_by_id(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {

@@ -167,7 +167,7 @@ public class SalasReservadasController {
     public void fetchSalasReservadasAdmin() {
         try {
             List<SalaPrestada> lista = salaPrestadaDAO.fetch();
-            // Filtrar solo las reservas del admin (idSolicitudS == 0)
+          
             salasAdminList.setAll(lista.stream()
                     .filter(s -> s.getIdSolicitudS() == 0)
                     .collect(Collectors.toList()));

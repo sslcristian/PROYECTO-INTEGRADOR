@@ -66,7 +66,7 @@ public class AdminMenuController {
         });
     }
 
-    // Método para cargar la vista en el panel central
+    
     private void cargarVista(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));

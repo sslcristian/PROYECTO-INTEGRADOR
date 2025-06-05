@@ -15,7 +15,7 @@ public class EquipoPrestado {
     private String cedulaUsuario;
     private String nombreUsuario;
 
-    // Constructor original
+
     public EquipoPrestado(int idPrestamoE, int idSolicitudE, int idEquipo, Timestamp fechaInicio, Timestamp fechaFin, String observaciones) {
         this.idPrestamoE = idPrestamoE;
         this.idSolicitudE = idSolicitudE;
@@ -25,7 +25,7 @@ public class EquipoPrestado {
         this.observaciones = observaciones;
     }
 
-    // Nuevo constructor para cuando se obtiene el join con nombres
+  
     public EquipoPrestado(
             int idPrestamoE,
             int idSolicitudE,
@@ -48,7 +48,7 @@ public class EquipoPrestado {
         this.nombreUsuario = nombreUsuario;
     }
 
-    // Getters y setters
+   
     public int getIdPrestamoE() {
         return idPrestamoE;
     }

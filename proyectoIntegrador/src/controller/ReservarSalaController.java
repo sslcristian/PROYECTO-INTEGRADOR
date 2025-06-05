@@ -49,7 +49,7 @@ public class ReservarSalaController {
             cargarSalasDisponibles();
             configurarColumnas();
 
-            // Mejora UX: No permitir seleccionar fechas pasadas en el DatePicker
+           
             fechaInicioPicker.setDayCellFactory(picker -> new DateCell() {
                 public void updateItem(LocalDate date, boolean empty) {
                     super.updateItem(date, empty);
@@ -102,7 +102,7 @@ public class ReservarSalaController {
             return;
         }
 
-        // NUEVA VALIDACIÓN: Solo un día permitido
+        // Solo un día permitido
         if (!fechaInicio.equals(fechaFin)) {
             mostrarAlerta("La reserva solo puede ser para un solo día. La fecha de inicio y fin deben ser iguales.");
             return;
@@ -146,7 +146,7 @@ public class ReservarSalaController {
             return;
         }
 
-        // Validar traslape de reservas
+
         Timestamp fechaHoraInicio = Timestamp.valueOf(inicioDateTime);
         Timestamp fechaHoraFin = Timestamp.valueOf(finDateTime);
 

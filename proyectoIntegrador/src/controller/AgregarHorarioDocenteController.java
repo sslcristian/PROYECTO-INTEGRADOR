@@ -52,14 +52,14 @@ public class AgregarHorarioDocenteController {
         configurarColumnasTemplate();
     }
 
-    // Configura columnas de la tabla principal (base de datos)
+    
     private void configurarColumnasTablaPrincipal() {
         columnIdSala1.setCellValueFactory(new PropertyValueFactory<>("idSala"));
         columnObservaciones1.setCellValueFactory(new PropertyValueFactory<>("observaciones"));
 
         SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-        // Fecha Inicio
+       
         columnFechaInicio1.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
         columnFechaInicio1.setCellFactory(column -> new TableCell<SalaPrestada, Date>() {
             @Override
@@ -73,7 +73,7 @@ public class AgregarHorarioDocenteController {
             }
         });
 
-        // Fecha Fin
+        
         columnFechaFin1.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         columnFechaFin1.setCellFactory(column -> new TableCell<SalaPrestada, Date>() {
             @Override
@@ -94,7 +94,7 @@ public class AgregarHorarioDocenteController {
 
         SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-        // Fecha Inicio
+       
         columnFechaInicio.setCellValueFactory(new PropertyValueFactory<>("fechaInicio"));
         columnFechaInicio.setCellFactory(column -> new TableCell<SalaPrestada, Date>() {
             @Override
@@ -108,7 +108,7 @@ public class AgregarHorarioDocenteController {
             }
         });
 
-        // Fecha Fin
+       
         columnFechaFin.setCellValueFactory(new PropertyValueFactory<>("fechaFin"));
         columnFechaFin.setCellFactory(column -> new TableCell<SalaPrestada, Date>() {
             @Override
@@ -123,7 +123,7 @@ public class AgregarHorarioDocenteController {
         });
     }
 
-    // Carga los datos reales desde la base de datos
+   
     private void cargarDatosTablaPrincipal() {
         ObservableList<SalaPrestada> salasPrestadas = FXCollections.observableArrayList(salaPrestadaDAO.fetch());
         tableProductos.setItems(salasPrestadas);

@@ -75,7 +75,7 @@ public class LoginUserController {
                 return;
             }
 
-            // Inicializa la sesión y la conexión SOLO si no existe
+           
             if (Session.getConnection() == null) {
                 boolean sesionIniciada = Session.login(cedula, rolConexion);
                 if (!sesionIniciada) {
@@ -93,7 +93,7 @@ public class LoginUserController {
             UsuarioDAO usuarioDao = new UsuarioDAO(conn);
             PrestamoDAO prestamoDao = new PrestamoDAO(conn);
 
-            // Validar usuario y contraseña
+        
             boolean autenticado;
             try {
                 autenticado = usuarioDao.autenticar(cedula, contrasena);
@@ -107,11 +107,11 @@ public class LoginUserController {
                 List<SolicitudInfo> solicitudesVigentes = prestamoDao.obtenerSolicitudesVigentes(cedula);
                 Session.setUsuarioActual(usuario);
 
-                // Cargar menu principal
+           
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/UserMenu.fxml"));
                 Parent userMenu = loader.load();
 
-                // Pasa las solicitudes vigentes 
+             
                 controller.UserMenuController userMenuController = loader.getController();
                 userMenuController.setSolicitudesVigentes(solicitudesVigentes, prestamoDao);
 

@@ -46,7 +46,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public boolean actualizarEstadoSala(int idSala, String estado) {
-        // Procedimiento almacenado: SP_ACTUALIZAR_ESTADO_SALA
+        
         String call = "{call proyecto343.SP_ACTUALIZAR_ESTADO_SALA(?, ?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, idSala);
@@ -91,7 +91,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
     @Override
     public void update(SalaInformatica sala) {
-        // Procedimiento almacenado: SP_UPDATE_SALA
+        
         String call = "{call proyecto343.SP_UPDATE_SALA(?, ?, ?, ?, ?, ?, ?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, sala.getIdSala());
@@ -111,7 +111,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
 
     @Override
     public void delete(Integer idSala) {
-        // Procedimiento almacenado: SP_DELETE_SALA
+        
         String call = "{call proyecto343.SP_DELETE_SALA(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.setInt(1, idSala);
@@ -129,7 +129,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public boolean exists(Integer idSala) {
-        // Función almacenada: FN_SALA_EXISTS
+        
         String call = "{? = call proyecto343.FN_SALA_EXISTS(?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.registerOutParameter(1, Types.INTEGER);
@@ -193,7 +193,7 @@ public class SalaInformaticaDAO implements CRUD_Operation<SalaInformatica, Integ
     }
 
     public boolean salaDisponible(int idSala, Timestamp inicio, Timestamp fin) {
-        // Función almacenada: FN_SALA_DISPONIBLE
+        
         String call = "{? = call proyecto343.FN_SALA_DISPONIBLE(?, ?, ?)}";
         try (CallableStatement cs = connection.prepareCall(call)) {
             cs.registerOutParameter(1, Types.INTEGER);

@@ -54,9 +54,9 @@ public class Session {
         return rolActual;
     }
 
-    // CAMBIO: Permitir obtener conexión de administrador aunque no haya sesión activa
+    //  Permitir obtener conexión de administrador aunque no haya sesión activa
     public static Connection getConnection() {
-        // Si hay una conexión activa, la retorna normalmente
+       
         if (dbConnection != null) {
             return dbConnection.getConnection();
         }

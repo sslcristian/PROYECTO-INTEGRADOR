@@ -22,12 +22,9 @@ public class ReservasEquiposController {
 
     @FXML private TableView<EquipoPrestado> tablaHistorialReservas;
     @FXML private TableColumn<EquipoPrestado, String> colEquipo;
-    // Elimina la columna usuario
-    // @FXML private TableColumn<EquipoPrestado, String> colUsuario;
     @FXML private TableColumn<EquipoPrestado, String> colInicio;
     @FXML private TableColumn<EquipoPrestado, String> colFin;
     @FXML private TableColumn<EquipoPrestado, String> colEstado;
-
     @FXML private Button btnFiltrar;
     @FXML private Button btnMostrarTodo;
     @FXML private Button btnVolver;
@@ -49,7 +46,7 @@ public class ReservasEquiposController {
         SimpleDateFormat formatoCompleto = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         colEquipo.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdEquipo())));
-        // colUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getIdSolicitudE())));
+      
         colInicio.setCellValueFactory(cellData -> {
             Timestamp fecha = cellData.getValue().getFechaInicio();
             return new SimpleStringProperty(fecha != null ? formatoCompleto.format(fecha) : "");

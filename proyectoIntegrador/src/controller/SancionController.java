@@ -53,7 +53,7 @@ public class SancionController {
 
         sancionTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> onSancionSelected());
 
-        // <-- RESTRICCION: No permitir fechas anteriores al día de hoy -->
+        // No permitir fechas anteriores al día de hoy 
         fechaPicker.setDayCellFactory(picker -> new DateCell() {
             @Override
             public void updateItem(LocalDate date, boolean empty) {

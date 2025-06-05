@@ -21,9 +21,9 @@ public class SalaPrestada {
         this.observaciones = new SimpleStringProperty(observaciones);
     }
 
-    // Constructor sin `idPrestamoS` (útil para inserciones en la BD)
+    // Constructor sin idPrestamoS 
     public SalaPrestada(int idSolicitudS, int idSala, Date fechaInicio, Date fechaFin, String observaciones) {
-        this.idPrestamoS = new SimpleIntegerProperty(0); // Se asignará en BD
+        this.idPrestamoS = new SimpleIntegerProperty(0); // Se asignara en BD
         this.idSolicitudS = new SimpleIntegerProperty(idSolicitudS);
         this.idSala = new SimpleIntegerProperty(idSala);
         this.fechaInicio = new SimpleObjectProperty<>(fechaInicio);
@@ -31,7 +31,7 @@ public class SalaPrestada {
         this.observaciones = new SimpleStringProperty(observaciones);
     }
 
-    // Getters como `Property` para JavaFX
+    // Getters como Property para JavaFX
     public IntegerProperty idPrestamoSProperty() { return idPrestamoS; }
     public IntegerProperty idSolicitudSProperty() { return idSolicitudS; }
     public IntegerProperty idSalaProperty() { return idSala; }
@@ -39,7 +39,7 @@ public class SalaPrestada {
     public ObjectProperty<Date> fechaFinProperty() { return fechaFin; }
     public StringProperty observacionesProperty() { return observaciones; }
 
-    // Métodos getter estándar
+    
     public int getIdPrestamoS() { return idPrestamoS.get(); }
     public int getIdSolicitudS() { return idSolicitudS.get(); }
     public int getIdSala() { return idSala.get(); }
@@ -47,7 +47,7 @@ public class SalaPrestada {
     public Date getFechaFin() { return fechaFin.get(); }
     public String getObservaciones() { return observaciones.get(); }
 
-    // Métodos setter estándar
+  
     public void setIdPrestamoS(int idPrestamoS) { this.idPrestamoS.set(idPrestamoS); }
     public void setIdSolicitudS(int idSolicitudS) { this.idSolicitudS.set(idSolicitudS); }
     public void setIdSala(int idSala) { this.idSala.set(idSala); }

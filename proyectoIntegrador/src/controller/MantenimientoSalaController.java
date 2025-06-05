@@ -89,7 +89,7 @@ public class MantenimientoSalaController {
             }
         });
 
-        // --------- BLOQUEAR FECHAS ANTERIORES A HOY EN EL DATEPICKER ----------
+       
         fechaMantenimiento.setDayCellFactory(new Callback<DatePicker, DateCell>() {
             @Override
             public DateCell call(final DatePicker datePicker) {
@@ -99,13 +99,13 @@ public class MantenimientoSalaController {
                         super.updateItem(item, empty);
                         if (item.isBefore(LocalDate.now())) {
                             setDisable(true);
-                            setStyle("-fx-background-color: #ffc0cb;"); // color opcional para mostrar fechas bloqueadas
+                            setStyle("-fx-background-color: #ffc0cb;"); 
                         }
                     }
                 };
             }
         });
-        // ----------------------------------------------------------------------
+      
     }
 
     private void seleccionarMantenimiento() {
@@ -128,12 +128,12 @@ public class MantenimientoSalaController {
     private void cargarSalas() {
         ArrayList<Integer> salasDisponibles = dao.obtenerSalasDisponibles();
         
-        System.out.println("Salas obtenidas del DAO: " + salasDisponibles);  // Verificar las salas obtenidas
+        System.out.println("Salas obtenidas del DAO: " + salasDisponibles);  
 
         comboSala.getItems().clear();  
         comboSala.getItems().addAll(salasDisponibles);
 
-        System.out.println("Items en el ComboBox: " + comboSala.getItems());  // Verificar los items en el ComboBox
+        System.out.println("Items en el ComboBox: " + comboSala.getItems());  
     }
 
     private void cargarMantenimientos() {
@@ -145,7 +145,7 @@ public class MantenimientoSalaController {
         if (validarCampos()) {
             int idSala = comboSala.getValue();
             
-            // Verificar si la sala ya está en mantenimiento o ocupada
+            
             if (dao.estaEnMantenimientoOcupada(idSala)) {
                 mostrarAlerta("Error", "Esta sala ya está ocupada o en mantenimiento.", Alert.AlertType.ERROR);
                 return;
@@ -155,19 +155,19 @@ public class MantenimientoSalaController {
             String detalle = detalleMantenimiento.getText();
             String tecnico = tecnicoResponsable.getText();
 
-            // Crear un nuevo objeto Mantenimiento_Sala (asumiendo que existe esta clase)
+            
             Mantenimiento_Sala mantenimiento = new Mantenimiento_Sala(0, idSala, fecha, detalle, tecnico);
 
-            // Guardar el mantenimiento
+            
             dao.save(mantenimiento);
             
-            // Actualizar el estado de la sala a 'mantenimiento'
+            
             dao.actualizarEstadoSala(idSala, "mantenimiento");
 
-            // Mostrar una alerta de éxito
+           
             mostrarAlerta("Registro exitoso", "El mantenimiento ha sido registrado correctamente.", Alert.AlertType.INFORMATION);
 
-            // Recargar la lista de mantenimientos
+            
             cargarMantenimientos();
         }
     }
@@ -225,7 +225,7 @@ public class MantenimientoSalaController {
             mostrarAlerta("Error", "Todos los campos deben estar completos.", Alert.AlertType.ERROR);
             return false;
         }
-        // Validación adicional: no permitir fechas anteriores a hoy
+        
         if (fechaMantenimiento.getValue() != null && fechaMantenimiento.getValue().isBefore(LocalDate.now())) {
             mostrarAlerta("Error", "No puedes seleccionar una fecha anterior a hoy.", Alert.AlertType.ERROR);
             return false;

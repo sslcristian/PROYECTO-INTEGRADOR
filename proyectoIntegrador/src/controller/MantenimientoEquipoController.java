@@ -49,7 +49,7 @@ public class MantenimientoEquipoController {
     private Mantenimiento_EquipoDAO dao;
 
     public MantenimientoEquipoController() {
-        // Constructor vacío requerido por FXMLLoader
+     
     }
 
     public void init(Connection connection) {
@@ -61,7 +61,7 @@ public class MantenimientoEquipoController {
 
     @FXML
     public void initialize() {
-        // Configuración de las columnas
+       
         colIdEquipo.setCellValueFactory(cellData -> cellData.getValue().idEquipoProperty().asObject());
         colFechaMantenimiento.setCellValueFactory(cellData -> cellData.getValue().fechaMantenimientoProperty());
         colDetalles.setCellValueFactory(cellData -> cellData.getValue().detalleProperty());
@@ -89,7 +89,7 @@ public class MantenimientoEquipoController {
             }
         });
 
-        // --------- BLOQUEAR FECHAS ANTERIORES A HOY EN EL DATEPICKER ----------
+       
         fechaMantenimiento.setDayCellFactory(new Callback<DatePicker, DateCell>() {
             @Override
             public DateCell call(final DatePicker datePicker) {
@@ -99,13 +99,13 @@ public class MantenimientoEquipoController {
                         super.updateItem(item, empty);
                         if (item.isBefore(LocalDate.now())) {
                             setDisable(true);
-                            setStyle("-fx-background-color: #ffc0cb;"); // color opcional para mostrar fechas bloqueadas
+                            setStyle("-fx-background-color: #ffc0cb;");
                         }
                     }
                 };
             }
         });
-        // ----------------------------------------------------------------------
+        
     }
 
     private void seleccionarMantenimiento() {
@@ -128,12 +128,12 @@ public class MantenimientoEquipoController {
     private void cargarEquipos() {
         ArrayList<Integer> equiposDisponibles = dao.obtenerEquiposDisponibles();
         
-        System.out.println("Equipos obtenidos del DAO: " + equiposDisponibles);  // Verificar los equipos obtenidos
+        System.out.println("Equipos obtenidos del DAO: " + equiposDisponibles);  
 
         comboEquipo.getItems().clear();  
         comboEquipo.getItems().addAll(equiposDisponibles);
 
-        System.out.println("Items en el ComboBox: " + comboEquipo.getItems());  // Verificar los items en el ComboBox
+        System.out.println("Items en el ComboBox: " + comboEquipo.getItems());  
     }
 
     private void cargarMantenimientos() {
@@ -145,7 +145,7 @@ public class MantenimientoEquipoController {
         if (validarCampos()) {
             int idEquipo = comboEquipo.getValue();
             
-            // Verificar si el equipo ya está en mantenimiento
+           
             if (dao.estaEnMantenimiento(idEquipo)) {
                 mostrarAlerta("Error", "Este equipo ya está registrado en mantenimiento.", Alert.AlertType.ERROR);
                 return;
@@ -155,19 +155,19 @@ public class MantenimientoEquipoController {
             String detalle = detalleMantenimiento.getText();
             String tecnico = tecnicoResponsable.getText();
 
-            // Crear un nuevo objeto Mantenimiento_Equipo
+           
             Mantenimiento_Equipo mantenimiento = new Mantenimiento_Equipo(0, idEquipo, fecha, detalle, tecnico);
 
-            // Guardar el mantenimiento
+            
             dao.save(mantenimiento);
             
-            // Actualizar el estado del equipo a 'mantenimiento'
+           
             dao.actualizarEstadoEquipo(idEquipo, "mantenimiento");
 
-            // Mostrar una alerta de éxito
+            
             mostrarAlerta("Registro exitoso", "El mantenimiento ha sido registrado correctamente.", Alert.AlertType.INFORMATION);
 
-            // Recargar la lista de mantenimientos
+            
             cargarMantenimientos();
         }
     }
@@ -224,7 +224,7 @@ public class MantenimientoEquipoController {
             mostrarAlerta("Error", "Todos los campos deben estar completos.", Alert.AlertType.ERROR);
             return false;
         }
-        // Validación adicional: no permitir fechas anteriores a hoy
+       
         if (fechaMantenimiento.getValue() != null && fechaMantenimiento.getValue().isBefore(LocalDate.now())) {
             mostrarAlerta("Error", "No puedes seleccionar una fecha anterior a hoy.", Alert.AlertType.ERROR);
             return false;

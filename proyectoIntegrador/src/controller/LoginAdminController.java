@@ -37,7 +37,7 @@ public class LoginAdminController {
                 return;
             }
 
-            // 1. Usa la conexion de admin para validar el admin
+            //  Usa la conexion de admin para validar el admin
             Connection conn = DBConnectionFactory.getConnectionByRole("admin").getConnection();
             AdminDAO dao = new AdminDAO(conn);
 
@@ -48,7 +48,7 @@ public class LoginAdminController {
             } else if (!admin.getContraseñaAdministrativo().equals(contrasena)) {
                 mostrarAlerta("Contraseña incorrecta", "La contraseña ingresada no es correcta.");
             } else {
-                // 2. Si las credenciales son correctas, inicializa la sesión de admin
+                //  Si las credenciales son correctas, inicializa la sesión de admin
                 Session.login(cedula, "admin");
 
             

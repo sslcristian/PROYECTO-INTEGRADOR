@@ -49,7 +49,7 @@ public class SolicitudPrestamo {
     public Integer getIdEquipo() { return idEquipo; }
     public void setIdEquipo(Integer idEquipo) { this.idEquipo = idEquipo; }
 
-    // Métodos de ayuda para mostrar en TableView como String
+    // Metodos de ayuda para mostrar en TableView como String
     public String getIdSalaString() { return idSala != null ? idSala.toString() : ""; }
     public String getIdEquipoString() { return idEquipo != null ? idEquipo.toString() : ""; }
 
