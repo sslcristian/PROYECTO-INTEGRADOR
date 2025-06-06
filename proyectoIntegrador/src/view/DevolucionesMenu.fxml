@@ -13,7 +13,7 @@
         <Insets bottom="40" left="40" right="40" top="40" />
     </padding>
 
-    <!-- Título del Módulo -->
+ 
     <Label style="-fx-font-size: 26px; -fx-text-fill: #0D47A1; -fx-font-weight: bold;" text="Menú Principal de Gestión">
         <effect>
             <DropShadow color="#90CAF9" radius="3" />
@@ -23,21 +23,21 @@
         </font>
     </Label>
 
-    <!-- Botón para Solicitudes de Préstamo -->
+  
     <Button fx:id="btnSolicitudesPrestamo" onAction="#abrirSolicitudesPrestamo" prefHeight="60" prefWidth="500" styleClass="button button-blue" text="📋 Solicitudes de Préstamo" wrapText="true">
         <effect>
             <DropShadow color="#1E88E5" radius="5" offsetX="2" offsetY="2"/>
         </effect>
     </Button>
 
-    <!-- Botón para Devoluciones -->
+ 
     <Button fx:id="btnDevoluciones" onAction="#abrirDevoluciones" prefHeight="60" prefWidth="500" styleClass="button button-light-blue" text="🔄 Devoluciones" wrapText="true">
         <effect>
             <DropShadow color="#1E88E5" radius="5" offsetX="2" offsetY="2"/>
         </effect>
     </Button>
 
-    <!-- Botón para Agregar Horario Docente Semestral -->
+    
     <Button fx:id="btnAgregarHorario" onAction="#abrirAgregarHorario" prefHeight="60" prefWidth="500" styleClass="button button-blue" text="🗓️ Agregar Horario Docente Semestral" wrapText="true">
         <effect>
             <DropShadow color="#1E88E5" radius="5" offsetX="2" offsetY="2"/>

@@ -4,7 +4,7 @@
 
 <VBox alignment="CENTER" prefHeight="900" prefWidth="800" spacing="30" stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SalasReservadasController">
 
-    <!-- Tabla 1: Salas Reservadas Actualmente -->
+ 
     <Label styleClass="header-label" text="📋 Salas Reservadas Actualmente" />
     <TableView fx:id="tablaSalasReservadas" prefHeight="300" prefWidth="750">
         <columns>
@@ -19,7 +19,7 @@
     </TableView>
     <Button fx:id="btnActualizar" onAction="#actualizarTabla" styleClass="button" text="Actualizar" />
 
-    <!-- Tabla 2: Salas reservadas por admin -->
+
     <Label styleClass="header-label" text="📋 Salas reservadas por admin" />
     <TableView fx:id="tablaSalasReservadasAdmin" prefHeight="300" prefWidth="750">
         <columns>

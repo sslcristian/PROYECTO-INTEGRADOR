@@ -17,7 +17,6 @@
 
     <Label styleClass="header-label" text="📆 Historial de Reservas de Salas" />
 
-    <!-- Tabla para mostrar historial de reservas -->
     <TableView fx:id="tablaHistorialReservas" prefHeight="400.0" prefWidth="750.0" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="colSala" text="Sala" />
@@ -28,7 +27,7 @@
         </columns>
     </TableView>
 
-    <!-- HBox para los filtros de fecha -->
+   
     <HBox alignment="CENTER" spacing="10.0">
         <Label text="Desde:" />
         <DatePicker fx:id="datePickerDesde" />
@@ -38,6 +37,6 @@
         <Button fx:id="btnMostrarTodo" onAction="#mostrarTodo" styleClass="button" text="Mostrar Todo" />
     </HBox>
 
-    <!-- Botón Volver al Menú -->
+  
     <Button fx:id="btnVolver" onAction="#volverAlMenu" styleClass="button button-blue" text="🔙 Volver al Menú" />
 </VBox>

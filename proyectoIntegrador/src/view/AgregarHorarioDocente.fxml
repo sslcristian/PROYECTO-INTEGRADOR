@@ -35,7 +35,7 @@
                     </rowConstraints>
                     <children>
 
-                        <!-- Tabla de salas prestadas -->
+                   
                         <Label text="SALAS PRESTADAS" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                         <TableView fx:id="tableProductos" prefHeight="315.0" prefWidth="262.0" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.rowSpan="5">
                             <columns>
@@ -46,7 +46,7 @@
                             </columns>
                         </TableView>
 
-                        <!-- Registro y botones -->
+                     
                         <Label text="REGISTRO DE SALAS PRESTADAS" GridPane.columnIndex="1" GridPane.rowIndex="0" />
                         <TableView fx:id="tableTemplate" prefHeight="187.0" prefWidth="269.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                             <columns>

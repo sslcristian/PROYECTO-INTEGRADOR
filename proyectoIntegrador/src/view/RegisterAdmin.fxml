@@ -24,7 +24,7 @@
     <TextField fx:id="txtCorreo" promptText="Correo electrónico (UDI)" styleClass="text-field" />
     <TextField fx:id="txtTelefono" promptText="Teléfono" styleClass="text-field" />
 
-    <!-- ComboBox para Departamento -->
+   
     <ComboBox fx:id="cbDepartamento" promptText="Departamento" styleClass="text-field" />
 
     <PasswordField fx:id="txtContrasenaAdministrativo" promptText="Contraseña de inicio de sesión" styleClass="password-field" />

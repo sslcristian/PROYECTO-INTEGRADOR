@@ -13,7 +13,7 @@
         <Insets bottom="30" left="50" right="50" top="30" />
     </padding>
 
-    <Label styleClass="header-label" text="Inicio De Sesión - Administrador" />
+    <Label styleClass="header-label" text="INICIO DE SESIÓN- ADMINISTRADOR" />
 
     <TextField fx:id="txtCedula" promptText="Cédula" styleClass="text-field" />
     <PasswordField fx:id="txtContrasena" promptText="Contraseña" styleClass="password-field" />

@@ -13,7 +13,7 @@
         <Insets bottom="40" left="40" right="40" top="40" />
     </padding>
 
-    <!-- Título del Módulo -->
+  
     <Label style="-fx-font-size: 26px; -fx-text-fill: #0D47A1; -fx-font-weight: bold;" text="Módulo de Gestión de Equipos">
         <effect>
             <DropShadow color="#90CAF9" radius="3" />
@@ -23,21 +23,21 @@
         </font>
     </Label>
 
-    <!-- Botón para Gestionar Equipos -->
+    
     <Button fx:id="btnGestionarEquipos" onAction="#abrirGestionEquipos" prefHeight="60" prefWidth="500" styleClass="button button-blue" text="🖥️ Gestionar Equipos" wrapText="true">
         <effect>
             <DropShadow color="#1E88E5" radius="5" offsetX="2" offsetY="2"/>
         </effect>
     </Button>
 
-    <!-- Botón para Ver Equipos Reservados -->
+
     <Button fx:id="btnEquiposReservados" onAction="#abrirEquiposReservados" prefHeight="60" prefWidth="500" styleClass="button button-light-blue" text="📋 Ver Equipos Reservados" wrapText="true">
         <effect>
             <DropShadow color="#1E88E5" radius="5" offsetX="2" offsetY="2"/>
         </effect>
     </Button>
 
-    <!-- Botón para Ver Historial de Reservas de Equipos -->
+
     <Button fx:id="btnHistorialEquipos" onAction="#abrirHistorialEquipos" prefHeight="60" prefWidth="500" styleClass="button button-blue" text="📆 Ver Historial De Reservas De Equipos" wrapText="true">
         <effect>
             <DropShadow color="#1E88E5" radius="5" offsetX="2" offsetY="2"/>

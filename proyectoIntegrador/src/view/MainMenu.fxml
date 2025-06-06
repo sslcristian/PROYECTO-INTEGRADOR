@@ -9,7 +9,7 @@
 
 <BorderPane stylesheets="@Style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainMenuController">
 
-    <!-- PANEL LATERAL (MENÚ) -->
+
     <left>
         <VBox alignment="TOP_CENTER" prefHeight="251.0" prefWidth="212.0" spacing="20" style="-fx-background-color: #0D47A1;" stylesheets="@Style.css">
             <padding>
@@ -26,7 +26,7 @@
         </VBox>
     </left>
 
-    <!-- ÁREA CENTRAL -->
+ 
     <center>
         <StackPane fx:id="contentPane" style="-fx-background-color: #E3F2FD;">
             <Label style="-fx-font-size: 24; -fx-text-fill: #0D47A1;" text="Bienvenido al sistema De Reservas De La UDI" />

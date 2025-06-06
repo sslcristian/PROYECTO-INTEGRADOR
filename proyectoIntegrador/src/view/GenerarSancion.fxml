@@ -17,7 +17,7 @@
         <Insets bottom="40" left="40" right="40" top="40" />
     </padding>
 
-    <!-- Título de la interfaz -->
+
     <Label style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #0D47A1;" text="Gestionar Sanciones">
         <font>
             <Font name="Arial" size="24" />
@@ -30,13 +30,13 @@
     <TextField fx:id="montoField" prefWidth="300" promptText="Monto" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     <TextField fx:id="motivoField" prefWidth="300" promptText="Motivo" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
     
-    <!-- DatePicker para seleccionar la fecha -->
+   
     <DatePicker fx:id="fechaPicker" prefWidth="300" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
 
-    <!-- ComboBox para el estado de la sanción -->
+
     <ComboBox fx:id="estadoComboBox" prefWidth="300" promptText="Estado" style="-fx-background-color: white; -fx-border-color: #BBDEFB; -fx-border-radius: 6;" />
 
-    <!-- Tabla para mostrar las sanciones -->
+
     <TableView fx:id="sancionTable" prefHeight="200" prefWidth="600" style="-fx-background-color: white; -fx-border-color: #BBDEFB;">
         <columns>
             <TableColumn fx:id="cedulaColumn" prefWidth="100" text="Cédula Usuario" />
@@ -47,7 +47,7 @@
         </columns>
     </TableView>
 
-    <!-- Botones para acciones -->
+   
     <Button fx:id="btnAdd" onAction="#addSancion" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Agregar Sanción" />
     <Button fx:id="btnUpdate" onAction="#updateSancion" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Actualizar Sanción" />
     <Button fx:id="btnDelete" onAction="#deleteSancion" prefWidth="300" style="-fx-font-size: 16; -fx-background-color: #42A5F5; -fx-text-fill: white;" text="Eliminar Sanción" />

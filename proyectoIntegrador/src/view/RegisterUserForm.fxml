@@ -14,7 +14,7 @@
         <Insets bottom="20" left="20" right="20" top="20" />
     </VBox.margin>
 
-    <Label styleClass="header-label" text="Registro de Usuario" />
+    <Label styleClass="header-label" text="REGISTRO DE USUARIO" />
 
     <TextField fx:id="txtCedula" promptText="Cédula" styleClass="text-field" />
     <TextField fx:id="txtNombre" promptText="Nombre completo" styleClass="text-field" />
